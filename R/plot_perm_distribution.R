@@ -46,15 +46,28 @@ plot_perm_distribution <- function(
 
   # Create and return ggplot object
   p <- ggplot(boot_long, aes(x = T_stat)) +
-    geom_histogram(bins = 50, fill = "gray80", color = "white") +
-    geom_vline(data = obs_df, aes(xintercept = T_obs), color = "red", linewidth = 0.8) +
-    facet_wrap(~feature, scales = "free") +
+    geom_histogram(
+      bins = 50, 
+      fill = "gray80", 
+      color = "black"
+      ) +
+    geom_vline(
+      data = obs_df, 
+      aes(xintercept = T_obs), 
+      color = "red", 
+      linewidth = 0.8
+      ) +
+    facet_wrap(
+      ~feature
+      ) +
     labs(
       title = "Permutation Null Distribution of Test Statistics",
-      x = expression("T-statistic (" * Delta * Delta * " expression)"),
+      x = "T-statistic",
       y = "Frequency"
     ) +
-    theme_minimal(base_size = 12)
+    theme_minimal(
+      base_size = 12
+      )
 
   return(p)
 }
