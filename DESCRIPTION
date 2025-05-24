@@ -1,9 +1,15 @@
 Package: CrossAncestryGenPhen
-Title: What the Package Does
+Title: Permutation-Based Interaction Testing Across Ancestries
 Version: 0.1.0
-Author: Daniel Katzlberger
-Maintainer: daniel_katzlberger@gmx.at
-Description: Brief overview.
+Authors@R: person("Daniel", "Katzlberger", email = "daniel_katzlberger@gmx.at", role = c("aut", "cre"))
+Maintainer: Daniel Katzlberger <daniel_katzlberger@gmx.at>
+Description: Permutation-based methods for testing cross-ancestry interactions in gene expression data.
 License: MIT
 Encoding: UTF-8
 LazyData: true
+Imports:
+    ggplot2,
+    data.table
+Suggests:
+    testthat (>= 3.0.0)
+

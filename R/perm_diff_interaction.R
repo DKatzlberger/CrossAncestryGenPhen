@@ -35,13 +35,11 @@
 #' set.seed(1)
 #' n_per_group <- 25
 #' p <- 2000
-#' 
-#' # Simulate expression data
+#'
 #' X <- matrix(rnorm(n_per_group * 2 * p), nrow = n_per_group * 2, ncol = p)
 #' Y <- matrix(rnorm(n_per_group * 2 * p), nrow = n_per_group * 2, ncol = p)
 #' colnames(X) <- colnames(Y) <- paste0("Gene_", seq_len(p))
-#' 
-#' # Simulate metadata
+#'
 #' MX <- data.frame(
 #'   condition = factor(rep(c("A", "B"), each = n_per_group)),
 #'   ancestry = "EUR"
@@ -50,8 +48,7 @@
 #'   condition = factor(rep(c("A", "B"), each = n_per_group)),
 #'   ancestry = "AFR"
 #' )
-#' 
-#' # Run permutation test
+#'
 #' result <- perm_diff_interaction(
 #'   X = X,
 #'   Y = Y,
@@ -62,11 +59,13 @@
 #'   B = 100,
 #'   seed = 42
 #' )
-#' 
-#' # View results
+#'
 #' head(result$summary_stats)
 #'
+#' @importFrom stats colMeans p.adjust quantile complete.cases
+#' @importFrom data.table data.table
 #' @export
+
 perm_diff_interaction <- function(
   X,
   Y,

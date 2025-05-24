@@ -1,3 +1,5 @@
+#' @importFrom stats colMeans quantile sample.int
+
 #' Validate Group Factors
 #'
 #' Ensures group labels are factors, share levels, and have exactly 2 levels.

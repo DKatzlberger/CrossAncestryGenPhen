@@ -7,7 +7,6 @@
 #' @param features Character vector of feature (gene) names to plot.
 #'
 #' @return A \code{ggplot} object with histograms and observed statistic overlay.
-#' @export
 #'
 #' @examples
 #' set.seed(1)
@@ -19,6 +18,10 @@
 #' result <- perm_diff_interaction(X, Y, MX, MY, "condition", "ancestry", B = 100)
 #' p <- plot_perm_distribution(result, features = c("Gene_1", "Gene_2"))
 #' ggsave("perm_plot.png", p, width = 8, height = 4)
+#'
+#' @importFrom ggplot2 ggplot aes geom_histogram geom_vline facet_wrap labs theme_minimal
+#' @export
+
 plot_perm_distribution <- function(
   result,
   features
