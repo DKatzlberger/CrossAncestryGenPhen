@@ -1,0 +1,9 @@
+Package: CrossAncestryGenPhen
+Title: What the Package Does
+Version: 0.1.0
+Author: Daniel Katzlberger
+Maintainer: daniel_katzlberger@gmx.at
+Description: Brief overview.
+License: MIT
+Encoding: UTF-8
+LazyData: true
