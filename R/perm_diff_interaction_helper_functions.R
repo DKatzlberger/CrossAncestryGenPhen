@@ -1,8 +1,8 @@
-#' @importFrom stats colMeans quantile sample.int
-
 #' Validate Group Factors
 #'
 #' Ensures group labels are factors, share levels, and have exactly 2 levels.
+#' @param g_X A factor vector representing group labels for dataset X.
+#' @param g_Y A factor vector representing group labels for dataset Y.
 #' @keywords internal
 validate_groups <- function(
   g_X,
@@ -16,6 +16,8 @@ validate_groups <- function(
 #' Validate Ancestry Constraints
 #'
 #' Ensures each dataset has exactly one ancestry level.
+#' @param a_X An ancestry label for dataset X.
+#' @param a_Y An ancestry label for dataset Y.
 #' @keywords internal
 validate_ancestry <- function(
   a_X,
@@ -27,6 +29,11 @@ validate_ancestry <- function(
 #' Mean Difference Between Group Levels
 #'
 #' Computes column mean difference between two group levels.
+#' @param data A matrix or data frame of numeric features.
+#' @param group A factor indicating group membership for each row.
+#' @param g1 The reference level.
+#' @param g2 The comparison level.
+#' @return A numeric vector of mean differences.
 #' @keywords internal
 mean_diff_by_group <- function(
   data,
@@ -41,6 +48,9 @@ mean_diff_by_group <- function(
 #' Random Permutation of Indices
 #'
 #' Returns a random split of indices into two groups.
+#' @param n_total Total number of samples.
+#' @param n1 Size of the first group.
+#' @return A list with two index vectors: `p1` and `p2`.
 #' @keywords internal
 permute_indices <- function(
   n_total,
@@ -57,6 +67,13 @@ permute_indices <- function(
 #'
 #' Computes the interaction effect: difference of group-level differences.
 #' Returns NA vector if any subgroup is empty.
+#' @param XY A matrix of features.
+#' @param g_XY A factor of group labels corresponding to rows of `XY`.
+#' @param p1 Indices for the first permutation group.
+#' @param p2 Indices for the second permutation group.
+#' @param g1 First group label.
+#' @param g2 Second group label.
+#' @return A numeric vector of test statistics or NA values.
 #' @keywords internal
 compute_T_stat <- function(
   XY,
@@ -91,6 +108,9 @@ compute_T_stat <- function(
 #' Empirical P-Values
 #'
 #' Computes two-sided empirical p-values.
+#' @param T_boot A matrix of bootstrapped test statistics.
+#' @param T_obs A numeric vector of observed test statistics.
+#' @return A numeric vector of p-values.
 #' @keywords internal
 compute_empirical_pvalues <- function(
   T_boot,
@@ -111,6 +131,8 @@ compute_empirical_pvalues <- function(
 #' Confidence Interval Bounds
 #'
 #' Computes 2.5% and 97.5% quantiles for each feature.
+#' @param T_boot A matrix of bootstrapped test statistics.
+#' @return A matrix of lower and upper confidence bounds.
 #' @keywords internal
 compute_CI_bounds <- function(
   T_boot

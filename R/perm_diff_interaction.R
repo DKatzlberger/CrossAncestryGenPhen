@@ -62,7 +62,7 @@
 #'
 #' head(result$summary_stats)
 #'
-#' @importFrom stats colMeans p.adjust quantile complete.cases
+#' @importFrom stats p.adjust quantile complete.cases
 #' @importFrom data.table data.table
 #' @export
 
