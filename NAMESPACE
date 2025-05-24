@@ -2,6 +2,7 @@
 
 export(perm_diff_interaction)
 export(plot_perm_distribution)
+export(split_stratified_ancestry_sets)
 importFrom(data.table,data.table)
 importFrom(ggplot2,aes)
 importFrom(ggplot2,facet_wrap)

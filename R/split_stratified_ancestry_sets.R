@@ -18,7 +18,6 @@
 #'   \item{test}{List with `expr` and `meta` for the remaining overrepresented samples.}
 #'   \item{inference}{List with `expr` and `meta` for the underrepresented ancestry.}
 #' }
-#' @importFrom stats interaction
 #' @export
 split_stratified_ancestry_sets <- function(
   X,

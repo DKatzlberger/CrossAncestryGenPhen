@@ -4,12 +4,14 @@
 \alias{plot_perm_distribution}
 \title{Plot Empirical Null Distributions for Selected Features}
 \usage{
-plot_perm_distribution(result, features)
+plot_perm_distribution(result, features, point_size = 0.5)
 }
 \arguments{
 \item{result}{A result list from \code{perm_diff_interaction()}.}
 
 \item{features}{Character vector of feature (gene) names to plot.}
+
+\item{point_size}{Numeric value to control fontsize}
 }
 \value{
 A \code{ggplot} object with histograms and observed statistic overlay.
