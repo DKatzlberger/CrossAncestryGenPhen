@@ -1,5 +1,5 @@
 test_that("perm_diff_interaction runs correctly on simulated data", {
-  set.seed(1)
+  set.seed(42)
   n_per_group <- 25
   p <- 2000
   

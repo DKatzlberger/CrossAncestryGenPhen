@@ -5,12 +5,12 @@
 \alias{apply_mask}
 \title{Apply Row Mask to Expression and Metadata}
 \usage{
-apply_mask(expr, meta, mask)
+apply_mask(X, M, mask)
 }
 \arguments{
-\item{expr}{A numeric matrix of gene expression (samples x genes).}
+\item{X}{A numeric matrix of gene expression (samples x genes).}
 
-\item{meta}{A data.frame of sample-level metadata.}
+\item{M}{A data.frame of sample-level metadata.}
 
 \item{mask}{A logical or integer vector indicating which rows to keep.}
 }

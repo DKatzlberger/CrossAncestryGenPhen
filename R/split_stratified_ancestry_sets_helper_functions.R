@@ -2,19 +2,19 @@
 #'
 #' Combines metadata columns into a factor for stratified sampling.
 #'
-#' @param meta A data.frame containing metadata.
+#' @param M A data.frame containing metadata.
 #' @param stratify_cols A character vector of column names to stratify by.
 #'
 #' @return A factor indicating stratification strata.
 #' @keywords internal
 get_strata <- function(
-  meta,
+  M,
   stratify_cols
 ) {
   if (is.null(stratify_cols)) {
-    factor(rep("all", nrow(meta)))
+    factor(rep("all", nrow(M)))
   } else {
-    interaction(meta[, stratify_cols], drop = TRUE)
+    interaction(M[, stratify_cols], drop = TRUE)
   }
 }
 
@@ -77,19 +77,19 @@ stratified_sample_indices <- function(
 #'
 #' Subsets expression matrix and metadata data.frame using the same row filter.
 #'
-#' @param expr A numeric matrix of gene expression (samples x genes).
-#' @param meta A data.frame of sample-level metadata.
+#' @param X A numeric matrix of gene expression (samples x genes).
+#' @param M A data.frame of sample-level metadata.
 #' @param mask A logical or integer vector indicating which rows to keep.
 #'
 #' @return A list containing `expr` and `meta` components.
 #' @keywords internal
 apply_mask <- function(
-  expr,
-  meta,
+  X,
+  M,
   mask
 ) {
   list(
-    expr = expr[mask, , drop = FALSE],
-    meta = meta[mask, , drop = FALSE]
+    X = X[mask, , drop = FALSE],
+    M = M[mask, , drop = FALSE]
   )
 }

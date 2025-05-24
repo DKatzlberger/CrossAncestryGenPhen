@@ -20,11 +20,12 @@ split_stratified_ancestry_sets(X, Y, MX, MY, stratify_cols = NULL, seed = NULL)
 \item{seed}{An optional integer used to set the random seed.}
 }
 \value{
-A list with three named elements:
+A list with named elements:
 \describe{
-  \item{train}{List with `expr` and `meta` for subsampled overrepresented group.}
-  \item{test}{List with `expr` and `meta` for the remaining overrepresented samples.}
-  \item{inference}{List with `expr` and `meta` for the underrepresented ancestry.}
+  \item{train}{List with `X` and `M` for subsampled overrepresented group.}
+  \item{test}{List with `X` and `M` for the remaining overrepresented samples.}
+  \item{inference}{List with `X` and `M` for the underrepresented ancestry.}
+  \item{strata_info}{Stratum match summary with `usable`, `missing`, and `insufficient`.}
 }
 }
 \description{

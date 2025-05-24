@@ -5,10 +5,10 @@
 \alias{get_strata}
 \title{Create Stratification Factor}
 \usage{
-get_strata(meta, stratify_cols)
+get_strata(M, stratify_cols)
 }
 \arguments{
-\item{meta}{A data.frame containing metadata.}
+\item{M}{A data.frame containing metadata.}
 
 \item{stratify_cols}{A character vector of column names to stratify by.}
 }

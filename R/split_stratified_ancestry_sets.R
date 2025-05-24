@@ -12,11 +12,12 @@
 #' @param stratify_cols A character vector of column names in metadata to stratify by.
 #' @param seed An optional integer used to set the random seed.
 #'
-#' @return A list with three named elements:
+#' @return A list with named elements:
 #' \describe{
-#'   \item{train}{List with `expr` and `meta` for subsampled overrepresented group.}
-#'   \item{test}{List with `expr` and `meta` for the remaining overrepresented samples.}
-#'   \item{inference}{List with `expr` and `meta` for the underrepresented ancestry.}
+#'   \item{train}{List with `X` and `M` for subsampled overrepresented group.}
+#'   \item{test}{List with `X` and `M` for the remaining overrepresented samples.}
+#'   \item{inference}{List with `X` and `M` for the underrepresented ancestry.}
+#'   \item{strata_info}{Stratum match summary with `usable`, `missing`, and `insufficient`.}
 #' }
 #' @export
 split_stratified_ancestry_sets <- function(
@@ -27,29 +28,27 @@ split_stratified_ancestry_sets <- function(
   stratify_cols = NULL,
   seed = NULL
 ) {
-  # Set seed if provided
   if (!is.null(seed)) {
     set.seed(seed)
   }
 
-  # Generate strata for both groups based on metadata
+  # Generate strata identifiers
   strata_X <- get_strata(
-    meta = MX,
+    M = MX,
     stratify_cols = stratify_cols
   )
 
   strata_Y <- get_strata(
-    meta = MY,
+    M = MY,
     stratify_cols = stratify_cols
   )
 
-  # Check which strata are matchable
+  # Determine feasible strata
   strata_info <- check_strata_feasibility(
     strata_X = strata_X,
     strata_Y = strata_Y
   )
 
-  # Warn user about any unmatched strata
   if (length(strata_info$missing) > 0 || length(strata_info$insufficient) > 0) {
     warning(
       "Some strata in the underrepresented ancestry (Y) could not be matched:\n",
@@ -62,48 +61,48 @@ split_stratified_ancestry_sets <- function(
     )
   }
 
-  # Filter samples to only usable strata
+  # Filter to usable strata
   mask_X <- strata_X %in% strata_info$usable
   mask_Y <- strata_Y %in% strata_info$usable
 
   X_sub <- apply_mask(
-    expr = X,
-    meta = MX,
+    X = X,
+    M = MX,
     mask = mask_X
   )
 
   Y_sub <- apply_mask(
-    expr = Y,
-    meta = MY,
+    X = Y,
+    M = MY,
     mask = mask_Y
   )
 
-  # Sample from overrepresented group to match counts in underrepresented group
+  # Sample from overrepresented to match underrepresented
   sampled_indices <- stratified_sample_indices(
     strata = strata_X[mask_X],
     target_counts = table(strata_Y[mask_Y])
   )
 
-  # Define train and test sets
-  train <- apply_mask(
-    expr = X_sub$expr,
-    meta = X_sub$meta,
-    mask = sampled_indices
+  train <- list(
+    X = X_sub$X[sampled_indices, , drop = FALSE],
+    M = X_sub$M[sampled_indices, , drop = FALSE]
   )
 
-  test <- apply_mask(
-    expr = X_sub$expr,
-    meta = X_sub$meta,
-    mask = setdiff(seq_len(nrow(X_sub$expr)), sampled_indices)
+  test <- list(
+    X = X_sub$X[-sampled_indices, , drop = FALSE],
+    M = X_sub$M[-sampled_indices, , drop = FALSE]
   )
 
-  # Inference set is full Y subset
-  inference <- Y_sub
+  inference <- list(
+    X = Y_sub$X,
+    M = Y_sub$M
+  )
 
-  # Return all splits
   list(
     train = train,
     test = test,
-    inference = inference
+    inference = inference,
+    strata_info = strata_info
   )
 }
+
