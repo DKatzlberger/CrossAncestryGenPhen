@@ -5,6 +5,7 @@
 #'
 #' @param result A result list from \code{perm_diff_interaction()}.
 #' @param features Character vector of feature (gene) names to plot.
+#' @param point_size Numeric value to control fontsize
 #'
 #' @return A \code{ggplot} object with histograms and observed statistic overlay.
 #'
@@ -24,7 +25,8 @@
 
 plot_perm_distribution <- function(
   result,
-  features
+  features,
+  point_size = 0.5
 ) {
   T_boot <- result$T_boot
   stats <- result$summary_stats
@@ -45,7 +47,12 @@ plot_perm_distribution <- function(
   )
 
   # Create and return ggplot object
-  p <- ggplot(boot_long, aes(x = T_stat)) +
+  p <- ggplot(
+    data = boot_long, 
+    aes(
+      x = T_stat
+      )
+      ) +
     geom_histogram(
       bins = 50, 
       fill = "gray80", 
@@ -66,7 +73,7 @@ plot_perm_distribution <- function(
       y = "Frequency"
     ) +
     theme_minimal(
-      base_size = 12
+      base_size = point_size * 10
       )
 
   return(p)
