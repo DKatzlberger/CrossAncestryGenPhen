@@ -2,18 +2,22 @@
 % Please edit documentation in R/plot_stratified_sets.R
 \name{plot_stratified_sets}
 \alias{plot_stratified_sets}
-\title{Plot Sample Size by Set Colored by Stratum}
+\title{Plot Sample Size by Stratified Variable and Dataset Split}
 \usage{
-plot_stratified_sets(result, stratify_cols)
+plot_stratified_sets(result, stratify_cols, point_size = 0.5)
 }
 \arguments{
 \item{result}{The output from `split_stratified_ancestry_sets()`.}
 
 \item{stratify_cols}{Character vector of metadata column names used for stratification.}
+
+\item{point_size}{Numeric value to control fontsize.}
 }
 \value{
-A ggplot object showing sample count per set, stacked by stratum.
+A ggplot2 object with dodged bars grouped by set, filled by strata values, and faceted by stratify column.
 }
 \description{
-Visualizes the number of samples in train, test, and inference sets, colored by stratum.
+Visualizes the number of samples in train, test, and inference sets,
+with bars grouped by dataset split and filled by stratum values. Each
+stratification column gets its own facet for clearer interpretation.
 }

@@ -7,30 +7,32 @@
 split_stratified_ancestry_sets(X, Y, MX, MY, stratify_cols = NULL, seed = NULL)
 }
 \arguments{
-\item{X}{A numeric matrix (samples x genes) for the overrepresented ancestry group.}
+\item{X}{A numeric matrix (samples × features) for the overrepresented ancestry group.}
 
-\item{Y}{A numeric matrix for the underrepresented ancestry group.}
+\item{Y}{A numeric matrix (samples × features) for the underrepresented ancestry group.}
 
-\item{MX}{A data.frame of metadata corresponding to X (same number of rows).}
+\item{MX}{A data.frame of metadata for X (same number of rows as X).}
 
-\item{MY}{A data.frame of metadata corresponding to Y (same number of rows).}
+\item{MY}{A data.frame of metadata for Y (same number of rows as Y).}
 
-\item{stratify_cols}{A character vector of column names in metadata to stratify by.}
+\item{stratify_cols}{A character vector of metadata column names to stratify on.}
 
-\item{seed}{An optional integer used to set the random seed.}
+\item{seed}{Optional integer to set random seed for reproducibility.}
 }
 \value{
-A list with named elements:
+A named list with:
 \describe{
-  \item{train}{List with `X` and `M` for subsampled overrepresented group.}
-  \item{test}{List with `X` and `M` for the remaining overrepresented samples.}
-  \item{inference}{List with `X` and `M` for the underrepresented ancestry.}
-  \item{strata_info}{Stratum match summary with `usable`, `missing`, and `insufficient`.}
+  \item{train}{List with `X` and `M` for the **remaining overrepresented samples**.}
+  \item{test}{List with `X` and `M` for the **subsampled overrepresented group**, stratified to match the underrepresented group.}
+  \item{inference}{List with `X` and `M` for the **underrepresented ancestry**.}
+  \item{strata_info}{A summary list with usable, missing, and insufficient strata.}
 }
 }
 \description{
-Subsamples the overrepresented ancestry to match the underrepresented ancestry,
-stratifying by metadata columns. Returns train, test, and inference sets.
-Issues a warning when any strata from the underrepresented group
-cannot be matched due to missing or insufficient samples in the overrepresented group.
+Subsamples the overrepresented ancestry to match the underrepresented ancestry
+for a test set, stratifying by metadata columns. The remaining overrepresented
+samples are used for training. The underrepresented ancestry group is returned
+as the inference set. This function is useful when training a model on the
+majority ancestry and testing fairness or generalizability using both a balanced
+subset and the underrepresented group.
 }

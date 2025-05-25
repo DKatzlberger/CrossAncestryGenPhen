@@ -1,24 +1,27 @@
 #' Split Expression and Metadata into Train, Test, and Inference Sets
 #'
-#' Subsamples the overrepresented ancestry to match the underrepresented ancestry,
-#' stratifying by metadata columns. Returns train, test, and inference sets.
-#' Issues a warning when any strata from the underrepresented group
-#' cannot be matched due to missing or insufficient samples in the overrepresented group.
+#' Subsamples the overrepresented ancestry to match the underrepresented ancestry
+#' for a test set, stratifying by metadata columns. The remaining overrepresented
+#' samples are used for training. The underrepresented ancestry group is returned
+#' as the inference set. This function is useful when training a model on the
+#' majority ancestry and testing fairness or generalizability using both a balanced
+#' subset and the underrepresented group.
 #'
-#' @param X A numeric matrix (samples x genes) for the overrepresented ancestry group.
-#' @param Y A numeric matrix for the underrepresented ancestry group.
-#' @param MX A data.frame of metadata corresponding to X (same number of rows).
-#' @param MY A data.frame of metadata corresponding to Y (same number of rows).
-#' @param stratify_cols A character vector of column names in metadata to stratify by.
-#' @param seed An optional integer used to set the random seed.
+#' @param X A numeric matrix (samples × features) for the overrepresented ancestry group.
+#' @param Y A numeric matrix (samples × features) for the underrepresented ancestry group.
+#' @param MX A data.frame of metadata for X (same number of rows as X).
+#' @param MY A data.frame of metadata for Y (same number of rows as Y).
+#' @param stratify_cols A character vector of metadata column names to stratify on.
+#' @param seed Optional integer to set random seed for reproducibility.
 #'
-#' @return A list with named elements:
+#' @return A named list with:
 #' \describe{
-#'   \item{train}{List with `X` and `M` for subsampled overrepresented group.}
-#'   \item{test}{List with `X` and `M` for the remaining overrepresented samples.}
-#'   \item{inference}{List with `X` and `M` for the underrepresented ancestry.}
-#'   \item{strata_info}{Stratum match summary with `usable`, `missing`, and `insufficient`.}
+#'   \item{train}{List with `X` and `M` for the **remaining overrepresented samples**.}
+#'   \item{test}{List with `X` and `M` for the **subsampled overrepresented group**, stratified to match the underrepresented group.}
+#'   \item{inference}{List with `X` and `M` for the **underrepresented ancestry**.}
+#'   \item{strata_info}{A summary list with usable, missing, and insufficient strata.}
 #' }
+#'
 #' @export
 split_stratified_ancestry_sets <- function(
   X,
@@ -33,21 +36,11 @@ split_stratified_ancestry_sets <- function(
   }
 
   # Generate strata identifiers
-  strata_X <- get_strata(
-    M = MX,
-    stratify_cols = stratify_cols
-  )
-
-  strata_Y <- get_strata(
-    M = MY,
-    stratify_cols = stratify_cols
-  )
+  strata_X <- get_strata(M = MX, stratify_cols = stratify_cols)
+  strata_Y <- get_strata(M = MY, stratify_cols = stratify_cols)
 
   # Determine feasible strata
-  strata_info <- check_strata_feasibility(
-    strata_X = strata_X,
-    strata_Y = strata_Y
-  )
+  strata_info <- check_strata_feasibility(strata_X = strata_X, strata_Y = strata_Y)
 
   if (length(strata_info$missing) > 0 || length(strata_info$insufficient) > 0) {
     warning(
@@ -65,30 +58,22 @@ split_stratified_ancestry_sets <- function(
   mask_X <- strata_X %in% strata_info$usable
   mask_Y <- strata_Y %in% strata_info$usable
 
-  X_sub <- apply_mask(
-    X = X,
-    M = MX,
-    mask = mask_X
-  )
+  X_sub <- apply_mask(X = X, M = MX, mask = mask_X)
+  Y_sub <- apply_mask(X = Y, M = MY, mask = mask_Y)
 
-  Y_sub <- apply_mask(
-    X = Y,
-    M = MY,
-    mask = mask_Y
-  )
-
-  # Sample from overrepresented to match underrepresented
+  # Sample from overrepresented group to match underrepresented strata counts
   sampled_indices <- stratified_sample_indices(
     strata = strata_X[mask_X],
     target_counts = table(strata_Y[mask_Y])
   )
 
-  train <- list(
+  # Subset = test; remaining = train
+  test <- list(
     X = X_sub$X[sampled_indices, , drop = FALSE],
     M = X_sub$M[sampled_indices, , drop = FALSE]
   )
 
-  test <- list(
+  train <- list(
     X = X_sub$X[-sampled_indices, , drop = FALSE],
     M = X_sub$M[-sampled_indices, , drop = FALSE]
   )
@@ -105,4 +90,3 @@ split_stratified_ancestry_sets <- function(
     strata_info = strata_info
   )
 }
-

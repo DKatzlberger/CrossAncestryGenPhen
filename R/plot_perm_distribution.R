@@ -5,7 +5,7 @@
 #'
 #' @param result A result list from \code{perm_diff_interaction()}.
 #' @param features Character vector of feature (gene) names to plot.
-#' @param point_size Numeric value to control fontsize
+#' @param point_size Numeric value to control fontsize.
 #'
 #' @return A \code{ggplot} object with histograms and observed statistic overlay.
 #'
@@ -60,9 +60,12 @@ plot_perm_distribution <- function(
       ) +
     geom_vline(
       data = obs_df, 
-      aes(xintercept = T_obs), 
-      color = "red", 
-      linewidth = 0.8
+      aes(
+        xintercept = T_obs
+        ), 
+      color = "blue", 
+      linewidth = 0.5,
+      linetype = "dashed"
       ) +
     facet_wrap(
       ~feature
@@ -71,7 +74,7 @@ plot_perm_distribution <- function(
       title = "Permutation Null Distribution of Test Statistics",
       x = "T-statistic",
       y = "Frequency"
-    ) +
+      ) +
     theme_minimal(
       base_size = point_size * 10
       )

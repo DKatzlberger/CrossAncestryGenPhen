@@ -11,7 +11,7 @@ plot_perm_distribution(result, features, point_size = 0.5)
 
 \item{features}{Character vector of feature (gene) names to plot.}
 
-\item{point_size}{Numeric value to control fontsize}
+\item{point_size}{Numeric value to control fontsize.}
 }
 \value{
 A \code{ggplot} object with histograms and observed statistic overlay.

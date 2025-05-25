@@ -43,10 +43,11 @@ test_that("split_stratified_ancestry_sets works correctly on simulated data", {
     expect_equal(nrow(X_mat), nrow(M_df), info = paste(split, "$X/$M row mismatch"))
   }
 
-  # Train size should match or be less than inference size
-  expect_lte(nrow(result$train$X), nrow(result$inference$X))
+  # Test should match size of inference
+  expect_equal(nrow(result$test$X), nrow(result$inference$X))
 
-  # Train + test rows should equal total usable X subset
+  # Train should be smaller than total X but larger than test
   total_X_used <- nrow(result$train$X) + nrow(result$test$X)
   expect_lte(total_X_used, n_X)
+  expect_gt(nrow(result$train$X), nrow(result$test$X))
 })
