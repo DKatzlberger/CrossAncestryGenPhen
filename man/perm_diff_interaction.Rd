@@ -35,7 +35,7 @@ Rows = samples, columns = genes.}
 
 \item{a_col}{Name of the column in metadata indicating ancestry.}
 
-\item{B}{Integer. Number of permutations (set to NULL to enable adaptive mode).}
+\item{B}{Integer. Number of permutations (set to \code{NULL} to enable adaptive mode).}
 
 \item{seed}{Optional random seed for reproducibility.}
 
@@ -47,55 +47,17 @@ Rows = samples, columns = genes.}
 
 \item{batch_size}{Number of permutations to add per iteration when checking convergence.}
 
-\item{check_convergence}{Logical. Whether to check convergence in fixed-B mode.}
+\item{check_convergence}{Logical. Whether to check convergence in fixed-\code{B} mode.}
 }
 \value{
-A list containing:
-\describe{
-  \item{summary_stats}{A data.frame with one row per gene, containing: \code{T_obs}, \code{p_value}, \code{ci_lower}, and \code{ci_upper}.}
-  \item{T_boot}{Matrix of permutation test statistics. One row per permutation.}
-  \item{B_used}{Number of valid permutations actually used.}
-  \item{converged}{Logical indicating whether convergence was reached (adaptive or fixed mode).}
-}
+A list with the following elements:
 }
 \description{
 Performs a permutation test for interaction between conditions across ancestries.
-Supports both a fixed number of permutations (`B`) and an adaptive mode (`B = NULL`),
-where permutations are run until empirical p-values converge.
+Supports both a fixed number of permutations (\code{B}) and an adaptive mode
+(\code{B = NULL}), where permutations are run until empirical p-values converge.
 }
 \details{
-The input expression matrices must have **samples as rows** and **genes as columns**.
+The input expression matrices must have \strong{samples as rows} and \strong{genes as columns}.
 Meta-data must contain consistent group and ancestry annotations for each sample.
-}
-\examples{
-set.seed(1)
-n_per_group <- 25
-p <- 2000
-
-X <- matrix(rnorm(n_per_group * 2 * p), nrow = n_per_group * 2, ncol = p)
-Y <- matrix(rnorm(n_per_group * 2 * p), nrow = n_per_group * 2, ncol = p)
-colnames(X) <- colnames(Y) <- paste0("Gene_", seq_len(p))
-
-MX <- data.frame(
-  condition = factor(rep(c("A", "B"), each = n_per_group)),
-  ancestry = "EUR"
-)
-MY <- data.frame(
-  condition = factor(rep(c("A", "B"), each = n_per_group)),
-  ancestry = "AFR"
-)
-
-result <- perm_diff_interaction(
-  X = X,
-  Y = Y,
-  MX = MX,
-  MY = MY,
-  g_col = "condition",
-  a_col = "ancestry",
-  B = 100,
-  seed = 42
-)
-
-head(result$summary_stats)
-
 }

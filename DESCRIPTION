@@ -7,9 +7,14 @@ Description: Permutation-based methods for testing cross-ancestry interactions i
 License: MIT
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 Imports:
     ggplot2,
     data.table
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+URL: https://DKatzlberger.github.io/CrossAncestryGenPhen
+BugReports: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
 RoxygenNote: 7.3.2

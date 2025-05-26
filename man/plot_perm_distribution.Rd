@@ -20,15 +20,3 @@ A \code{ggplot} object with histograms and observed statistic overlay.
 Visualizes the permutation null distribution for selected features,
 showing how empirical p-values were derived from permuted test statistics.
 }
-\examples{
-set.seed(1)
-X <- matrix(rnorm(100 * 20), nrow = 100, ncol = 20)
-Y <- matrix(rnorm(100 * 20), nrow = 100, ncol = 20)
-colnames(X) <- colnames(Y) <- paste0("Gene_", seq_len(ncol(X)))
-MX <- data.frame(condition = factor(rep(c("A", "B"), each = 50)), ancestry = "EUR")
-MY <- data.frame(condition = factor(rep(c("A", "B"), each = 50)), ancestry = "AFR")
-result <- perm_diff_interaction(X, Y, MX, MY, "condition", "ancestry", B = 100)
-p <- plot_perm_distribution(result, features = c("Gene_1", "Gene_2"))
-ggsave("perm_plot.png", p, width = 8, height = 4)
-
-}

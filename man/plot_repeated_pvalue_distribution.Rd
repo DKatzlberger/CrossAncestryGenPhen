@@ -7,8 +7,8 @@
 plot_repeated_pvalue_distribution(
   result,
   features,
-  point_size = 0.5,
-  threshold = NULL
+  threshold = NULL,
+  point_size = 0.5
 )
 }
 \arguments{
@@ -16,10 +16,10 @@ plot_repeated_pvalue_distribution(
 
 \item{features}{Character vector of gene names to include.}
 
-\item{point_size}{Numeric. Controls base font size (default = 0.5).}
-
 \item{threshold}{Optional numeric. Adds a vertical dashed line at a p-value threshold.
 Use e.g., 0.05 for significance threshold, or set to NULL to skip it (default = NULL).}
+
+\item{point_size}{Numeric. Controls base font size (default = 0.5).}
 }
 \value{
 A ggplot2 object.

@@ -1,0 +1,51 @@
+# _pkgdown.yml
+
+# Website branding and theme
+template:
+  bootstrap: 5
+  bootswatch: flatly  
+  params:
+    bootswatch: flatly
+
+# Website title and GitHub links
+home:
+  title: "CrossAncestryGenPhen"
+  description: "Permutation-based interaction testing across ancestries"
+  links:
+    - text: GitHub
+      href: https://github.com/DKatzlberger/CrossAncestryGenPhen
+    - text: Report a Bug
+      href: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
+
+# Global site URL (optional, good for metadata & sharing)
+url: https://DKatzlberger.github.io/CrossAncestryGenPhen/
+
+# Navbar structure
+navbar:
+  title: "CrossAncestryGenPhen"
+  type: default
+  left:
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Articles"
+      href: articles/index.html
+    - text: "News"
+      href: news/index.html
+  right:
+  - icon: fa-github
+    href: https://github.com/DKatzlberger/CrossAncestryGenPhen
+    aria-label: GitHub repository
+
+
+reference:
+  - title: "Main Functions"
+    contents:
+      - split_stratified_ancestry_sets
+      - perm_diff_interaction
+      - repeated_perm_diff_interaction
+  - title: "Visualization Functions"
+    contents:
+      - plot_interaction_significance_landscape
+      - plot_perm_distribution
+      - plot_repeated_pvalue_distribution
+      - plot_stratified_sets
