@@ -41,8 +41,8 @@ mean_diff_by_group <- function(
   g1,
   g2
 ) {
-  colMeans(data[group == g1, , drop = FALSE]) -
-    colMeans(data[group == g2, , drop = FALSE])
+  colMeans(data[group == g2, , drop = FALSE]) -
+    colMeans(data[group == g1, , drop = FALSE])
 }
 
 #' Random Permutation of Indices
@@ -128,20 +128,105 @@ compute_empirical_pvalues <- function(
   )
 }
 
-#' Confidence Interval Bounds
+#' Internal: Bootstrap Interaction Statistic (Adaptive or Fixed)
 #'
-#' Computes 2.5% and 97.5% quantiles for each feature.
-#' @param T_boot A matrix of bootstrapped test statistics.
-#' @return A matrix of lower and upper confidence bounds.
+#' Computes bootstrapped standard errors and 95% confidence intervals
+#' for observed interaction statistics using nonparametric sampling within ancestries.
+#'
 #' @keywords internal
-compute_CI_bounds <- function(
-  T_boot
+bootstrap_T_obs <- function(
+  X,
+  Y,
+  MX,
+  MY,
+  g_col,
+  a_col,
+  g1,
+  g2,
+  B = NULL,
+  seed = NULL,
+  min_iter = 500,
+  max_iter = 10000,
+  tol = 1e-3,
+  batch_size = 100,
+  check_convergence = TRUE
 ) {
-  apply(
-    T_boot,
-    2,
-    quantile,
-    probs = c(0.025, 0.975),
-    na.rm = TRUE
+  if (!is.null(seed)) set.seed(seed)
+
+  n_feat <- ncol(X)
+  SE_prev <- rep(NA_real_, n_feat)
+  max_B <- if (is.null(B)) max_iter else B
+  T_boot <- matrix(NA_real_, nrow = max_B, ncol = n_feat)
+  colnames(T_boot) <- colnames(X)
+
+  converged <- if (is.null(B) || check_convergence) FALSE else NA
+  B_used <- 0
+
+  while ((is.null(B) && !isTRUE(converged) && B_used < max_iter) ||
+         (!is.null(B) && B_used < B)) {
+
+    for (i in seq_len(batch_size)) {
+      if (!is.null(B) && B_used >= B) break
+
+      B_used <- B_used + 1
+
+      idx_X <- sample(nrow(X), replace = TRUE)
+      idx_Y <- sample(nrow(Y), replace = TRUE)
+
+      Xb <- X[idx_X, , drop = FALSE]
+      Yb <- Y[idx_Y, , drop = FALSE]
+      MXb <- MX[idx_X, , drop = FALSE]
+      MYb <- MY[idx_Y, , drop = FALSE]
+
+      g_Xb <- MXb[[g_col]]
+      g_Yb <- MYb[[g_col]]
+
+      if (any(table(g_Xb)[c(g1, g2)] == 0) || any(table(g_Yb)[c(g1, g2)] == 0)) {
+        T_boot[B_used, ] <- NA_real_
+        next
+      }
+
+      dX <- mean_diff_by_group(Xb, g_Xb, g1, g2)
+      dY <- mean_diff_by_group(Yb, g_Yb, g1, g2)
+      T_boot[B_used, ] <- dY - dX
+    }
+
+    T_valid <- T_boot[1:B_used, , drop = FALSE]
+    T_valid <- T_valid[complete.cases(T_valid), , drop = FALSE]
+
+    if ((is.null(B) || check_convergence) && nrow(T_valid) >= min_iter) {
+      SE_new <- apply(T_valid, 2, sd)
+      if (!anyNA(SE_prev)) {
+        delta <- max(abs(SE_new - SE_prev))
+        converged <- delta < tol
+      } else {
+        converged <- FALSE  # start checking from now
+      }
+      SE_prev <- SE_new
+    }
+  }
+
+  # Final cleaned-up bootstrap results
+  T_valid <- T_boot[1:B_used, , drop = FALSE]
+  T_valid <- T_valid[complete.cases(T_valid), , drop = FALSE]
+
+  SE_final <- apply(T_valid, 2, sd)
+  CI_lower <- apply(T_valid, 2, quantile, probs = 0.025)
+  CI_upper <- apply(T_valid, 2, quantile, probs = 0.975)
+
+  summary_stats <- data.frame(
+    feature = colnames(X),
+    SE = SE_final,
+    CI_lower = CI_lower,
+    CI_upper = CI_upper,
+    row.names = NULL
   )
+
+  return(list(
+    summary_stats = summary_stats,
+    T_boot = T_valid,
+    B_used = nrow(T_valid),
+    converged = converged
+  ))
 }
+

@@ -11,14 +11,14 @@
 #' @return A ggplot2 object with dodged bars grouped by set, filled by strata values, and faceted by stratify column.
 #' @export
 plot_stratified_sets <- function(
-  result,
+  x,
   stratify_cols,
   point_size = 0.5
 ) {
   # Add dataset split labels
-  train_M <- result$train$M
-  test_M  <- result$test$M
-  infer_M <- result$inference$M
+  train_M <- x$train$M
+  test_M  <- x$test$M
+  infer_M <- x$inference$M
 
   train_M$set <- "Train"
   test_M$set  <- "Test"
@@ -45,25 +45,22 @@ plot_stratified_sets <- function(
       y = Freq, 
       fill = value
       )
-      ) +
+    ) +
     geom_col(
       position = "dodge"
-      ) +
+    ) +
     facet_wrap(
       ~ variable
-      ) +
-    scale_fill_brewer(
-      palette = "Set3"
-      ) +
+    ) +
     labs(
       title = "Sample Sizes by Dataset Split",
       x = NULL,
       y = "Count",
       fill = "Stratum Value"
-      ) +
-    theme_minimal(
-      base_size = point_size * 10
-      ) 
+    ) +
+    theme_nature_fonts() +
+    theme_small_legend() +
+    theme_white_background() 
 
   return(p)
 }

@@ -4,14 +4,14 @@
 \alias{plot_stratified_sets}
 \title{Plot Sample Size by Stratified Variable and Dataset Split}
 \usage{
-plot_stratified_sets(result, stratify_cols, point_size = 0.5)
+plot_stratified_sets(x, stratify_cols, point_size = 0.5)
 }
 \arguments{
-\item{result}{The output from `split_stratified_ancestry_sets()`.}
-
 \item{stratify_cols}{Character vector of metadata column names used for stratification.}
 
 \item{point_size}{Numeric value to control fontsize.}
+
+\item{result}{The output from `split_stratified_ancestry_sets()`.}
 }
 \value{
 A ggplot2 object with dodged bars grouped by set, filled by strata values, and faceted by stratify column.

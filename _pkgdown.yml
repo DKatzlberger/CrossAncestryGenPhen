@@ -45,7 +45,21 @@ reference:
       - repeated_perm_diff_interaction
   - title: "Visualization Functions"
     contents:
-      - plot_interaction_significance_landscape
-      - plot_perm_distribution
-      - plot_repeated_pvalue_distribution
       - plot_stratified_sets
+      - plot_perm_distribution
+      - plot_significance_landscape
+      - plot_pvalue_distribution
+      - plot_correlation_heatmap
+      - plot_jaccard_heatmap
+  - title: "Utility Functions"
+    contents:
+      - track_sample_ids
+      - compute_jaccard_matrix
+      - compute_correlation_matrix
+      
+  - title: "Simulation Functions (not yet finished)"
+    contents:
+      - inject_DEG_signal
+      - plot_simulated_features
+      - simulate_NB_counts
+

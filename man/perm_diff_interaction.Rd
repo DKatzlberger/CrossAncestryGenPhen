@@ -2,7 +2,7 @@
 % Please edit documentation in R/perm_diff_interaction.R
 \name{perm_diff_interaction}
 \alias{perm_diff_interaction}
-\title{Permutation-Based Interaction Test (Adaptive or Fixed)}
+\title{Permutation-Based Interaction Test with Mandatory Bootstrapped Inference}
 \usage{
 perm_diff_interaction(
   X,
@@ -11,53 +11,69 @@ perm_diff_interaction(
   MY,
   g_col,
   a_col,
-  B = NULL,
   seed = NULL,
+  B = 1000,
+  permute = TRUE,
   min_iter = 500,
-  max_iter = 50000,
+  max_iter = 10000,
   tol = 0.001,
   batch_size = 100,
   check_convergence = TRUE
 )
 }
 \arguments{
-\item{X}{A numeric matrix of expression values for ancestry A.
-Rows = samples, columns = genes.}
+\item{X}{A numeric matrix of expression values for ancestry A (rows = samples, columns = genes).}
 
-\item{Y}{A numeric matrix of expression values for ancestry B.
-Rows = samples, columns = genes.}
+\item{Y}{A numeric matrix of expression values for ancestry B (same format as \code{X}).}
 
-\item{MX}{A data.frame of metadata for X. Must include group and ancestry info.}
+\item{MX}{A data.frame of metadata for \code{X}, must include columns for group and ancestry.}
 
-\item{MY}{A data.frame of metadata for Y. Must include group and ancestry info.}
+\item{MY}{A data.frame of metadata for \code{Y}, must include columns for group and ancestry.}
 
-\item{g_col}{Name of the column in metadata indicating the condition/group.}
+\item{g_col}{Column name in metadata indicating condition/group (factor with 2 levels).}
 
-\item{a_col}{Name of the column in metadata indicating ancestry.}
+\item{a_col}{Column name in metadata indicating ancestry (must be unique per ancestry).}
 
-\item{B}{Integer. Number of permutations (set to \code{NULL} to enable adaptive mode).}
+\item{seed}{Optional integer to set random seed for reproducibility.}
 
-\item{seed}{Optional random seed for reproducibility.}
+\item{B}{Integer. Number of permutations and bootstraps to perform. Set to \code{NULL} for adaptive convergence.}
 
-\item{min_iter}{Minimum number of permutations to run before checking convergence (adaptive mode).}
+\item{permute}{Logical. Whether to perform permutation-based interaction testing.}
 
-\item{max_iter}{Maximum number of permutations allowed (adaptive mode).}
+\item{min_iter}{Minimum number of permutations/bootstraps to run before checking convergence.}
 
-\item{tol}{Tolerance threshold for convergence of empirical p-values (adaptive mode).}
+\item{max_iter}{Maximum number of permutations/bootstraps allowed.}
 
-\item{batch_size}{Number of permutations to add per iteration when checking convergence.}
+\item{tol}{Tolerance threshold for convergence (applies to empirical p-values and bootstrap SEs).}
 
-\item{check_convergence}{Logical. Whether to check convergence in fixed-\code{B} mode.}
+\item{batch_size}{Number of permutations/bootstraps to add per iteration.}
+
+\item{check_convergence}{Logical. Whether to check convergence in fixed-\code{B} mode (if \code{permute = TRUE}).}
 }
 \value{
-A list with the following elements:
+A list with:
+\describe{
+  \item{summary_stats}{A data.frame with gene-wise observed statistics (\code{T_obs}),
+                       bootstrapped standard errors (\code{SE}),
+                       95\% confidence intervals (\code{CI_lower}, \code{CI_upper}),
+                       empirical p-values (\code{p_value}, NA if \code{permute = FALSE}),
+                       and Benjamini-Hochberg adjusted p-values (\code{p_adj}, NA if \code{permute = FALSE}).}
+  \item{T_perm}{Matrix of permutation-based test statistics (or \code{NULL} if \code{permute = FALSE}).}
+  \item{T_boot}{Matrix of bootstrap-based observed statistics (rows = bootstraps, columns = genes).}
+  \item{B_used_perm}{Number of valid permutations used (or \code{NA} if \code{permute = FALSE}).}
+  \item{B_used_boot}{Number of valid bootstrap replicates used.}
+  \item{converged_perm}{Logical indicating if permutation p-values converged (or \code{NA} if \code{permute = FALSE}).}
+  \item{converged_boot}{Logical indicating if bootstrap SEs converged.}
+}
 }
 \description{
-Performs a permutation test for interaction between conditions across ancestries.
-Supports both a fixed number of permutations (\code{B}) and an adaptive mode
-(\code{B = NULL}), where permutations are run until empirical p-values converge.
+Performs a permutation test (optional) for interaction effects between conditions across ancestries.
+Always estimates bootstrapped standard errors and confidence intervals for the observed interaction effects
+via resampling within ancestries.
 }
 \details{
+Permutation testing can be toggled using the `permute` flag. When `permute = FALSE`, only bootstrapped
+confidence intervals and standard errors are provided, and p-values are returned as NA.
+
 The input expression matrices must have \strong{samples as rows} and \strong{genes as columns}.
-Meta-data must contain consistent group and ancestry annotations for each sample.
 }

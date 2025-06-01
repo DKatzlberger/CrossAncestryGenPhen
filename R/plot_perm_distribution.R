@@ -3,7 +3,7 @@
 #' Visualizes the permutation null distribution for selected features,
 #' showing how empirical p-values were derived from permuted test statistics.
 #'
-#' @param result A result list from \code{perm_diff_interaction()}.
+#' @param x A result list from \code{perm_diff_interaction()}.
 #' @param features Character vector of feature (gene) names to plot.
 #' @param point_size Numeric value to control fontsize.
 #'
@@ -13,12 +13,12 @@
 #' @export
 
 plot_perm_distribution <- function(
-  result,
+  x,
   features,
   point_size = 0.5
 ) {
-  T_boot <- result$T_boot
-  stats <- result$summary_stats
+  T_boot <- x$T_boot
+  stats <- x$summary_stats
 
   features <- intersect(features, colnames(T_boot))
   if (length(features) == 0) stop("None of the selected features are present in the result.")
@@ -41,12 +41,12 @@ plot_perm_distribution <- function(
     aes(
       x = T_stat
       )
-      ) +
+    ) +
     geom_histogram(
       bins = 50, 
       fill = "gray80", 
       color = "black"
-      ) +
+    ) +
     geom_vline(
       data = obs_df, 
       aes(
@@ -55,18 +55,18 @@ plot_perm_distribution <- function(
       color = "blue", 
       linewidth = 0.5,
       linetype = "dashed"
-      ) +
+    ) +
     facet_wrap(
       ~feature
-      ) +
+    ) +
     labs(
       title = "Permutation Null Distribution of Test Statistics",
       x = "T-statistic",
       y = "Frequency"
-      ) +
-    theme_minimal(
-      base_size = point_size * 10
-      )
+    ) +
+    theme_nature_fonts() +
+    theme_small_legend() +
+    theme_white_background()
 
   return(p)
 }

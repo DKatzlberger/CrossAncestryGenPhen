@@ -7,14 +7,11 @@
 #'
 #' @return A factor indicating stratification strata.
 #' @keywords internal
-get_strata <- function(
-  M,
-  stratify_cols
-) {
+get_strata <- function(M, stratify_cols) {
   if (is.null(stratify_cols)) {
     factor(rep("all", nrow(M)))
   } else {
-    interaction(M[, stratify_cols], drop = TRUE)
+    interaction(M[, stratify_cols, drop = FALSE], drop = TRUE)
   }
 }
 
@@ -27,17 +24,12 @@ get_strata <- function(
 #'
 #' @return A list with `usable`, `missing`, and `insufficient` strata names.
 #' @keywords internal
-check_strata_feasibility <- function(
-  strata_X,
-  strata_Y
-) {
+check_strata_feasibility <- function(strata_X, strata_Y) {
   count_X <- table(strata_X)
   count_Y <- table(strata_Y)
 
   matched <- intersect(names(count_X), names(count_Y))
-
   missing <- setdiff(names(count_Y), names(count_X))
-
   insufficient <- matched[count_Y[matched] > count_X[matched]]
 
   list(
@@ -47,47 +39,35 @@ check_strata_feasibility <- function(
   )
 }
 
-#' Stratified Sampling Indices
+#' Stratified Sampling by Sample IDs
 #'
-#' Performs stratified random sampling from a vector of strata.
+#' Performs stratified sampling from a vector of sample IDs grouped by strata.
 #'
-#' @param strata A factor representing sample strata (from overrepresented group).
-#' @param target_counts A named vector of counts to sample per stratum.
+#' @param strata A factor indicating strata for each sample (must match `ids` length).
+#' @param target_counts A named vector of how many samples to draw per stratum.
+#' @param ids A character or numeric vector of sample IDs, same length as `strata`.
 #'
-#' @return An integer vector of row indices to sample.
+#' @return A character or numeric vector of sampled IDs.
 #' @keywords internal
-stratified_sample_indices <- function(
-  strata,
-  target_counts
-) {
+stratified_sample_ids <- function(strata, target_counts, ids) {
   unlist(lapply(names(target_counts), function(stratum) {
-    candidates <- which(strata == stratum)
-
-    if (length(candidates) == 0) {
-      return(integer(0))
-    }
-
+    stratum_ids <- ids[strata == stratum]
     n <- target_counts[stratum]
-
-    sample(candidates, size = min(length(candidates), n))
+    sample(stratum_ids, size = min(length(stratum_ids), n))
   }))
 }
 
 #' Apply Row Mask to Expression and Metadata
 #'
-#' Subsets expression matrix and metadata data.frame using the same row filter.
+#' Subsets expression matrix and metadata using the same row mask.
 #'
-#' @param X A numeric matrix of gene expression (samples x genes).
-#' @param M A data.frame of sample-level metadata.
-#' @param mask A logical or integer vector indicating which rows to keep.
+#' @param X A numeric matrix (samples x features).
+#' @param M A data.frame of metadata (samples x variables).
+#' @param mask A logical or integer vector of rows to keep.
 #'
-#' @return A list containing `expr` and `meta` components.
+#' @return A list with `X` and `M` subsets.
 #' @keywords internal
-apply_mask <- function(
-  X,
-  M,
-  mask
-) {
+apply_mask <- function(X, M, mask) {
   list(
     X = X[mask, , drop = FALSE],
     M = M[mask, , drop = FALSE]

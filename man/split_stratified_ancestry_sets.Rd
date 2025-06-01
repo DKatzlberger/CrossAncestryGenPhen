@@ -4,7 +4,15 @@
 \alias{split_stratified_ancestry_sets}
 \title{Split Expression and Metadata into Train, Test, and Inference Sets}
 \usage{
-split_stratified_ancestry_sets(X, Y, MX, MY, stratify_cols = NULL, seed = NULL)
+split_stratified_ancestry_sets(
+  X,
+  Y,
+  MX,
+  MY,
+  id_col = NULL,
+  stratify_cols = NULL,
+  seed = NULL
+)
 }
 \arguments{
 \item{X}{A numeric matrix (samples × features) for the overrepresented ancestry group.}
@@ -15,6 +23,8 @@ split_stratified_ancestry_sets(X, Y, MX, MY, stratify_cols = NULL, seed = NULL)
 
 \item{MY}{A data.frame of metadata for Y (same number of rows as Y).}
 
+\item{id_col}{Optional string specifying the column name in metadata that holds sample IDs. If NULL, rownames are used.}
+
 \item{stratify_cols}{A character vector of metadata column names to stratify on.}
 
 \item{seed}{Optional integer to set random seed for reproducibility.}
@@ -22,17 +32,17 @@ split_stratified_ancestry_sets(X, Y, MX, MY, stratify_cols = NULL, seed = NULL)
 \value{
 A named list with:
 \describe{
-  \item{train}{List with `X` and `M` for the **remaining overrepresented samples**.}
-  \item{test}{List with `X` and `M` for the **subsampled overrepresented group**, stratified to match the underrepresented group.}
-  \item{inference}{List with `X` and `M` for the **underrepresented ancestry**.}
+  \item{train}{List with `X`, `M`, and `ids` for the remaining overrepresented samples.}
+  \item{test}{List with `X`, `M`, and `ids` for the subsampled overrepresented group.}
+  \item{inference}{List with `X`, `M`, and `ids` for the underrepresented ancestry group.}
   \item{strata_info}{A summary list with usable, missing, and insufficient strata.}
 }
 }
 \description{
-Subsamples the overrepresented ancestry to match the underrepresented ancestry
-for a test set, stratifying by metadata columns. The remaining overrepresented
-samples are used for training. The underrepresented ancestry group is returned
-as the inference set. This function is useful when training a model on the
-majority ancestry and testing fairness or generalizability using both a balanced
-subset and the underrepresented group.
+Subsamples the overrepresented ancestry (e.g., EUR) to match the underrepresented ancestry
+(e.g., AFR) for a test set, stratifying by metadata columns. The remaining overrepresented
+samples are used for training. The underrepresented ancestry group is returned as the inference set.
+}
+\details{
+This version supports tracking and subsetting using either rownames or a specified sample ID column.
 }

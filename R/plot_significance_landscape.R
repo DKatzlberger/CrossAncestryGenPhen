@@ -3,7 +3,7 @@
 #' Creates a scatter plot summarizing the reproducibility and statistical significance
 #' of interaction effects across multiple stratified resampling iterations.
 #'
-#' @param aggregated_df A data frame (e.g., from `repeated_perm_diff_interaction()$aggregated`)
+#' @param x A data frame (e.g., from `repeated_perm_diff_interaction()$aggregated`)
 #'   containing at least the feature, effect size, variability, and p-value columns.
 #' @param x_var Name of the column to use on the x-axis. Default: "mean_T_obs"
 #' @param y_var Name of the column to use on the y-axis. Will be plotted as -log10(y). Default: "median_p"
@@ -19,8 +19,8 @@
 #' @importFrom rlang sym !!
 #' @importFrom scales trans_new
 #' @export
-plot_interaction_significance_landscape <- function(
-  aggregated_df,
+plot_significance_landscape <- function(
+  x,
   x_var = "mean_T_obs",
   y_var = "median_p",
   color_var = "prob_signif",
@@ -28,18 +28,18 @@ plot_interaction_significance_landscape <- function(
   label_threshold = NULL,
   point_size = 0.5
 ) {
-  stopifnot(all(c(x_var, y_var, color_var, label_var) %in% colnames(aggregated_df)))
+  stopifnot(all(c(x_var, y_var, color_var, label_var) %in% colnames(x)))
 
   # Set up plot
   p <- ggplot(
-    data = aggregated_df,
+    data = x,
     aes(
       x = !!sym(x_var),
       y = -log10(!!sym(y_var)),
       color = !!sym(color_var),
       label = !!sym(label_var)
-    )
-  ) +
+      )
+    ) +
     geom_point() +
     scale_color_viridis_c(
       option = "D",
@@ -52,7 +52,9 @@ plot_interaction_significance_landscape <- function(
       x = x_var,
       y = paste0("-log10(", y_var, ")")
     ) +
-    theme_minimal(base_size = point_size * 10)
+    theme_nature_fonts() +
+    theme_small_legend() +
+    theme_white_background()
 
   # Conditional labeling
   if (!is.null(label_threshold)) {

@@ -8,16 +8,16 @@
 apply_mask(X, M, mask)
 }
 \arguments{
-\item{X}{A numeric matrix of gene expression (samples x genes).}
+\item{X}{A numeric matrix (samples x features).}
 
-\item{M}{A data.frame of sample-level metadata.}
+\item{M}{A data.frame of metadata (samples x variables).}
 
-\item{mask}{A logical or integer vector indicating which rows to keep.}
+\item{mask}{A logical or integer vector of rows to keep.}
 }
 \value{
-A list containing `expr` and `meta` components.
+A list with `X` and `M` subsets.
 }
 \description{
-Subsets expression matrix and metadata data.frame using the same row filter.
+Subsets expression matrix and metadata using the same row mask.
 }
 \keyword{internal}
