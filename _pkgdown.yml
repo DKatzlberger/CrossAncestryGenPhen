@@ -64,6 +64,7 @@ reference:
       - simulate_NB_counts
 
 articles:
-  - title: "Getting Started"
+  - title: "Vignettes"
     contents:
-      - single_subset_run  
+      - single_subset_run
+
