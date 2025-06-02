@@ -4,7 +4,7 @@
 \alias{plot_stratified_sets}
 \title{Plot Sample Size by Stratified Variable and Dataset Split}
 \usage{
-plot_stratified_sets(x, stratify_cols, point_size = 0.5)
+plot_stratified_sets(x, stratify_cols, title = NULL, point_size = 0.5)
 }
 \arguments{
 \item{stratify_cols}{Character vector of metadata column names used for stratification.}

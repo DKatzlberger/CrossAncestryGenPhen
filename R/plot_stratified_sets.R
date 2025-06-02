@@ -13,6 +13,7 @@
 plot_stratified_sets <- function(
   x,
   stratify_cols,
+  title = NULL,
   point_size = 0.5
 ) {
   # Add dataset split labels
@@ -47,16 +48,17 @@ plot_stratified_sets <- function(
       )
     ) +
     geom_col(
-      position = "dodge"
+      position = "dodge",
+      color = "black"
     ) +
     facet_wrap(
       ~ variable
     ) +
     labs(
-      title = "Sample Sizes by Dataset Split",
+      title = title,
       x = NULL,
       y = "Count",
-      fill = "Stratum Value"
+      fill = "Stratum value"
     ) +
     theme_nature_fonts() +
     theme_small_legend() +

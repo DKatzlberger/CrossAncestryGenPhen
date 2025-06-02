@@ -62,7 +62,7 @@ ggplot(meta, aes(x = ancestry, fill = condition)) +
 ```
 
 # Stratification step
-In the next step we will create the stratified subset to account for imbalance in sample size but also control for the condition imbalance in the underrepresented ancestry (AFR).
+In the next step we will create the stratified subset to account for sample size but also control for the condition imbalance in the underrepresented ancestry (AFR).
 ```{r stratification, fig.alt = "Bar plot showing balanced subset"}
 # Define column to stratify
 stratify_cols <- c("condition")
@@ -84,15 +84,16 @@ plot_stratified_sets(
 )
 ```
 
-The output will contain Train, Test and Inference and info which strata were used.
-For each set, the expression and metadata matrices are provided (e.g. `Matrix`: `Train$X` and `Meta`: `Train$M`).
+The output will contain `train`, `test` and `inference` sets and additional information on used strata.
+Each subset (`train`, `test`, `inference`) contains a gene expression matrix (`$X`) and a metadata frame (`$M`).
 ```{r split_output}
 # Output
 str(split)
 ```
 
 # Permutation interaction analysis
-Now we can run the permutation interaction analysis on the stratified sets.
+Next, we use the `test` and `inference` sets to evaluate interaction effects between condition and ancestry using permutation-based inference.
+The `perm_diff_interaction()` function estimates differential interactions between groups using both bootstrapping and permtuation.
 ```{r interaction_analysis, fig.alt = "Bar plot showing interaction results"}
 # Define the ancestry column and the condition column
 g_col <- "condition"
@@ -109,8 +110,43 @@ result <- perm_diff_interaction(
   g_col = g_col,
   a_col = a_col,
   permute = TRUE,   # Perform permutation
-  B = B,            # Number of permutations
+  B = B,            # Number of iterations (shared for both bootstrapping and permutation)
   seed = 42,
   check_convergence = TRUE
+)
+```
+
+# Output
+Under `summary_stats` the interaction results, including the p-values and adjusted p-values for each gene are listed.
+The function uses bootstrapping to estimate the confidence intervals and SE for each interaction and permutation to calculate p-values.
+It uses the same `B` for both bootstrapping and permutation, which is set to 1000 in this example.
+```{r summary_stats}
+head(result$summary_stats, 10)
+```
+
+More information about the statistics can be found in the `result` object.
+The actual number of `B` used can be found in `result$B_used_boot` and `result$B_used_perm`, respectively.
+```{r B_used}
+result$B_used_boot
+result$B_used_perm
+```
+The actual values of the test statistics can be found in `result$T_boot` and `result$T_perm`, respectively.
+The distribution of the test statistics can be visualized using the `plot_T_distribution` function.
+The plot shows the distribution of bootstrapped test statistics for selected genes, with dashed lines for observed values and dotted lines for 95% confidence intervals.
+```{r T_boot_distribution, fig.alt = "Distribution of bootstrapped test statistics"}
+plot_T_distribution(
+  x = result, 
+  statistic = "T_boot",
+  title = "Bootstrapped distribution with 95% confidence intervals"
+)
+```
+
+When having set `permute = TRUE`, the distribution of the permuted test statistics can be visualized using the `plot_T_distribution` function.
+This plot displays the empirical null distribution from permutations. The dashed line indicates the observed statistic. Facet titles include empirical two-sided p-values.
+```{r T_perm_distribution, fig.alt = "Distribution of permuted test statistics"}
+plot_T_distribution(
+  x = result, 
+  statistic = "T_perm",
+  title = "Permuted distribution with two-sided p-values"
 )
 ```

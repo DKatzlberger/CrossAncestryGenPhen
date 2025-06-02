@@ -3,7 +3,7 @@
 #' Creates a scatter plot summarizing the reproducibility and statistical significance
 #' of interaction effects across multiple stratified resampling iterations.
 #'
-#' @param x A data frame (e.g., from `repeated_perm_diff_interaction()$aggregated`)
+#' @param x A data frame (e.g., from `repeated_perm_diff_interaction()`)
 #'   containing at least the feature, effect size, variability, and p-value columns.
 #' @param x_var Name of the column to use on the x-axis. Default: "mean_T_obs"
 #' @param y_var Name of the column to use on the y-axis. Will be plotted as -log10(y). Default: "median_p"
@@ -21,10 +21,10 @@
 #' @export
 plot_significance_landscape <- function(
   x,
-  x_var = "mean_T_obs",
-  y_var = "median_p",
-  color_var = "prob_signif",
-  label_var = "feature",
+  x_var,
+  y_var,
+  color_var = NULL,
+  label_var = NULL,
   label_threshold = NULL,
   point_size = 0.5
 ) {

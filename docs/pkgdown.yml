@@ -2,9 +2,8 @@ pandoc: 3.7.0.1
 pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
-  intro-to-your-package: intro-to-your-package.html
   single_subset_run: single_subset_run.html
-last_built: 2025-06-01T19:20Z
+last_built: 2025-06-02T06:16Z
 urls:
   reference: https://DKatzlberger.github.io/CrossAncestryGenPhen/reference
   article: https://DKatzlberger.github.io/CrossAncestryGenPhen/articles

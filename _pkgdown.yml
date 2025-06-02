@@ -46,7 +46,7 @@ reference:
   - title: "Visualization Functions"
     contents:
       - plot_stratified_sets
-      - plot_perm_distribution
+      - plot_T_distribution
       - plot_significance_landscape
       - plot_pvalue_distribution
       - plot_correlation_heatmap
