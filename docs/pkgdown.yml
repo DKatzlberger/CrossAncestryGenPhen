@@ -3,7 +3,7 @@ pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   single_subset_run: single_subset_run.html
-last_built: 2025-06-02T07:48Z
+last_built: 2025-06-02T07:51Z
 urls:
   reference: https://DKatzlberger.github.io/CrossAncestryGenPhen/reference
   article: https://DKatzlberger.github.io/CrossAncestryGenPhen/articles
