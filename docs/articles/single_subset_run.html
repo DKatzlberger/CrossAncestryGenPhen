@@ -181,7 +181,7 @@ Each subset (<code>train</code>, <code>test</code>,
 </h2>
 <p>Next, we use the <code>test</code> and <code>inference</code> sets to
 evaluate interaction effects between condition and ancestry using
-permutation-based inference. The <code><a href="../reference/perm_diff_interaction.html">perm_diff_interaction()</a></code>
+permutation-based inference. The <code>perm_diff_interaction()</code>
 function estimates differential interactions between groups using both
 bootstrapping and permtuation.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -190,9 +190,9 @@ bootstrapping and permtuation.</p>
 <span><span class="va">a_col</span> <span class="op">&lt;-</span> <span class="st">"ancestry"</span></span>
 <span></span>
 <span><span class="co"># Define the number of permutations</span></span>
-<span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perm_diff_interaction.html">perm_diff_interaction</a></span><span class="op">(</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perm_interaction.html">perm_interaction</a></span><span class="op">(</span></span>
 <span>  X <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">X</span>,</span>
 <span>  Y <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">X</span>,</span>
 <span>  MX <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">M</span>,</span>
@@ -216,26 +216,26 @@ same <code>B</code> for both bootstrapping and permutation, which is set
 to 1000 in this example.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">summary_stats</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    feature      T_obs        SE   CI_lower  CI_upper p_value     p_adj</span></span>
-<span><span class="co">#&gt; 1   Gene_1 -0.5130443 0.3923301 -1.2508662 0.2547914   0.240 0.8372549</span></span>
-<span><span class="co">#&gt; 2   Gene_2 -0.6683108 0.4125705 -1.4404276 0.1595252   0.149 0.8372549</span></span>
-<span><span class="co">#&gt; 3   Gene_3 -0.3320232 0.4179015 -1.0994486 0.4564010   0.427 0.8372549</span></span>
-<span><span class="co">#&gt; 4   Gene_4  0.5558679 0.4792829 -0.3525281 1.5073401   0.275 0.8372549</span></span>
-<span><span class="co">#&gt; 5   Gene_5 -0.5341650 0.5344263 -1.5502086 0.5675294   0.360 0.8372549</span></span>
-<span><span class="co">#&gt; 6   Gene_6 -0.5112056 0.5125146 -1.4641899 0.4902113   0.359 0.8372549</span></span>
-<span><span class="co">#&gt; 7   Gene_7  0.8474367 0.5291091 -0.2190532 1.8482184   0.122 0.8372549</span></span>
-<span><span class="co">#&gt; 8   Gene_8  0.4034361 0.4632553 -0.4437222 1.4065911   0.413 0.8372549</span></span>
-<span><span class="co">#&gt; 9   Gene_9 -0.7058754 0.5079581 -1.6996518 0.2799340   0.204 0.8372549</span></span>
-<span><span class="co">#&gt; 10 Gene_10  0.6851216 0.5181549 -0.3723373 1.6788730   0.193 0.8372549</span></span></code></pre></div>
+<span><span class="co">#&gt;    feature      T_obs        SE     CI_lower  CI_upper p_value     p_adj</span></span>
+<span><span class="co">#&gt; 1   Gene_1 -0.5130443 0.4412874 -1.306247638 0.3360436    0.19 0.7800000</span></span>
+<span><span class="co">#&gt; 2   Gene_2 -0.6683108 0.4617191 -1.484769846 0.1642994    0.22 0.7800000</span></span>
+<span><span class="co">#&gt; 3   Gene_3 -0.3320232 0.3667014 -1.047249295 0.2551065    0.49 0.8596491</span></span>
+<span><span class="co">#&gt; 4   Gene_4  0.5558679 0.4479466 -0.603561978 1.4086939    0.25 0.7800000</span></span>
+<span><span class="co">#&gt; 5   Gene_5 -0.5341650 0.4910636 -1.393174739 0.4602953    0.36 0.7800000</span></span>
+<span><span class="co">#&gt; 6   Gene_6 -0.5112056 0.5062823 -1.432973090 0.4145875    0.33 0.7800000</span></span>
+<span><span class="co">#&gt; 7   Gene_7  0.8474367 0.4875300 -0.005442512 1.7500408    0.06 0.6000000</span></span>
+<span><span class="co">#&gt; 8   Gene_8  0.4034361 0.4075680 -0.400479714 1.2834502    0.35 0.7800000</span></span>
+<span><span class="co">#&gt; 9   Gene_9 -0.7058754 0.4609808 -1.646972632 0.1074301    0.25 0.7800000</span></span>
+<span><span class="co">#&gt; 10 Gene_10  0.6851216 0.4751798 -0.081094376 1.6274366    0.20 0.7800000</span></span></code></pre></div>
 <p>More information about the statistics can be found in the
 <code>result</code> object. The actual number of <code>B</code> used can
 be found in <code>result$B_used_boot</code> and
 <code>result$B_used_perm</code>, respectively.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span><span class="op">$</span><span class="va">B_used_boot</span></span>
-<span><span class="co">#&gt; [1] 1000</span></span>
+<span><span class="co">#&gt; [1] 100</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">B_used_perm</span></span>
-<span><span class="co">#&gt; [1] 1000</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 100</span></span></code></pre></div>
 <p>The actual values of the test statistics can be found in
 <code>result$T_boot</code> and <code>result$T_perm</code>, respectively.
 The distribution of the test statistics can be visualized using the

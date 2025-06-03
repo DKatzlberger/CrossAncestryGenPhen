@@ -10,6 +10,8 @@ LazyData: true
 VignetteBuilder: knitr
 Imports:
     ggplot2
+    ComplexHeatmap
+    data.table
 Suggests:
     testthat (>= 3.0.0),
     knitr,

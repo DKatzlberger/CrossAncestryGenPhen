@@ -41,7 +41,8 @@ reference:
   - title: "Main Functions"
     contents:
       - split_stratified_ancestry_sets
-      - perm_diff_interaction
+      - perm_interaction
+      - param_gls_summary
       - repeated_perm_diff_interaction
   - title: "Visualization Functions"
     contents:
@@ -67,4 +68,5 @@ articles:
   - title: "Vignettes"
     contents:
       - single_subset_run
+      - multiple_subsets_run
 

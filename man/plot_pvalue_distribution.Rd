@@ -2,24 +2,43 @@
 % Please edit documentation in R/plot_pvalue_distribution.R
 \name{plot_pvalue_distribution}
 \alias{plot_pvalue_distribution}
-\title{Plot P-value Distribution Colored by Continuous Mean log2FC (Diverging)}
+\title{Plot P-value Distribution Colored by Aggregated T_obs}
 \usage{
-plot_pvalue_distribution(x, features, threshold = NULL, point_size = 0.5)
+plot_pvalue_distribution(
+  x,
+  features = NULL,
+  aggregation_fun = mean,
+  title = NULL,
+  point_size = 0.5
+)
 }
 \arguments{
-\item{x}{Output from `repeated_perm_diff_interaction()`.}
+\item{x}{A data frame containing at least the columns \code{feature}, \code{p_value}, and \code{T_obs}.}
 
-\item{features}{Character vector of gene names to include.}
+\item{features}{Character vector of feature names to include in the plot. If \code{NULL}, the first
+9 unique features in \code{x} are used.}
 
-\item{threshold}{Optional numeric. Adds a vertical dashed line at a p-value threshold.
-Use e.g., 0.05 for significance threshold, or set to NULL to skip it (default = NULL).}
+\item{aggregation_fun}{A function used to summarize \code{T_obs} values per feature. Default is \code{mean}.
+Other options include \code{median}, or any custom summary function.}
 
-\item{point_size}{Numeric. Controls base font size (default = 0.5).}
+\item{title}{Optional character string to set the plot title.}
+
+\item{point_size}{Numeric. Controls base font size (currently not actively used, retained for consistency).}
 }
 \value{
-A ggplot2 object.
+A \code{ggplot2} object with facetted histograms showing p-value distributions, colored by the
+  aggregated T-statistic value per feature.
 }
 \description{
-Shows empirical p-value distributions across repeated permutation iterations.
-Bars are filled using a diverging color scale: blue (low logFC), white (0), red (high logFC).
+Visualizes empirical p-value distributions for selected features using a diverging color scale.
+The fill color represents the aggregated T-statistic (`T_obs`) per feature, using a user-defined
+aggregation function (e.g., mean, median).
+}
+\examples{
+# Basic usage with default mean aggregation
+plot_pvalue_distribution(combined_results)
+
+# Using median aggregation
+plot_pvalue_distribution(combined_results, aggregation_fun = median)
+
 }

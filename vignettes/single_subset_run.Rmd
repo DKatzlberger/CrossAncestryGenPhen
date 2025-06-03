@@ -100,9 +100,9 @@ g_col <- "condition"
 a_col <- "ancestry"
 
 # Define the number of permutations
-B <- 1000
+B <- 100
 
-result <- perm_diff_interaction(
+result <- perm_interaction(
   X = split$test$X,
   Y = split$inference$X,
   MX = split$test$M,

@@ -38,6 +38,7 @@ plot_correlation_heatmap <- function(
 ) {
 
   mat <- compute_correlation_matrix(x, value_col, method = method)
+  kappa <- kappa(mat) 
   diag(mat) <- NA 
 
   # Mean correlation across iterations
@@ -48,7 +49,10 @@ plot_correlation_heatmap <- function(
   top_anno <- ComplexHeatmap::HeatmapAnnotation(
     anno = function(index) {
       grid::grid.text(
-        label = paste0("Mean Pearson coefficient: ", round(mean, 3)),
+        label = paste0(
+          "Mean Pearson: ", round(mean, 3),
+          " | κ: ", formatC(kappa, digits = 3, format = "e")
+        ),
         just = "left",
         x = unit(0, "npc"),
         y = unit(0.5, "npc"),
@@ -69,6 +73,8 @@ plot_correlation_heatmap <- function(
     cluster_columns = TRUE,
     show_row_dend = TRUE,
     show_column_dend = TRUE,
+    show_row_names = FALSE,
+    show_column_names = FALSE,
     row_title = if (!is.null(row_names)) as.character(row_names) else NULL,
     column_title = if (!is.null(title)) as.character(title) else NULL,
     row_title_side = "right",

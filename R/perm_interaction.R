@@ -42,15 +42,15 @@
 #' @importFrom stats p.adjust quantile complete.cases
 #' @export
 
-perm_diff_interaction <- function(
+perm_interaction <- function(
   X,
   Y,
   MX,
   MY,
   g_col,
   a_col,
-  seed = NULL,
   B = 1000,
+  seed = NULL,
   permute = TRUE,
   min_iter = 500,
   max_iter = 10000,

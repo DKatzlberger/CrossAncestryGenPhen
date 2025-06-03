@@ -1,0 +1,195 @@
+---
+title: "Multiple subsets run"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multiple subsets run}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+This vignette demonstrates how to perform a repeated subset-based permutation test across ancestries, assess dependence across iterations, and aggregate the results using methods that account for iteration-level correlation.
+
+# Data setup
+In this example we can see a common scenario where EUR ancestry has a larger sample size than another (AFR). 
+```{r data setup, fig.alt = "Bar plot showing condition imbalance across ancestries"}
+library(CrossAncestryGenPhen)
+library(ggplot2)
+
+# Seed for reproducibility
+seed <- 42
+set.seed(seed)
+
+# Simulate example data
+p <- 100  # Number of genes
+n_EUR <- 600 
+n_AFR <- 40  
+
+# Expression matrices for EUR and AFR ancestries
+X <- matrix(rnorm(n_EUR * p), nrow = n_EUR, ncol = p)
+Y <- matrix(rnorm(n_AFR * p), nrow = n_AFR, ncol = p)
+colnames(X) <- colnames(Y) <- paste0("Gene_", seq_len(p))
+
+# Metadata for EUR and AFR ancestries
+# EUR: overrepresented compared to AFR
+MX <- data.frame(
+  condition = factor(c(rep("H", 400), rep("D", 200))),
+  ancestry = "EUR"
+)
+
+# AFR: underrepresented compared to EUR
+MY <- data.frame(
+  condition = factor(c(rep("H", 10), rep("D", 30))),
+  ancestry = "AFR"
+)
+
+# Visualize sample size imbalance
+meta <- rbind(MX, MY)
+
+# Plot
+ggplot(meta, aes(x = ancestry, fill = condition)) +
+  geom_bar(position = "dodge", color = "black") +
+  labs(
+    title = "Condition Imbalance Across Ancestries",
+    x = "Ancestry",
+    y = "Sample Count",
+    fill = "Condition"
+  ) 
+```
+
+# Loop run with multiple subsets
+In the next step we will create the stratified subset to account for sample size but also control for the condition imbalance in the underrepresented ancestry (AFR).
+```{r loop}
+# Set parameters
+g_col <- "condition"  
+a_col <- "ancestry"  
+stratify_cols <- c("condition")
+
+# Number of subsets and permutations
+n_iter <- 10
+B <- 100
+
+# Track results and sample ids
+perm_results <- list()
+id_log <- list()
+
+# Loop through iterations
+for (i in seq_len(n_iter)) {
+  
+  # Stratified ancestry sets
+  split <- split_stratified_ancestry_sets(
+      X = X,
+      Y = Y,
+      MX = MX,
+      MY = MY,
+      stratify_cols = stratify_cols,
+      seed = seed + i
+    )
+
+  # Store sample id usage with role (train, test, inference) and iteration
+  id_log[[i]] <- track_sample_ids(split, i)
+
+
+  # Run permutation difference interaction analysis
+  perm_res <- perm_interaction(
+      X = split$test$X,
+      Y = split$inference$X,
+      MX = split$test$M,
+      MY = split$inference$M,
+      g_col = g_col,
+      a_col = a_col,
+      B = B,
+      seed = seed + i
+    )
+  
+  # Add up perm result
+  perm_stats <- perm_res$summary_stats
+  perm_stats$iteration <- i
+  perm_results[[length(perm_results) + 1]] <- perm_stats
+}
+
+# Combine across iterations
+perm_combined <- do.call(rbind, perm_results)
+id_usage <- do.call(rbind, id_log)
+```
+
+# Output
+The output will contain the combined permutation results across all iterations.
+```{r output}
+head(perm_combined, 10)
+```
+
+With this information we can plot the pvalue distribution.
+The function `plot_pvalue_distribution()` will plot the distribution of p-values across iterations.
+```{r pvalue_distribution, fig.alt = "Histogram of p-values across iterations"}
+plot_pvalue_distribution(
+  x = perm_combined,
+  features = NULL,
+  aggregation_fun = mean,
+  title = "Histogram of p-values across iterations colored by mean T_obs"
+)
+
+```
+
+# Dependence of output
+Because each iteration uses the same samples from the underrepresented ancestry (AFR) and some EUR samples are shared across iteration,
+there is a dependence of across iterations.
+This sharing of samples can be visualized using the `plot_jaccard_heatmap()` function.
+```{r jaccard_heatmap, fig.alt = "Heatmap of Jaccard index across iterations"}
+plot_jaccard_heatmap(
+  id_usage = id_usage,
+  role = "test",
+  title = "Jaccard heatmap of sample usage across test sets",
+)
+
+plot_jaccard_heatmap(
+  id_usage = id_usage,
+  role = "inference",
+  title = "Jaccard heatmap of sample usage across inference sets",
+)
+```
+
+The dependence of iterations is also visible in the correaltion of the test statistics across iterations.
+This can be visualized using the `plot_correlation_heatmap()` function.
+```{r correlation_heatmap, fig.alt = "Heatmap of correlation of test statistics across iterations"}
+plot_correlation_heatmap(
+  x = perm_combined,
+  value_col = "T_obs",
+  title = "Permutation T_obs correlation across subsets",
+)
+```
+
+For demonstrations also the correlation of p-values can be visualized.
+```{r pvalue_correlation_heatmap, fig.alt = "Heatmap of correlation of p-values across iterations"}
+plot_correlation_heatmap(
+  x = perm_combined,
+  value_col = "p_value",
+  title = "Permutation p-value correlation across subsets",
+)
+```
+
+# Aggregation of iterations
+## Test statistics aggregation
+Ultimately, we aim to consolidate the results from multiple iterations into a single, aggregated summary.
+A simple method might be to compute the mean/median of the test-statistics across iterations. 
+However, this approach assumes that the iterations are independent — an assumption that often does not hold when sample splits are reused or overlap.
+To properly account for this inter-iteration dependence, we use Generalized Least Squares (GLS) to aggregate the test statistics. 
+GLS incorporates the correlation structure among iterations, yielding a statistically more valid and efficient estimate of the overall effect.
+The function `param_gls_summary()` implements this approach under the assumption that the test statistics are approximately normally distributed.
+```{r aggregation, fig.alt = "Bar plot showing aggregated p-values"}
+aggregated_res <- param_gls_summary(
+  x = perm_combined,
+  alpha = 0.05
+)
+
+head(aggregated_res, 10)
+```
+
+However, GLS has limitations, the covariance matrix is not allowed to be singular as the inversion might fail.
+
+## P-value aggregation
