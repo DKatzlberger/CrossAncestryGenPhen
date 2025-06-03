@@ -11,6 +11,7 @@
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/check_strata_feasibility.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_T_stat.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_correlation_matrix.html</loc></url>
+<url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_empirical_p.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_empirical_pvalues.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_gls_estimate.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/compute_jaccard_matrix.html</loc></url>
@@ -19,6 +20,7 @@
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/inject_DEG_signal.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/mean_diff_by_group.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/param_gls_summary.html</loc></url>
+<url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/perm_aggregate_sets.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/perm_diff_interaction.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/perm_interaction.html</loc></url>
 <url><loc>https://DKatzlberger.github.io/CrossAncestryGenPhen/reference/permute_indices.html</loc></url>

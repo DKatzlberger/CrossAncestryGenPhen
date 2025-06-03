@@ -1,3 +1,10 @@
+#' Empirical P-Values
+#'
+#' Computes two-sided empirical p-values.
+#' @param T_obs A numeric vector of observed test statistics.
+#' @param T_null A numeric vector of null distribution test statistics.
+#' @return A numeric vector of p-values.
+#' @keywords internal
 compute_empirical_p <- function(
   T_obs,
   T_null,

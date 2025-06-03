@@ -42,6 +42,7 @@ reference:
     contents:
       - split_stratified_ancestry_sets
       - perm_interaction
+      - perm_aggregate_sets
       - param_gls_summary
       - repeated_perm_diff_interaction
   - title: "Visualization Functions"

@@ -4,7 +4,7 @@
 \alias{compute_gls_estimate}
 \title{Compute GLS Estimate}
 \usage{
-compute_gls_estimate(T_vec, SE_vec, R_mat, epsilon = 1e-10)
+compute_gls_estimate(T_vec, SE_vec, R_mat)
 }
 \description{
 Computes a weighted average estimate using Generalized Least Squares, accounting for

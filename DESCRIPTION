@@ -11,6 +11,7 @@ VignetteBuilder: knitr
 Imports:
     ggplot2,
     ComplexHeatmap,
+    limma,
     data.table
 Suggests:
     testthat (>= 3.0.0),

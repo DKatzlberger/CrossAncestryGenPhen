@@ -5,7 +5,7 @@
 #' and when bootstrapping is used, adds 95% confidence intervals as dotted red lines. For permutation-based
 #' inference, empirical p-values are shown in the facet titles.
 #'
-#' @param x A named list output from \code{perm_diff_interaction()} or similar, containing null distributions
+#' @param x A named list output from \code{perm_interaction()} or similar, containing null distributions
 #'        and summary statistics. Must include a \code{summary_stats} data frame and either \code{T_perm} or
 #'        \code{T_boot} depending on the statistic type.
 #' @param features Character vector of feature names to plot. If NULL, the first 9 features (columns) from the
