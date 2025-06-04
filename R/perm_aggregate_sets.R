@@ -58,7 +58,6 @@ perm_aggregate_sets <- function(
       T_null = perm_matrix[, f],
       alternative = alternative
     )
-
   }
 
   # Adjust for multiple testing
