@@ -2,7 +2,7 @@
 #'
 #' Computes gene-wise interaction statistics using limma for the difference in group effects
 #' between ancestries (ancestry X minus ancestry Y), matching the logic of
-#' \code{perm_diff_interaction}.
+#' \code{perm_interaction}.
 #'
 #' @param X Expression matrix for ancestry X. Rows = samples, columns = genes.
 #' @param Y Expression matrix for ancestry Y. Rows = samples, columns = genes.

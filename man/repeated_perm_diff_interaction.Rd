@@ -37,7 +37,7 @@ repeated_perm_diff_interaction(
 
 \item{n_iter}{Number of stratified subsample iterations.}
 
-\item{B}{Number of permutations in each `perm_diff_interaction()` call.}
+\item{B}{Number of permutations in each `perm_interaction()` call.}
 
 \item{seed}{Base random seed for reproducibility.}
 }
@@ -51,5 +51,5 @@ A list with:
 }
 \description{
 Performs multiple stratified subsamples of the overrepresented group,
-runs `perm_diff_interaction()` on each, and aggregates the results.
+runs `perm_interaction()` on each, and aggregates the results.
 }

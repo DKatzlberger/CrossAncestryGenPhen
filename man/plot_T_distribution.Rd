@@ -13,7 +13,7 @@ plot_T_distribution(
 )
 }
 \arguments{
-\item{x}{A named list output from \code{perm_diff_interaction()} or similar, containing null distributions
+\item{x}{A named list output from \code{perm_interaction()} or similar, containing null distributions
 and summary statistics. Must include a \code{summary_stats} data frame and either \code{T_perm} or
 \code{T_boot} depending on the statistic type.}
 
