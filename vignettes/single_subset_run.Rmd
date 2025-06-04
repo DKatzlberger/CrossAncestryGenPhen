@@ -93,7 +93,7 @@ str(split)
 
 # Permutation interaction analysis
 Next, we use the `test` and `inference` sets to evaluate interaction effects between condition and ancestry using permutation-based inference.
-The `perm_diff_interaction()` function estimates differential interactions between groups using both bootstrapping and permtuation.
+The `perm_interaction()` function estimates differential interactions between groups using both bootstrapping and permutation.
 ```{r interaction_analysis, fig.alt = "Bar plot showing interaction results"}
 # Define the ancestry column and the condition column
 g_col <- "condition"

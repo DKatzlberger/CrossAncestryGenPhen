@@ -1,7 +1,7 @@
 #' Repeated Permutation Interaction Test on Stratified Subsets
 #'
 #' Performs multiple stratified subsamples of the overrepresented group,
-#' runs `perm_diff_interaction()` on each, and aggregates the results.
+#' runs `perm_interaction()` on each, and aggregates the results.
 #'
 #' @param X Expression matrix (samples × genes) for the overrepresented ancestry.
 #' @param Y Expression matrix for the underrepresented ancestry.
@@ -12,7 +12,7 @@
 #' @param a_col Name of the ancestry variable.
 #' @param features Optional vector of feature names to include (default: all).
 #' @param n_iter Number of stratified subsample iterations.
-#' @param B Number of permutations in each `perm_diff_interaction()` call.
+#' @param B Number of permutations in each `perm_interaction()` call.
 #' @param seed Base random seed for reproducibility.
 #'
 #' @return A list with:
@@ -50,7 +50,7 @@ repeated_perm_diff_interaction <- function(
 
     if (nrow(split$test$X) == 0) next
 
-    result <- perm_diff_interaction(
+    result <- perm_interaction(
       X = split$test$X,
       Y = split$inference$X,
       MX = split$test$M,
