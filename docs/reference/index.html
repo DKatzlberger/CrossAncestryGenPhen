@@ -49,16 +49,28 @@
         <dd>Split Expression and Metadata into Train, Test, and Inference Sets</dd>
       </dl><dl><dt>
 
-          <code><a href="perm_interaction.html">perm_interaction()</a></code>
+          <code><a href="perm_interaction_effect.html">perm_interaction_effect()</a></code>
 
         </dt>
-        <dd>Permutation-Based Interaction Test with Mandatory Bootstrapped Inference</dd>
+        <dd>Simple Permutation-Based Interaction Test (No Bootstrapping, No Convergence)</dd>
       </dl><dl><dt>
 
-          <code><a href="perm_aggregate_sets.html">perm_aggregate_sets()</a></code>
+          <code><a href="limma_interaction_effect.html">limma_interaction_effect()</a></code>
 
         </dt>
-        <dd>Permutation-Based Aggregation Test for Feature Sets</dd>
+        <dd>Limma-Based Interaction Test</dd>
+      </dl><dl><dt>
+
+          <code><a href="perm_correlation_difference.html">perm_correlation_difference()</a></code>
+
+        </dt>
+        <dd>Simple Permutation Test for Correlation Differences</dd>
+      </dl><dl><dt>
+
+          <code><a href="perm_prediction_difference.html">perm_prediction_difference()</a></code>
+
+        </dt>
+        <dd>Permutation Test for Prediction Performance Differences</dd>
       </dl><dl><dt>
 
           <code><a href="param_gls_summary.html">param_gls_summary()</a></code>
@@ -67,10 +79,10 @@
         <dd>Parametric GLS Feature Summary Across Iterations</dd>
       </dl><dl><dt>
 
-          <code><a href="repeated_perm_diff_interaction.html">repeated_perm_diff_interaction()</a></code>
+          <code><a href="RP_aggregation.html">RP_aggregation()</a></code>
 
         </dt>
-        <dd>Repeated Permutation Interaction Test on Stratified Subsets</dd>
+        <dd>Aggregate gene statistics using Rank Product</dd>
       </dl></div><div class="section level2">
       <h2 id="visualization-functions">Visualization Functions<a class="anchor" aria-label="anchor" href="#visualization-functions"></a></h2>
 
@@ -84,28 +96,34 @@
 
       <dl><dt>
 
+          <code><a href="plot_feature.html">plot_feature()</a></code>
+
+        </dt>
+        <dd>Plot feature distributions across two splits</dd>
+      </dl><dl><dt>
+
           <code><a href="plot_stratified_sets.html">plot_stratified_sets()</a></code>
 
         </dt>
-        <dd>Plot Sample Size by Stratified Variable and Dataset Split</dd>
+        <dd>Plot Sample Counts by Stratified Variable and Dataset Split</dd>
       </dl><dl><dt>
 
-          <code><a href="plot_T_distribution.html">plot_T_distribution()</a></code>
+          <code><a href="plot_stratified_feature.html">plot_stratified_feature()</a></code>
 
         </dt>
-        <dd>Plot T-Statistic Distributions with Observed Values and Annotations</dd>
+        <dd>Plot stratified feature distributions across splits</dd>
       </dl><dl><dt>
 
-          <code><a href="plot_significance_landscape.html">plot_significance_landscape()</a></code>
+          <code><a href="plot_null_distribution.html">plot_null_distribution()</a></code>
 
         </dt>
-        <dd>Plot Interaction Significance Landscape</dd>
+        <dd>Plot permutation-based T-statistics with observed values and p-values</dd>
       </dl><dl><dt>
 
           <code><a href="plot_pvalue_distribution.html">plot_pvalue_distribution()</a></code>
 
         </dt>
-        <dd>Plot P-value Distribution Colored by Aggregated T_obs</dd>
+        <dd>Plot P-value Distribution Colored by a Binned Fill Variable</dd>
       </dl><dl><dt>
 
           <code><a href="plot_correlation_heatmap.html">plot_correlation_heatmap()</a></code>
@@ -118,6 +136,24 @@
 
         </dt>
         <dd>Plot Jaccard Heatmap of Sample Reuse Across Iterations</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_correlation_difference.html">plot_correlation_difference()</a></code>
+
+        </dt>
+        <dd>Plot correlation differences with optional facets</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_volcano.html">plot_volcano()</a></code>
+
+        </dt>
+        <dd>Volcano Plot</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_pvalue_concordance.html">plot_pvalue_concordance()</a></code>
+
+        </dt>
+        <dd>Plot concordance of -log10 p-values between two methods</dd>
       </dl></div><div class="section level2">
       <h2 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
 
@@ -176,6 +212,29 @@
 
         </dt>
         <dd>Simulate Negative Binomial RNA-seq Counts from Real Data</dd>
+      </dl></div><div class="section level2">
+      <h2 id="testing">TESTING<a class="anchor" aria-label="anchor" href="#testing"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="boot_interaction_effect.html">boot_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Simple Bootstrap-Based Interaction Estimation with CI Level Control</dd>
+      </dl><dl><dt>
+
+          <code><a href="boot_correlation_diff.html">boot_correlation_diff()</a></code>
+
+        </dt>
+        <dd>Bootstrap-Based Correlation Difference Test (Unstratified)</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -186,7 +245,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

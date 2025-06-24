@@ -50,7 +50,7 @@ inference, empirical p-values are shown in the facet titles.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_T_distribution</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  statistic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"T_perm"</span>, <span class="st">"T_boot"</span><span class="op">)</span>,</span>
+<span>  statistic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"T_null"</span>, <span class="st">"T_boot"</span><span class="op">)</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  point_size <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -61,7 +61,7 @@ inference, empirical p-values are shown in the facet titles.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A named list output from <code>perm_diff_interaction()</code> or similar, containing null distributions
+<dd><p>A named list output from <code><a href="perm_interaction_effect.html">perm_interaction_effect()</a></code> or similar, containing null distributions
 and summary statistics. Must include a <code>summary_stats</code> data frame and either <code>T_perm</code> or
 <code>T_boot</code> depending on the statistic type.</p></dd>
 

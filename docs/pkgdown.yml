@@ -1,10 +1,10 @@
 pandoc: 3.7.0.1
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  multiple_subsets_run: multiple_subsets_run.html
-  single_subset_run: single_subset_run.html
-last_built: 2025-06-03T10:13Z
+  permutation_correlation_difference: permutation_correlation_difference.html
+  permutation_interaction_effect: permutation_interaction_effect.html
+last_built: 2025-06-23T09:08Z
 urls:
   reference: https://DKatzlberger.github.io/CrossAncestryGenPhen/reference
   article: https://DKatzlberger.github.io/CrossAncestryGenPhen/articles

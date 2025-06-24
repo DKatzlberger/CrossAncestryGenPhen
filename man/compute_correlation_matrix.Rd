@@ -4,12 +4,14 @@
 \alias{compute_correlation_matrix}
 \title{Compute Correlation Matrix from Long-format Data}
 \usage{
-compute_correlation_matrix(x, value_col, method = "pearson")
+compute_correlation_matrix(x, value_col, iter_col, method = "pearson")
 }
 \arguments{
-\item{x}{A data frame or data.table with columns `feature`, `iteration`, and a value column.}
+\item{x}{A data frame or data.table with columns `feature`, a user-defined iteration column, and a value column.}
 
 \item{value_col}{The name of the column to pivot on (e.g., "p_value" or "T_obs").}
+
+\item{iter_col}{The name of the column to treat as "iteration" (e.g., "sample_id", "perm_id").}
 
 \item{method}{Correlation method: one of "pearson", "spearman", or "kendall".}
 }

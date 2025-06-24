@@ -1,94 +1,111 @@
-#' Plot P-value Distribution Colored by Aggregated T_obs
+#' Plot P-value Distribution Colored by a Binned Fill Variable
 #'
-#' Visualizes empirical p-value distributions for selected features using a diverging color scale.
-#' The fill color represents the aggregated T-statistic (`T_obs`) per feature, using a user-defined
-#' aggregation function (e.g., mean, median).
+#' Visualizes p-value distributions for selected features using a stacked histogram.
+#' The fill color of each bin segment reflects the binned version of the chosen fill variable.
 #'
-#' @param x A data frame containing at least the columns \code{feature}, \code{p_value}, and \code{T_obs}.
+#' @param data A data frame containing at least the columns \code{feature}, and user-specified \code{x_var} and \code{fill_var}.
+#' @param x_var Name of the column to use for the x-axis (e.g., "p_value").
+#' @param fill_var Name of the column to use for fill coloring (e.g., "T_obs").
 #' @param features Character vector of feature names to include in the plot. If \code{NULL}, the first
-#'   9 unique features in \code{x} are used.
-#' @param aggregation_fun A function used to summarize \code{T_obs} values per feature. Default is \code{mean}.
-#'   Other options include \code{median}, or any custom summary function.
+#'   9 unique features in \code{feature} are used.
 #' @param title Optional character string to set the plot title.
-#' @param point_size Numeric. Controls base font size (currently not actively used, retained for consistency).
+#' @param x_label Label for the x-axis.
+#' @param y_label Label for the y-axis. Defaults to \code{"Count"}.
+#' @param bins Integer. Number of bins to use for the histogram (default is 50).
+#' @param bin_width Numeric. Width used to bin the fill variable (default is 0.5).
 #'
-#' @return A \code{ggplot2} object with facetted histograms showing p-value distributions, colored by the
-#'   aggregated T-statistic value per feature.
-#'
-#' @examples
-#' # Basic usage with default mean aggregation
-#' plot_pvalue_distribution(combined_results)
-#'
-#' # Using median aggregation
-#' plot_pvalue_distribution(combined_results, aggregation_fun = median)
-#'
-#' @importFrom ggplot2 ggplot aes geom_histogram facet_wrap scale_fill_gradient2
-#' @importFrom ggplot2 labs theme
+#' @return A \code{ggplot2} object showing facetted histograms.
+#' 
+#' @import ggplot2
 #' @export
 plot_pvalue_distribution <- function(
-  x,
+  data,
+  x_var,
+  fill_var = NULL,
   features = NULL,
-  aggregation_fun = mean,
   title = NULL,
-  point_size = 0.5
+  x_label = x_var,
+  y_label = "Count",
+  bins = 50,
+  bin_width = 0.5
 ) {
-
-  required_cols <- c("feature", "p_value", "T_obs")
-  if (!all(required_cols %in% colnames(x))) {
-    stop("Input data frame must include columns: feature, p_value, T_obs")
+  if (!all(c("feature", x_var, fill_var) %in% names(data))) {
+    stop("Input data must contain 'feature', the specified x_var, and fill_var columns.")
   }
 
-  # Default to first 9 features if none specified
   if (is.null(features)) {
-    features <- unique(x$feature)[1:min(9, length(unique(x$feature)))]
+    features <- unique(data$feature)
+    features <- sort(features)
+    features <- features[1:min(9, length(unique(data$feature)))]
   }
 
-  # Validate and subset features
-  features <- intersect(features, unique(x$feature))
+  features <- intersect(features, unique(data$feature))
   if (length(features) == 0) stop("None of the selected features are available.")
-  df <- x[x$feature %in% features, , drop = FALSE]
 
-  # Compute aggregated T_obs per feature
-  agg_name <- deparse(substitute(aggregation_fun))
-  mean_df <- aggregate(T_obs ~ feature, data = df, FUN = aggregation_fun)
-  colnames(mean_df)[2] <- paste0(agg_name, "_T_obs")
-
-  # Merge back into main df
-  df <- merge(df, mean_df, by = "feature")
-  colnames(df)[colnames(df) == paste0(agg_name, "_T_obs")] <- "agg_T_obs"
+  df <- data[data$feature %in% features, , drop = FALSE]
   df$feature <- factor(df$feature, levels = features)
+
+  # Ensure bin_levels always includes 0
+  t_vals <- df[[fill_var]]
+  t_min <- -3
+  t_max <- 3
+
+  bin_levels <- seq(t_min, t_max, by = bin_width)
+  if (!any(bin_levels == 0)) {
+    bin_levels <- sort(c(bin_levels, 0))  # ensure 0 is in the middle
+  }
+  bin_labels <- format(bin_levels, nsmall = 1)
+  bin_labels[1] <- paste0("≤ ", bin_labels[1])
+  bin_labels[length(bin_labels)] <- paste0("≥ ", bin_labels[length(bin_labels)])
+
+  # Bin the data
+  bin_raw <- floor(t_vals / bin_width) * bin_width
+  bin_raw[bin_raw <= t_min] <- t_min
+  bin_raw[bin_raw >= t_max] <- t_max
+  df$fill_bin <- factor(bin_raw, levels = bin_levels, labels = bin_labels)
+
+  # Color palette: ensure white is at 0
+  zero_idx <- which(bin_levels == 0)
+  n_below <- zero_idx - 1
+  n_above <- length(bin_levels) - zero_idx
+
+  colors <- c(
+    colorRampPalette(c("blue", "white"))(n_below + 1),
+    colorRampPalette(c("white", "red"))(n_above + 1)[-1]
+  )
+  names(colors) <- bin_labels
+
 
   # Plot
   p <- ggplot(
-    data = df, 
+    df, 
     aes(
-      x = p_value, 
-      fill = agg_T_obs
-    )
-  ) +
+      x = .data[[x_var]], 
+      fill = fill_bin
+      )
+    ) +
     geom_histogram(
-      bins = 50, 
-      color = "black"
+      bins = bins,
+      position = "stack",
+      color = "black",
+      linewidth = 0.1
     ) +
     facet_wrap(
       ~feature, 
-      scales = "free_y"
+      # scales = "free"
     ) +
-    scale_fill_gradient2(
-      low = "blue", 
-      mid = "white", 
-      high = "red", 
-      midpoint = 0,
-      name = paste0(agg_name, " T_obs")
+    scale_fill_manual(
+      values = colors, 
+      name = fill_var
     ) +
     labs(
       title = title,
-      x = "Empirical p-value",
-      y = "Count"
+      x = x_label,
+      y = y_label
     ) +
     theme_nature_fonts() +
-    theme_small_legend() +
-    theme_white_background()
+    theme_white_background() +
+    theme_small_legend()
 
   return(p)
 }

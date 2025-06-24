@@ -5,7 +5,7 @@
 \title{Plot Jaccard Heatmap of Sample Reuse Across Iterations}
 \usage{
 plot_jaccard_heatmap(
-  id_usage,
+  data,
   role = "test",
   row_names = NULL,
   title = NULL,
@@ -15,7 +15,7 @@ plot_jaccard_heatmap(
 )
 }
 \arguments{
-\item{id_usage}{A data.frame with columns \code{sample_id}, \code{role}, and \code{iteration}.}
+\item{data}{A data.frame with columns \code{sample_id}, \code{role}, and \code{iteration}.}
 
 \item{role}{A string, one of \code{"test"}, \code{"train"}, or \code{"inference"}.}
 

@@ -3,7 +3,7 @@
 #' Computes and visualizes the Jaccard similarity of sample usage across iterations
 #' for a given role (e.g., "test", "train", or "inference").
 #'
-#' @param id_usage A data.frame with columns \code{sample_id}, \code{role}, and \code{iteration}.
+#' @param data A data.frame with columns \code{sample_id}, \code{role}, and \code{iteration}.
 #' @param role A string, one of \code{"test"}, \code{"train"}, or \code{"inference"}.
 #' @param title Optional title for the heatmap.
 #' @param file Optional filename to save the heatmap (pdf, png, jpeg, or tiff).
@@ -13,7 +13,7 @@
 #'
 #' @export
 plot_jaccard_heatmap <- function(
-  id_usage,
+  data,
   role = "test",
   row_names = NULL,
   title = NULL,
@@ -22,7 +22,7 @@ plot_jaccard_heatmap <- function(
   height = 8
 ) {
 
-  mat <- compute_jaccard_matrix(id_usage, role = role)
+  mat <- compute_jaccard_matrix(data, role = role)
   diag(mat) <- NA 
   
   # Mean jaccard similarity across iterations

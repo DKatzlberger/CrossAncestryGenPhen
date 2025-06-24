@@ -41,18 +41,26 @@ reference:
   - title: "Main Functions"
     contents:
       - split_stratified_ancestry_sets
-      - perm_interaction
-      - perm_aggregate_sets
+      - perm_interaction_effect
+      - limma_interaction_effect
+      - perm_correlation_difference
+      - perm_prediction_difference
       - param_gls_summary
-      - repeated_perm_diff_interaction
+      - RP_aggregation
+
   - title: "Visualization Functions"
     contents:
+      - plot_feature
       - plot_stratified_sets
-      - plot_T_distribution
-      - plot_significance_landscape
+      - plot_stratified_feature
+      - plot_null_distribution
       - plot_pvalue_distribution
       - plot_correlation_heatmap
       - plot_jaccard_heatmap
+      - plot_correlation_difference
+      - plot_volcano
+      - plot_pvalue_concordance
+
   - title: "Utility Functions"
     contents:
       - track_sample_ids
@@ -64,10 +72,15 @@ reference:
       - inject_DEG_signal
       - plot_simulated_features
       - simulate_NB_counts
+  
+  - title: "TESTING"
+    contents:
+      - boot_interaction_effect
+      - boot_correlation_diff
 
 articles:
   - title: "Vignettes"
     contents:
-      - single_subset_run
-      - multiple_subsets_run
+      - permutation_interaction_effect
+      - permutation_correlation_difference
 

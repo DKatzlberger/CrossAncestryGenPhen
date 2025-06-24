@@ -1,0 +1,117 @@
+#' Plot stratified feature distributions across splits
+#'
+#' Generates boxplots of scaled feature values across data splits
+#' (X, Y, R) stratified by a grouping column, optionally for
+#' specified features.
+#'
+#' @param X A numeric matrix or data frame for the test split
+#' @param Y A numeric matrix or data frame for the inference split
+#' @param R A numeric matrix or data frame for the train split
+#' @param MX Metadata for X, containing IDs and group information
+#' @param MY Metadata for Y, containing IDs and group information
+#' @param MR Metadata for R, containing IDs and group information
+#' @param features Character vector of feature names to plot.
+#'   Defaults to first 9 common features if NULL.
+#' @param g_col Column name in metadata indicating the grouping
+#'   (e.g., condition)
+#' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are ids)
+#' @param title Optional title for the plot
+#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
+#'
+#' @return A ggplot2 object containing the faceted boxplot
+#' @export
+plot_stratified_feature <- function(
+  X, 
+  Y, 
+  R, 
+  MX, 
+  MY, 
+  MR, 
+  g_col, 
+  features = NULL,
+  id_col = NULL,
+  title = NULL,
+  point_size = 0.5
+) {
+  
+  if (is.null(rownames(X)) || is.null(rownames(Y)) || is.null(rownames(R))) {
+    stop("All input matrices (X, Y, R) must have rownames corresponding to sample IDs.")
+  }
+
+  # Infer features if not provided
+  if (is.null(features)) {
+    all_feats <- Reduce(intersect, list(colnames(X), colnames(Y), colnames(R)))
+    if (length(all_feats) < 1) {
+      stop("No common features found across X, Y, R.")
+    }
+    features <- sort(all_feats)
+    features <- head(features, 9)
+  }
+
+  # Subset matrices to selected features
+  X <- X[, features, drop = FALSE]
+  Y <- Y[, features, drop = FALSE]
+  R <- R[, features, drop = FALSE]
+
+  # Combine and scale all rows together
+  all_mat <- rbind(R, X, Y)
+  all_scaled <- scale(all_mat)
+
+  # Assign split labels
+  split_labels <- c(rep("R", nrow(R)), rep("X", nrow(X)), rep("Y", nrow(Y)))
+
+  # Combine metadata and ensure proper ordering
+  if (!is.null(id_col)) {
+    if (!(id_col %in% colnames(MR)) || !(id_col %in% colnames(MX)) || !(id_col %in% colnames(MY))) {
+      stop(sprintf("id_col '%s' not found in one or more metadata sets.", id_col))
+    }
+    all_ids <- c(MR[[id_col]], MX[[id_col]], MY[[id_col]])
+  } else {
+    all_ids <- c(rownames(R), rownames(X), rownames(Y))
+  }
+
+  all_conditions <- c(MR[[g_col]], MX[[g_col]], MY[[g_col]])
+
+  df_all <- data.frame(
+    sample_id = rep(all_ids, ncol(all_scaled)),
+    feature = rep(colnames(all_scaled), each = nrow(all_scaled)),
+    value = as.vector(all_scaled),
+    condition = rep(all_conditions, ncol(all_scaled)),
+    split = rep(split_labels, ncol(all_scaled)),
+    stringsAsFactors = FALSE
+  )
+
+  df_all$feature <- factor(df_all$feature, levels = features)
+  df_all$split <- factor(df_all$split, levels = c("R", "X", "Y"))
+
+  p <- ggplot(
+    data = df_all, 
+    aes(
+      x = split, 
+      y = value, 
+      fill = condition
+      )
+    ) +
+    geom_boxplot(
+      outlier.size = 0.25, 
+      width = 0.7, 
+      position = position_dodge2(
+        preserve = "single"
+      )
+    ) +
+    facet_wrap(
+      ~feature, 
+      scales = "free"
+    ) +
+    labs(
+      x = NULL,
+      y = "Z-score",
+      fill = g_col,
+      title = title
+    ) +
+    theme_nature_fonts() +
+    theme_white_background() +
+    theme_small_legend()
+
+  return(p)
+}

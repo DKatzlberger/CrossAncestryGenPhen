@@ -9,40 +9,40 @@ split_stratified_ancestry_sets(
   Y,
   MX,
   MY,
+  g_col = NULL,
   id_col = NULL,
-  stratify_cols = NULL,
   seed = NULL
 )
 }
 \arguments{
-\item{X}{A numeric matrix (samples × features) for the overrepresented ancestry group.}
+\item{X}{A numeric matrix (samples × features) for the overrepresented group. Row names must be sample IDs.}
 
-\item{Y}{A numeric matrix (samples × features) for the underrepresented ancestry group.}
+\item{Y}{A numeric matrix (samples × features) for the underrepresented group. Row names must be sample IDs.}
 
-\item{MX}{A data.frame of metadata for X (same number of rows as X).}
+\item{MX}{A data frame of metadata for `X`, with the same number of rows. Must align with `X` either by row order or `id_col`.}
 
-\item{MY}{A data.frame of metadata for Y (same number of rows as Y).}
+\item{MY}{A data frame of metadata for `Y`, same format and row count as `Y`.}
 
-\item{id_col}{Optional string specifying the column name in metadata that holds sample IDs. If NULL, rownames are used.}
+\item{g_col}{Optional character vector of column names in metadata to stratify by (e.g., ancestry, sex). If `NULL`, all samples are grouped together.}
 
-\item{stratify_cols}{A character vector of metadata column names to stratify on.}
+\item{id_col}{Optional column name in `MX` and `MY` that holds sample IDs. If `NULL`, metadata is matched to expression matrices by rownames.}
 
-\item{seed}{Optional integer to set random seed for reproducibility.}
+\item{seed}{Optional numeric seed for reproducibility of sampling.}
 }
 \value{
-A named list with:
+A list with the following elements:
 \describe{
-  \item{train}{List with `X`, `M`, and `ids` for the remaining overrepresented samples.}
-  \item{test}{List with `X`, `M`, and `ids` for the subsampled overrepresented group.}
-  \item{inference}{List with `X`, `M`, and `ids` for the underrepresented ancestry group.}
-  \item{strata_info}{A summary list with usable, missing, and insufficient strata.}
+  \item{train}{A list with matrix, metadata, and sample IDs for the training set.}
+  \item{test}{A list with matrix, metadata, and sample IDs for the testing set.}
+  \item{inference}{A list with matrix, metadata, and sample IDs for the inference set (group Y).}
+  \item{strata_info}{A summary list of usable, missing, and insufficient strata.}
 }
 }
 \description{
-Subsamples the overrepresented ancestry (e.g., EUR) to match the underrepresented ancestry
-(e.g., AFR) for a test set, stratifying by metadata columns. The remaining overrepresented
-samples are used for training. The underrepresented ancestry group is returned as the inference set.
+Performs stratified sampling of an overrepresented group (X) to match the distribution of
+an underrepresented group (Y) based on one or more grouping variables (e.g., ancestry).
 }
 \details{
-This version supports tracking and subsetting using either rownames or a specified sample ID column.
+Sample IDs must be provided as rownames in both expression matrices. If `id_col` is specified,
+it must match those rownames exactly in the metadata.
 }

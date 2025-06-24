@@ -2,22 +2,32 @@
 % Please edit documentation in R/plot_stratified_sets.R
 \name{plot_stratified_sets}
 \alias{plot_stratified_sets}
-\title{Plot Sample Size by Stratified Variable and Dataset Split}
+\title{Plot Sample Counts by Stratified Variable and Dataset Split}
 \usage{
-plot_stratified_sets(x, stratify_cols, title = NULL, point_size = 0.5)
+plot_stratified_sets(MX, MY, MR, g_col, title = NULL, point_size = 0.5)
 }
 \arguments{
-\item{stratify_cols}{Character vector of metadata column names used for stratification.}
+\item{MX}{A data.frame containing metadata for the test set (usually output from `split_stratified_ancestry_sets()`).}
 
-\item{point_size}{Numeric value to control fontsize.}
+\item{MY}{A data.frame containing metadata for the inference set.}
 
-\item{result}{The output from `split_stratified_ancestry_sets()`.}
+\item{MR}{A data.frame containing metadata for the train set.}
+
+\item{g_col}{Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).}
+
+\item{title}{Optional character string to use as the plot title.}
+
+\item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly).}
 }
 \value{
-A ggplot2 object with dodged bars grouped by set, filled by strata values, and faceted by stratify column.
+A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.
 }
 \description{
-Visualizes the number of samples in train, test, and inference sets,
-with bars grouped by dataset split and filled by stratum values. Each
-stratification column gets its own facet for clearer interpretation.
+Creates a bar plot showing the number of samples in each dataset split
+(train, test, inference), grouped and colored by stratification variables.
+Each stratification column is shown in a separate facet for clear comparison.
+}
+\details{
+This is useful for visually checking balance or representation across
+strata (e.g., ancestry or condition) within each split.
 }

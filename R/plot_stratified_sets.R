@@ -1,35 +1,43 @@
-#' Plot Sample Size by Stratified Variable and Dataset Split
+#' Plot Sample Counts by Stratified Variable and Dataset Split
 #'
-#' Visualizes the number of samples in train, test, and inference sets,
-#' with bars grouped by dataset split and filled by stratum values. Each
-#' stratification column gets its own facet for clearer interpretation.
+#' Creates a bar plot showing the number of samples in each dataset split
+#' (train, test, inference), grouped and colored by stratification variables.
+#' Each stratification column is shown in a separate facet for clear comparison.
 #'
-#' @param result The output from `split_stratified_ancestry_sets()`.
-#' @param stratify_cols Character vector of metadata column names used for stratification.
-#' @param point_size Numeric value to control fontsize.
+#' This is useful for visually checking balance or representation across
+#' strata (e.g., ancestry or condition) within each split.
 #'
-#' @return A ggplot2 object with dodged bars grouped by set, filled by strata values, and faceted by stratify column.
+#' @param MX A data.frame containing metadata for the test set (usually output from `split_stratified_ancestry_sets()`).
+#' @param MY A data.frame containing metadata for the inference set.
+#' @param MR A data.frame containing metadata for the train set.
+#' @param g_col Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).
+#' @param title Optional character string to use as the plot title.
+#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
+#'
+#' @return A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.
 #' @export
 plot_stratified_sets <- function(
-  x,
-  stratify_cols,
+  MX, 
+  MY, 
+  MR, 
+  g_col,
   title = NULL,
   point_size = 0.5
 ) {
   # Add dataset split labels
-  train_M <- x$train$M
-  test_M  <- x$test$M
-  infer_M <- x$inference$M
+  train_M <- MR
+  test_M  <- MX
+  infer_M <- MY
 
-  train_M$set <- "Train"
-  test_M$set  <- "Test"
-  infer_M$set <- "Inference"
+  train_M$set <- "R"
+  test_M$set  <- "X"
+  infer_M$set <- "Y"
 
   all_M <- rbind(train_M, test_M, infer_M)
-  all_M$set <- factor(all_M$set, levels = c("Train", "Test", "Inference"))
+  all_M$set <- factor(all_M$set, levels = c("R", "X", "Y"))
 
   # Combine counts for each stratification column separately
-  plot_data_list <- lapply(stratify_cols, function(col) {
+  plot_data_list <- lapply(g_col, function(col) {
     tab <- as.data.frame(table(set = all_M$set, stratum = all_M[[col]]))
     tab$variable <- col
     names(tab)[2] <- "value"

@@ -3,8 +3,9 @@
 #' Computes correlation between values (e.g., p-values, t-statistics) across iterations per feature,
 #' reshapes the data into wide format, calculates a correlation matrix, and visualizes it as a clustered heatmap.
 #'
-#' @param x A data frame with columns: `feature`, `iteration`, and a numeric value column (e.g., `p_value`, `T_obs`).
-#' @param value_col A string specifying the column name in `x` to use for correlation (e.g., `"p_value"` or `"T_obs"`).
+#' @param data A data frame with columns: `feature`, an iteration column (e.g., `perm_id`), and a numeric value column (e.g., `p_value`, `T_obs`).
+#' @param value_col A string specifying the column name in `data` to use for correlation (e.g., `"p_value"` or `"T_obs"`).
+#' @param iter_col A string specifying the column name in `data` to use as the iteration identifier (e.g., `"iteration"`, `"perm_id"`).
 #' @param method A string specifying the correlation method to use. One of `"pearson"` (default), `"spearman"`, or `"kendall"`.
 #' @param row_names Optional string to display as the row title in the heatmap.
 #' @param title Optional string for the main heatmap title.
@@ -25,10 +26,10 @@
 #' @import circlize
 #' @import grid
 #' @export
-
 plot_correlation_heatmap <- function(
-  x,
+  data,
   value_col,
+  iter_col,
   method = "pearson",
   row_names = NULL,
   title = NULL,
@@ -37,21 +38,27 @@ plot_correlation_heatmap <- function(
   height = 8
 ) {
 
-  mat <- compute_correlation_matrix(x, value_col, method = method)
-  kappa <- kappa(mat) 
+  mat <- compute_correlation_matrix(
+    data, 
+    value_col = value_col, 
+    iter_col = iter_col, 
+    method = method
+  )
+  
+  # Handle kappa safely
+  kappa_val <- tryCatch(kappa(mat), error = function(e) NA)
   diag(mat) <- NA 
 
   # Mean correlation across iterations
   mask <- upper.tri(mat, diag = FALSE)
-  mean <- mean(mat[mask], na.rm = TRUE)
+  mean_cor <- mean(mat[mask], na.rm = TRUE)
 
   # Annotation for heatmap
   top_anno <- ComplexHeatmap::HeatmapAnnotation(
     anno = function(index) {
       grid::grid.text(
         label = paste0(
-          "Mean Pearson: ", round(mean, 3),
-          " | κ: ", formatC(kappa, digits = 3, format = "e")
+          "Mean ", method, ": ", round(mean_cor, 3)
         ),
         just = "left",
         x = unit(0, "npc"),
@@ -64,10 +71,9 @@ plot_correlation_heatmap <- function(
     height = unit(1.5, "lines")
   )
   
-
   ht <- Heatmap(
     mat,
-    name = "Pearson",
+    name = method,
     col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")),
     cluster_rows = TRUE,
     cluster_columns = TRUE,

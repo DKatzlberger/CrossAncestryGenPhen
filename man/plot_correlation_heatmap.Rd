@@ -5,8 +5,9 @@
 \title{ComplexHeatmap of Correlation Matrix Across Iterations}
 \usage{
 plot_correlation_heatmap(
-  x,
+  data,
   value_col,
+  iter_col,
   method = "pearson",
   row_names = NULL,
   title = NULL,
@@ -16,9 +17,11 @@ plot_correlation_heatmap(
 )
 }
 \arguments{
-\item{x}{A data frame with columns: `feature`, `iteration`, and a numeric value column (e.g., `p_value`, `T_obs`).}
+\item{data}{A data frame with columns: `feature`, an iteration column (e.g., `perm_id`), and a numeric value column (e.g., `p_value`, `T_obs`).}
 
-\item{value_col}{A string specifying the column name in `x` to use for correlation (e.g., `"p_value"` or `"T_obs"`).}
+\item{value_col}{A string specifying the column name in `data` to use for correlation (e.g., `"p_value"` or `"T_obs"`).}
+
+\item{iter_col}{A string specifying the column name in `data` to use as the iteration identifier (e.g., `"iteration"`, `"perm_id"`).}
 
 \item{method}{A string specifying the correlation method to use. One of `"pearson"` (default), `"spearman"`, or `"kendall"`.}
 

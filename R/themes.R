@@ -38,11 +38,10 @@ theme_small_legend <- function(base_size = 8, ...) {
     legend.key.spacing = ggplot2::unit(0.1, "pt"),
     legend.key.height = ggplot2::unit(key_size_pt, "pt"),
     legend.key.width = ggplot2::unit(key_size_pt, "pt"),
-    legend.margin = ggplot2::margin(0.2, 0.2, 0.2, 0.2),
+    legend.margin = ggplot2::margin(0.5, 0.5, 0.5, 0.5),
     ...
   )
 }
-
 
 
 #' @keywords internal

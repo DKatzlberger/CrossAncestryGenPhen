@@ -2,43 +2,44 @@
 % Please edit documentation in R/plot_pvalue_distribution.R
 \name{plot_pvalue_distribution}
 \alias{plot_pvalue_distribution}
-\title{Plot P-value Distribution Colored by Aggregated T_obs}
+\title{Plot P-value Distribution Colored by a Binned Fill Variable}
 \usage{
 plot_pvalue_distribution(
-  x,
+  data,
+  x_var,
+  fill_var = NULL,
   features = NULL,
-  aggregation_fun = mean,
   title = NULL,
-  point_size = 0.5
+  x_label = x_var,
+  y_label = "Count",
+  bins = 50,
+  bin_width = 0.5
 )
 }
 \arguments{
-\item{x}{A data frame containing at least the columns \code{feature}, \code{p_value}, and \code{T_obs}.}
+\item{data}{A data frame containing at least the columns \code{feature}, and user-specified \code{x_var} and \code{fill_var}.}
+
+\item{x_var}{Name of the column to use for the x-axis (e.g., "p_value").}
+
+\item{fill_var}{Name of the column to use for fill coloring (e.g., "T_obs").}
 
 \item{features}{Character vector of feature names to include in the plot. If \code{NULL}, the first
-9 unique features in \code{x} are used.}
-
-\item{aggregation_fun}{A function used to summarize \code{T_obs} values per feature. Default is \code{mean}.
-Other options include \code{median}, or any custom summary function.}
+9 unique features in \code{feature} are used.}
 
 \item{title}{Optional character string to set the plot title.}
 
-\item{point_size}{Numeric. Controls base font size (currently not actively used, retained for consistency).}
+\item{x_label}{Label for the x-axis.}
+
+\item{y_label}{Label for the y-axis. Defaults to \code{"Count"}.}
+
+\item{bins}{Integer. Number of bins to use for the histogram (default is 50).}
+
+\item{bin_width}{Numeric. Width used to bin the fill variable (default is 0.5).}
 }
 \value{
-A \code{ggplot2} object with facetted histograms showing p-value distributions, colored by the
-  aggregated T-statistic value per feature.
+A \code{ggplot2} object showing facetted histograms.
 }
 \description{
-Visualizes empirical p-value distributions for selected features using a diverging color scale.
-The fill color represents the aggregated T-statistic (`T_obs`) per feature, using a user-defined
-aggregation function (e.g., mean, median).
-}
-\examples{
-# Basic usage with default mean aggregation
-plot_pvalue_distribution(combined_results)
-
-# Using median aggregation
-plot_pvalue_distribution(combined_results, aggregation_fun = median)
-
+Visualizes p-value distributions for selected features using a stacked histogram.
+The fill color of each bin segment reflects the binned version of the chosen fill variable.
 }
