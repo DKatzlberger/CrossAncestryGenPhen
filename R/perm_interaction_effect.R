@@ -9,7 +9,6 @@
 #' @param g_col Column in metadata for condition/group (factor with 2 levels)
 #' @param B Number of permutations
 #' @param seed Optional seed for reproducibility
-#' @param permute Logical. Whether to perform permutation test
 #'
 #' @return A list with summary stats, permutation matrix, and number of valid permutations
 #' @export
