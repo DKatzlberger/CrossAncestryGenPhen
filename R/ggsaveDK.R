@@ -1,7 +1,7 @@
 #' Save ggplot with optional legend removal and sensible defaults
 #'
+#' @param filename File path to save the plot.
 #' @param plot A ggplot object.
-#' @param filename File path to save to.
 #' @param legend Logical. If FALSE, removes the legend before saving.
 #' @param width Width in inches. Default is 7.
 #' @param height Height in inches. Default is 7.

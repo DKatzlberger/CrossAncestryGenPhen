@@ -1,17 +1,18 @@
 #' Plot feature distributions across two splits
 #'
 #' Generates boxplots of scaled feature values across two data splits
-#' (X and Y), stratified by a grouping column, optionally for specified features.
+#' (X and Y) stratified by a grouping column.
 #'
-#' @param X A numeric matrix or data frame for the test split
-#' @param Y A numeric matrix or data frame for the inference split
-#' @param MX Metadata for X, containing IDs and group information
-#' @param MY Metadata for Y, containing IDs and group information
-#' @param features Character vector of feature names to plot.
-#'   Defaults to first 9 common features if NULL.
-#' @param g_col Column name in metadata indicating the grouping (e.g., condition)
-#' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)
-#' @param title Optional title for the plot
+#' @param X Numeric matrix or data frame for the test split.
+#' @param Y Numeric matrix or data frame for the inference split.
+#' @param MX Metadata for X with IDs and group information.
+#' @param MY Metadata for Y with IDs and group information.
+#' @param g_col Metadata column indicating the grouping.
+#' @param features Features to plot. If NULL, first nine common features
+#'   are used.
+#' @param title Optional plot title.
+#' @param x_label Label for the x-axis.
+#' @param y_label Label for the y-axis.
 #'
 #' @return A ggplot2 object containing the faceted boxplot
 #' @export
