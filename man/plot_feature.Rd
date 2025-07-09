@@ -9,11 +9,11 @@ plot_feature(
   Y,
   MX,
   MY,
-  features = NULL,
   g_col,
-  id_col = NULL,
+  features = NULL,
   title = NULL,
-  point_size = 0.5
+  x_label = NULL,
+  y_label = NULL
 )
 }
 \arguments{
@@ -25,16 +25,14 @@ plot_feature(
 
 \item{MY}{Metadata for Y, containing IDs and group information}
 
+\item{g_col}{Column name in metadata indicating the grouping (e.g., condition)}
+
 \item{features}{Character vector of feature names to plot.
 Defaults to first 9 common features if NULL.}
 
-\item{g_col}{Column name in metadata indicating the grouping (e.g., condition)}
-
-\item{id_col}{Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)}
-
 \item{title}{Optional title for the plot}
 
-\item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly)}
+\item{id_col}{Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)}
 }
 \value{
 A ggplot2 object containing the faceted boxplot

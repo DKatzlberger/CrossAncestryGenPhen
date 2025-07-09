@@ -11,10 +11,12 @@ plot_stratified_feature(
   MX,
   MY,
   MR,
+  fill_var,
   features = NULL,
-  g_col,
   id_col = NULL,
   title = NULL,
+  x_label = NULL,
+  y_label = NULL,
   point_size = 0.5
 )
 }
@@ -34,14 +36,14 @@ plot_stratified_feature(
 \item{features}{Character vector of feature names to plot.
 Defaults to first 9 common features if NULL.}
 
-\item{g_col}{Column name in metadata indicating the grouping
-(e.g., condition)}
-
 \item{id_col}{Column name in metadata for sample identifiers (assumes rownames of matrix are ids)}
 
 \item{title}{Optional title for the plot}
 
 \item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly).}
+
+\item{g_col}{Column name in metadata indicating the grouping
+(e.g., condition)}
 }
 \value{
 A ggplot2 object containing the faceted boxplot

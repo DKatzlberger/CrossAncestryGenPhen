@@ -10,7 +10,6 @@ boot_interaction_effect(
   MX,
   MY,
   g_col,
-  a_col = NULL,
   B = 1000,
   seed = NULL,
   alpha = 0.05

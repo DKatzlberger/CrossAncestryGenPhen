@@ -18,49 +18,52 @@ plot_pvalue_concordance(
   sig_thr = 0.05,
   epsilon = 1e-16,
   log_cap = 5,
-  point_size = 0.5
+  point_size = 0.5,
+  hex = FALSE
 )
 }
 \arguments{
-\item{data}{Data frame with p-values and optional grouping/significance.}
+\item{data}{Data frame containing p-values and optional grouping or significance columns.}
 
-\item{x_var}{Character. Column name for x-axis p-values.}
+\item{x_var}{Character. Name of the column for x-axis p-values.}
 
-\item{y_var}{Character. Column name for y-axis p-values.}
+\item{y_var}{Character. Name of the column for y-axis p-values.}
 
-\item{x_sig_source}{Optional. Column for x significance p-values.}
+\item{x_sig_source}{Optional character. Column for significance of x p-values.}
 
-\item{y_sig_source}{Optional. Column for y significance p-values.}
+\item{y_sig_source}{Optional character. Column for significance of y p-values.}
 
-\item{facet_col}{Optional. Column to facet by.}
+\item{facet_col}{Optional character. Column name to facet the plot by.}
 
-\item{facet_levels}{Optional. Levels to include from facet_col.}
+\item{facet_levels}{Optional character vector. Subset of levels to include from \code{facet_col}.}
 
-\item{x_label}{Character. X-axis label. Defaults to -log10(x_var).}
+\item{x_label}{Character. X-axis label. Defaults to \code{-log10(x_var)}.}
 
-\item{y_label}{Character. Y-axis label. Defaults to -log10(y_var).}
+\item{y_label}{Character. Y-axis label. Defaults to \code{-log10(y_var)}.}
 
 \item{title}{Character. Optional plot title.}
 
-\item{sig_thr}{Numeric. P-value threshold for significance. Default 0.05.}
+\item{sig_thr}{Numeric. P-value threshold for calling significance. Default is 0.05.}
 
-\item{epsilon}{Numeric. Small value added before log. Default 1e-16.}
+\item{epsilon}{Numeric. Small constant added before log10 transform. Default is 1e-16.}
 
-\item{log_cap}{Numeric. Max -log10(p) shown. Default is 5.}
+\item{log_cap}{Numeric. Maximum value shown for -log10(p). Default is 5.}
 
-\item{point_size}{Numeric. Size of points. Default is 0.5.}
+\item{point_size}{Numeric. Size of points in the scatter plot. Default is 0.5.}
+
+\item{hex}{Logical. If TRUE, use hexagonal binning instead of individual points. Default is FALSE.}
 }
 \value{
-A ggplot2 object.
+A ggplot2 object showing the concordance of p-values between two methods.
 }
 \description{
-Creates a scatter plot comparing -log10 transformed p-values from two
+Creates a scatter or hexbin plot comparing -log10 transformed p-values from two
 statistical methods. Optionally colors points by significance and facets
-by a grouping variable. Correlations and regression lines are shown per
-facet.
+by a grouping variable. Correlation coefficients and regression lines are shown
+globally or per facet.
 }
 \details{
-Points are shown as -log10(p), capped at log_cap. If significance columns
-are provided, point color reflects significance source. Faceted plots show
-correlation (Pearson r) and a regression line.
+If \code{hex = TRUE}, a hexbin plot is produced without individual points or significance coloring.
+Otherwise, a scatter plot is shown with optional significance-based coloring and shape encoding for capped values.
+Correlation (Pearson's r) and regression lines are shown globally or per facet if faceting is enabled.
 }

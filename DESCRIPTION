@@ -9,9 +9,14 @@ Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 Imports:
+    Rcpp,
+    RcppArmadillo,
     ggplot2,
-    glmnet,
+    Rtsne,
     tidymodels
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
 Suggests:
     testthat (>= 3.0.0),
     knitr,
@@ -24,4 +29,3 @@ Suggests:
 URL: https://DKatzlberger.github.io/CrossAncestryGenPhen
 BugReports: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
 RoxygenNote: 7.3.2
-

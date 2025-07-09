@@ -8,38 +8,55 @@ plot_pvalue_distribution(
   data,
   x_var,
   fill_var = NULL,
-  features = NULL,
+  facet_col = NULL,
+  facet_levels = NULL,
   title = NULL,
-  x_label = x_var,
-  y_label = "Count",
+  x_label = NULL,
+  y_label = NULL,
   bins = 50,
-  bin_width = 0.5
+  n_fill_bins = 9
 )
 }
 \arguments{
-\item{data}{A data frame containing at least the columns \code{feature}, and user-specified \code{x_var} and \code{fill_var}.}
+\item{data}{A data frame containing at least the columns specified in \code{x_var} and \code{fill_var}.}
 
-\item{x_var}{Name of the column to use for the x-axis (e.g., "p_value").}
+\item{x_var}{String. Name of the column to use for the x-axis (e.g., "p_value").}
 
-\item{fill_var}{Name of the column to use for fill coloring (e.g., "T_obs").}
+\item{fill_var}{String. Name of the column used for fill coloring (e.g., "T_obs").}
 
-\item{features}{Character vector of feature names to include in the plot. If \code{NULL}, the first
-9 unique features in \code{feature} are used.}
+\item{facet_col}{Optional. String. Name of a column to use for faceting the plot (e.g., "feature", "cluster"). If NULL, no faceting is applied.}
 
-\item{title}{Optional character string to set the plot title.}
+\item{facet_levels}{Optional. A character vector of levels to include in faceting. If NULL and \code{facet_col} is provided, the first 9 unique values are used.}
 
-\item{x_label}{Label for the x-axis.}
+\item{title}{Optional. Character string to set the plot title.}
+
+\item{x_label}{Label for the x-axis. Defaults to the value of \code{x_var}.}
 
 \item{y_label}{Label for the y-axis. Defaults to \code{"Count"}.}
 
-\item{bins}{Integer. Number of bins to use for the histogram (default is 50).}
+\item{bins}{Integer. Number of bins to use for the x-axis histogram (default is 50).}
 
-\item{bin_width}{Numeric. Width used to bin the fill variable (default is 0.5).}
+\item{n_fill_bins}{Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.}
 }
 \value{
-A \code{ggplot2} object showing facetted histograms.
+A \code{ggplot2} object showing a histogram of \code{x_var}, with bars stacked and colored by binned values of \code{fill_var}. Faceting is applied if specified.
 }
 \description{
-Visualizes p-value distributions for selected features using a stacked histogram.
-The fill color of each bin segment reflects the binned version of the chosen fill variable.
+Visualizes the distribution of a variable (typically p-values) using a stacked histogram.
+Bars are colored based on binned values of a second variable (e.g., a test statistic), centered around zero.
+Out-of-range values are grouped into outermost bins labeled with `<=` and `>=`.
+The plot can be optionally faceted by a categorical column.
+}
+\examples{
+# Basic histogram
+plot_pvalue_distribution(data = agg_perm, x_var = "p_value", fill_var = "T_obs")
+
+# Faceted by cluster
+plot_pvalue_distribution(
+  data = agg_perm,
+  x_var = "p_value",
+  fill_var = "T_obs",
+  facet_col = "cluster"
+)
+
 }

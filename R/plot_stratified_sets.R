@@ -12,7 +12,6 @@
 #' @param MR A data.frame containing metadata for the train set.
 #' @param g_col Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).
 #' @param title Optional character string to use as the plot title.
-#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
 #'
 #' @return A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.
 #' @export
@@ -21,8 +20,7 @@ plot_stratified_sets <- function(
   MY, 
   MR, 
   g_col,
-  title = NULL,
-  point_size = 0.5
+  title = NULL
 ) {
   # Add dataset split labels
   train_M <- MR

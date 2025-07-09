@@ -4,7 +4,7 @@
 \alias{plot_stratified_sets}
 \title{Plot Sample Counts by Stratified Variable and Dataset Split}
 \usage{
-plot_stratified_sets(MX, MY, MR, g_col, title = NULL, point_size = 0.5)
+plot_stratified_sets(MX, MY, MR, g_col, title = NULL)
 }
 \arguments{
 \item{MX}{A data.frame containing metadata for the test set (usually output from `split_stratified_ancestry_sets()`).}
@@ -16,8 +16,6 @@ plot_stratified_sets(MX, MY, MR, g_col, title = NULL, point_size = 0.5)
 \item{g_col}{Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).}
 
 \item{title}{Optional character string to use as the plot title.}
-
-\item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly).}
 }
 \value{
 A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.

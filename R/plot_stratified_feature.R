@@ -26,11 +26,13 @@ plot_stratified_feature <- function(
   R, 
   MX, 
   MY, 
-  MR, 
-  g_col, 
+  MR,
+  fill_var, 
   features = NULL,
   id_col = NULL,
-  title = NULL,
+  title = NULL, 
+  x_label = NULL,
+  y_label = NULL,
   point_size = 0.5
 ) {
   
@@ -70,7 +72,7 @@ plot_stratified_feature <- function(
     all_ids <- c(rownames(R), rownames(X), rownames(Y))
   }
 
-  all_conditions <- c(MR[[g_col]], MX[[g_col]], MY[[g_col]])
+  all_conditions <- c(MR[[fill_var]], MX[[fill_var]], MY[[fill_var]])
 
   df_all <- data.frame(
     sample_id = rep(all_ids, ncol(all_scaled)),
@@ -104,10 +106,10 @@ plot_stratified_feature <- function(
       scales = "free"
     ) +
     labs(
-      x = NULL,
-      y = "Z-score",
-      fill = g_col,
-      title = title
+      title = title,
+      x = ifelse(is.null(x_label), x_var, x_label),
+      y = ifelse(is.null(y_label), "z-score", y_label),,
+      fill = fill_var
     ) +
     theme_nature_fonts() +
     theme_white_background() +

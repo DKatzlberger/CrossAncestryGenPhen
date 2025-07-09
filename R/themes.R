@@ -35,7 +35,7 @@ theme_small_legend <- function(base_size = 8, ...) {
   key_size_pt <- base_size * 1.3  # visually balances with text height
 
   ggplot2::theme(
-    legend.key.spacing = ggplot2::unit(0.1, "pt"),
+    legend.key.spacing = ggplot2::unit(0.2, "pt"),
     legend.key.height = ggplot2::unit(key_size_pt, "pt"),
     legend.key.width = ggplot2::unit(key_size_pt, "pt"),
     legend.margin = ggplot2::margin(0.5, 0.5, 0.5, 0.5),

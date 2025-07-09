@@ -6,26 +6,24 @@
 #' @param data A list from \code{perm_interaction_effect()}, must include
 #'   \code{T_null} and \code{summary_stats}.
 #' @param features Character vector of features to plot. Defaults to first 9 if NULL.
-#' @param show_param Logical. Show parametric p-values? (default TRUE)
-#' @param show_emp Logical. Show empirical p-values? (default TRUE)
+#' @param show_p Logical. Show parametric p-values? (default TRUE)
 #' @param show_normal Logical. Overlay fitted normal curve? (default TRUE)
-#' @param show_empirical Logical. Overlay empirical density curve? (default TRUE)
-#' @param bins Integer number of histogram bins (default 50)
 #' @param title Optional plot title.
-#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
+#' @param x_label Optional string for the x-axis label. 
+#' @param y_label Optional string for the y-axis label. 
+#' @param bins Integer number of histogram bins (default 50)
 #'
 #' @return A ggplot2 object.
 #' @export
 plot_null_distribution <- function(
   data,
   features = NULL,
-  p_normal = TRUE,
-  p_empirical = TRUE,
+  show_p = TRUE,
   show_normal = TRUE,
-  show_empirical = TRUE,
-  bins = 50,
   title = NULL,
-  point_size = 0.5
+  x_label = NULL,
+  y_label = NULL,
+  bins = 50
 ) {
   if (!"T_null" %in% names(data)) stop("List must include 'T_null'.")
   if (!"summary_stats" %in% names(data)) stop("List must include 'summary_stats'.")
@@ -51,11 +49,8 @@ plot_null_distribution <- function(
 
   label_text <- mapply(function(i) {
     vals <- c()
-    if (p_normal && "p_param_value" %in% names(stats)) {
+    if (show_p && "p_param_value" %in% names(stats)) {
       vals <- c(vals, paste0("p_param = ", signif(stats$p_param_value[i], 3)))
-    }
-    if (p_empirical && "p_emp_value" %in% names(stats)) {
-      vals <- c(vals, paste0("p_emp = ", signif(stats$p_emp_value[i], 3)))
     }
     paste(vals, collapse = "\n")
   }, i = obs_idx, SIMPLIFY = TRUE)
@@ -80,17 +75,13 @@ plot_null_distribution <- function(
     data.frame(x = x_vals_full, y = y_vals, feature = f)
   }))
 
-  # Density curves
-  dens_curves <- do.call(rbind, lapply(features, function(f) {
-    vals <- T_matrix[, f]
-    d <- density(vals, from = x_min, to = x_max, n = 300)  # Extend over full range
-    bin_width <- diff(hist(vals, plot = FALSE, breaks = bins)$breaks[1:2])
-    y_scaled <- d$y * length(vals) * bin_width
-    data.frame(x = d$x, y = y_scaled, feature = f)
-  }))
-
   # Plot
-  p <- ggplot(long_df, aes(x = T_stat)) +
+  p <- ggplot(
+    data = long_df, 
+    aes(
+      x = T_stat
+      )
+    ) +
     geom_histogram(
       bins = bins,
       fill = "gray80",
@@ -99,7 +90,10 @@ plot_null_distribution <- function(
     ) +
     geom_vline(
       data = obs_df,
-      aes(xintercept = T_obs, color = "Obs. T-stat"),
+      aes(
+        xintercept = T_obs, 
+        color = "Obs. T-stat"
+      ),
       linetype = "dashed",
       linewidth = 0.5
     ) +
@@ -119,17 +113,11 @@ plot_null_distribution <- function(
   if (show_normal) {
     p <- p + geom_line(
       data = norm_curves,
-      aes(x = x, y = y, color = "Std. normal dist."),
-      linewidth = 0.5,
-      inherit.aes = FALSE
-    )
-  }
-
-  if (show_empirical) {
-    p <- p + geom_line(
-      data = dens_curves,
-      aes(x = x, y = y, color = "Emp. dist."),
-      linetype = "dotted",
+      aes(
+        x = x, 
+        y = y, 
+        color = "Std. normal dist."
+      ),
       linewidth = 0.5,
       inherit.aes = FALSE
     )
@@ -140,19 +128,17 @@ plot_null_distribution <- function(
       name = NULL,
       values = c(
         "Obs. T-stat" = "blue",
-        "Std. normal dist." = "red",
-        "Emp. dist." = "darkgreen"
+        "Std. normal dist." = "red"
       ),
       breaks = c(
         "Obs. T-stat",
-        "Emp. dist.",
         "Std. normal dist."
       )
     ) +
     labs(
       title = title,
-      x = "T-statistic under null",
-      y = "Count"
+      x = ifelse(is.null(x_label), "T_obs (under null)", x_label),
+      y = ifelse(is.null(y_label), "count", y_label),
     ) +
     theme_nature_fonts() +
     theme_white_background() +
@@ -161,7 +147,6 @@ plot_null_distribution <- function(
   if (length(features) > 1) {
     p <- p + facet_wrap(
       ~feature,
-      # scales = "free"
       )
   }
 

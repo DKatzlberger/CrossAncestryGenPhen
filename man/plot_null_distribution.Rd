@@ -7,13 +7,12 @@
 plot_null_distribution(
   data,
   features = NULL,
-  p_normal = TRUE,
-  p_empirical = TRUE,
+  show_p = TRUE,
   show_normal = TRUE,
-  show_empirical = TRUE,
-  bins = 50,
   title = NULL,
-  point_size = 0.5
+  x_label = NULL,
+  y_label = NULL,
+  bins = 50
 )
 }
 \arguments{
@@ -22,19 +21,17 @@ plot_null_distribution(
 
 \item{features}{Character vector of features to plot. Defaults to first 9 if NULL.}
 
+\item{show_p}{Logical. Show parametric p-values? (default TRUE)}
+
 \item{show_normal}{Logical. Overlay fitted normal curve? (default TRUE)}
-
-\item{show_empirical}{Logical. Overlay empirical density curve? (default TRUE)}
-
-\item{bins}{Integer number of histogram bins (default 50)}
 
 \item{title}{Optional plot title.}
 
-\item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly).}
+\item{x_label}{Optional string for the x-axis label.}
 
-\item{show_param}{Logical. Show parametric p-values? (default TRUE)}
+\item{y_label}{Optional string for the y-axis label.}
 
-\item{show_emp}{Logical. Show empirical p-values? (default TRUE)}
+\item{bins}{Integer number of histogram bins (default 50)}
 }
 \value{
 A ggplot2 object.

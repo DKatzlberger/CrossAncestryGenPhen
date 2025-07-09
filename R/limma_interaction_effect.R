@@ -71,17 +71,19 @@ limma_interaction_effect <- function(
   summary_stats <- data.frame(
     feature = rownames(res),
     T_obs = res$logFC,
-    SE = res$SE,
     p_value = res$P.Value,
     p_adj = res$adj.P.Val,
+    ave_expr = res$AveExpr,
     row.names = NULL
   )
 
-  return(list(
-    summary_stats = summary_stats,
-    fit = fit,
-    group_levels = levels(group),
-    ancestry_levels = levels(ancestry),
-    coef = coef_name
-  ))
+  return(
+    list(
+      summary_stats = summary_stats,
+      fit = fit,
+      group_levels = levels(group),
+      ancestry_levels = levels(ancestry),
+      coef = coef_name
+    )
+  )
 }

@@ -8,12 +8,16 @@ plot_volcano(
   data,
   x_var,
   y_var,
+  fill_var = NULL,
+  features = NULL,
   sig_thr = NULL,
   effect_thr = NULL,
-  x_label = NULL,
-  y_label = paste0("-log10(", y_var, ")"),
   title = NULL,
-  point_size = 0.5
+  x_label = NULL,
+  y_label = NULL,
+  point_size = 1,
+  log_cap = 5,
+  epsilon = 1e-15
 )
 }
 \arguments{
@@ -23,17 +27,23 @@ plot_volcano(
 
 \item{y_var}{A string specifying the name of the column to be used for computing \code{-log10(p)} on the y-axis (typically a p-value or adjusted p-value).}
 
+\item{fill_var}{Optional string. Name of a column to map to point fill color (used only with shapes that support fill).}
+
+\item{features}{Features to annotate in the plot.}
+
 \item{sig_thr}{Optional numeric value specifying the significance threshold for p-values. If \code{NULL}, no significance filtering is applied.}
 
 \item{effect_thr}{Optional numeric value specifying the minimum absolute effect size threshold. If \code{NULL}, no effect size filtering is applied.}
 
-\item{x_label}{Optional string for the x-axis label. If \code{NULL}, uses \code{x_var} as default.}
-
-\item{y_label}{Optional string for the y-axis label. Default is \code{paste0("-log10(", y_var, ")")}.}
-
 \item{title}{Optional string for the plot title.}
 
-\item{point_size}{Numeric value for the size of the points in the scatter plot. Default is \code{0.5}.}
+\item{x_label}{Optional string for the x-axis label.}
+
+\item{y_label}{Optional string for the y-axis label.}
+
+\item{log_cap}{Numeric value specifying the maximum \code{-log10(p)} to display. Values above this are capped. Default is \code{5}.}
+
+\item{epsilon}{Numeric constant added to p-values before log transformation to avoid \code{log10(0)}. Default is \code{1e-16}.}
 }
 \value{
 A \code{ggplot} object representing the volcano plot.
@@ -41,14 +51,5 @@ A \code{ggplot} object representing the volcano plot.
 \description{
 Creates a volcano plot using ggplot2 based on specified x and y variables, 
 highlighting points that exceed significance and effect size thresholds.
-}
-\examples{
-df <- data.frame(
-  feature = LETTERS[1:10],
-  T_obs = rnorm(10),
-  p_value = runif(10),
-  p_adj = p.adjust(runif(10))
-)
-plot_volcano(df, x_var = "T_obs", y_var = "p_adj", sig_thr = 0.05, effect_thr = 1)
-
+Supports p-value capping, customizable point size, and optional fill aesthetics.
 }

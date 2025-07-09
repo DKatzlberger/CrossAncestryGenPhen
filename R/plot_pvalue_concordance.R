@@ -1,31 +1,32 @@
 #' Plot concordance of -log10 p-values between two methods
 #'
-#' Creates a scatter plot comparing -log10 transformed p-values from two
+#' Creates a scatter or hexbin plot comparing -log10 transformed p-values from two
 #' statistical methods. Optionally colors points by significance and facets
-#' by a grouping variable. Correlations and regression lines are shown per
-#' facet.
+#' by a grouping variable. Correlation coefficients and regression lines are shown
+#' globally or per facet.
 #'
-#' @param data Data frame with p-values and optional grouping/significance.
-#' @param x_var Character. Column name for x-axis p-values.
-#' @param y_var Character. Column name for y-axis p-values.
-#' @param x_sig_source Optional. Column for x significance p-values.
-#' @param y_sig_source Optional. Column for y significance p-values.
-#' @param facet_col Optional. Column to facet by.
-#' @param facet_levels Optional. Levels to include from facet_col.
-#' @param x_label Character. X-axis label. Defaults to -log10(x_var).
-#' @param y_label Character. Y-axis label. Defaults to -log10(y_var).
+#' @param data Data frame containing p-values and optional grouping or significance columns.
+#' @param x_var Character. Name of the column for x-axis p-values.
+#' @param y_var Character. Name of the column for y-axis p-values.
+#' @param x_sig_source Optional character. Column for significance of x p-values.
+#' @param y_sig_source Optional character. Column for significance of y p-values.
+#' @param facet_col Optional character. Column name to facet the plot by.
+#' @param facet_levels Optional character vector. Subset of levels to include from \code{facet_col}.
+#' @param x_label Character. X-axis label. Defaults to \code{-log10(x_var)}.
+#' @param y_label Character. Y-axis label. Defaults to \code{-log10(y_var)}.
 #' @param title Character. Optional plot title.
-#' @param sig_thr Numeric. P-value threshold for significance. Default 0.05.
-#' @param epsilon Numeric. Small value added before log. Default 1e-16.
-#' @param log_cap Numeric. Max -log10(p) shown. Default is 5.
-#' @param point_size Numeric. Size of points. Default is 0.5.
+#' @param sig_thr Numeric. P-value threshold for calling significance. Default is 0.05.
+#' @param epsilon Numeric. Small constant added before log10 transform. Default is 1e-16.
+#' @param log_cap Numeric. Maximum value shown for -log10(p). Default is 5.
+#' @param point_size Numeric. Size of points in the scatter plot. Default is 0.5.
+#' @param hex Logical. If TRUE, use hexagonal binning instead of individual points. Default is FALSE.
 #'
-#' @return A ggplot2 object.
+#' @return A ggplot2 object showing the concordance of p-values between two methods.
 #'
 #' @details
-#' Points are shown as -log10(p), capped at log_cap. If significance columns
-#' are provided, point color reflects significance source. Faceted plots show
-#' correlation (Pearson r) and a regression line.
+#' If \code{hex = TRUE}, a hexbin plot is produced without individual points or significance coloring.
+#' Otherwise, a scatter plot is shown with optional significance-based coloring and shape encoding for capped values.
+#' Correlation (Pearson's r) and regression lines are shown globally or per facet if faceting is enabled.
 #'
 #' @export
 plot_pvalue_concordance <- function(
@@ -42,17 +43,18 @@ plot_pvalue_concordance <- function(
   sig_thr = 0.05,
   epsilon = 1e-16,
   log_cap = 5,
-  point_size = 0.5
+  point_size = 0.5,
+  hex = FALSE
 ) {
 
   df <- as.data.frame(data)
 
-  # Error if facet_col is provided but not in the data
+  # Validate facet column
   if (!is.null(facet_col) && !(facet_col %in% colnames(df))) {
     stop(sprintf("Column '%s' specified as facet_col not found in data.", facet_col))
   }
 
-  # Optional faceting setup
+  # Handle faceting
   if (!is.null(facet_col)) {
     if (is.null(facet_levels)) {
       facet_levels <- head(unique(df[[facet_col]]), 9)
@@ -61,14 +63,16 @@ plot_pvalue_concordance <- function(
     df[[facet_col]] <- factor(df[[facet_col]], levels = facet_levels)
   }
 
-  # Compute log-transformed and capped p-values
+  # Transform and cap p-values
   df$logp_x <- -log10(df[[x_var]] + epsilon)
   df$logp_y <- -log10(df[[y_var]] + epsilon)
   df$logp_x_capped <- pmin(df$logp_x, log_cap)
   df$logp_y_capped <- pmin(df$logp_y, log_cap)
-  df$capped <- factor(ifelse(df$logp_x > log_cap | df$logp_y > log_cap, "Capped", "Uncapped"))
+  df$capped <- factor(
+    ifelse(df$logp_x > log_cap | df$logp_y > log_cap, "Capped", "Uncapped")
+    )
 
-  # Correlation labels and regression lines
+  # Compute correlations and regression lines
   if (!is.null(facet_col)) {
     facet_levels_used <- levels(df[[facet_col]])
 
@@ -102,8 +106,8 @@ plot_pvalue_concordance <- function(
     reg_lines <- data.frame(intercept = coef(fit)[1], slope = coef(fit)[2])
   }
 
-  # Significance coloring
-  has_sig <- !is.null(x_sig_source) && !is.null(y_sig_source)
+  # Add significance info if applicable
+  has_sig <- !hex && !is.null(x_sig_source) && !is.null(y_sig_source)
   if (has_sig) {
     df$sig_source <- ifelse(
       df[[x_sig_source]] < sig_thr & df[[y_sig_source]] < sig_thr, "Both",
@@ -112,7 +116,7 @@ plot_pvalue_concordance <- function(
     )
   }
 
-  # aes mapping
+  # Map aesthetics
   aes_mapping <- if (has_sig) {
     aes(
       x = logp_x_capped, 
@@ -123,21 +127,25 @@ plot_pvalue_concordance <- function(
   } else {
     aes(
       x = logp_x_capped, 
-      y = logp_y_capped, 
-      shape = capped
+      y = logp_y_capped
     )
   }
 
-  # Plot
-  p <- ggplot(
-      data = df, 
-      mapping = aes_mapping
-    ) +
-    geom_point(
+  # Start plot
+  p <- ggplot(df, mapping = aes_mapping)
+
+  # Add layer depending on hex mode
+  if (hex) {
+    p <- p + geom_hex() +
+    scale_fill_viridis_c(
+      name = "Count"
+    )
+  } else {
+    p <- p + geom_point(
       size = point_size
     ) +
     geom_abline(
-      data = reg_lines, 
+      data = reg_lines,
       mapping = aes(
         intercept = intercept, 
         slope = slope
@@ -147,16 +155,18 @@ plot_pvalue_concordance <- function(
       linewidth = 0.5
     ) +
     scale_shape_manual(
+      name = "Point status",
       values = c(
-        "Uncapped" = 1, 
-        "Capped" = 25
-        ), 
-      name = "Point status"
-    ) 
+        "Uncapped" = 21, 
+        "Capped" = 23
+      )
+    )
+  }
 
+  # Add significance color scale
   if (has_sig) {
     p <- p + scale_color_manual(
-      name = "Sig. p-value",
+      name = "Significance source",
       values = c(
         "None" = "gray80", 
         "Only x" = "#1f77b4", 
@@ -172,49 +182,50 @@ plot_pvalue_concordance <- function(
     )
   }
 
+  # Add annotation and faceting
   if (!is.null(facet_col)) {
     p <- p + facet_wrap(
-        as.formula(
-          paste("~", facet_col)
-        )
-      ) +
-      geom_text(
-        data = cor_labels, 
-        mapping = aes(
-          x = -Inf, 
-          y = Inf, 
-          label = label
-        ),
-        hjust = -0.1, 
-        vjust = 1.1, 
-        size = 2, 
-        inherit.aes = FALSE
+      as.formula(
+        paste("~", facet_col)
       )
+    ) +
+    geom_text(
+      data = cor_labels, 
+      mapping = aes(
+        x = -Inf, 
+        y = Inf, 
+        label = label
+      ),
+      hjust = -0.1, 
+      vjust = 1.1, 
+      size = 2, 
+      inherit.aes = FALSE
+    )
   } else {
     p <- p + geom_text(
-        data = cor_labels, 
-        mapping = aes(
-          x = x, 
-          y = y, 
-          label = label
-        ),
-        hjust = -0.1, 
-        vjust = 1.1, 
-        size = 2, 
-        inherit.aes = FALSE
-      )
+      data = cor_labels, 
+      mapping = aes(
+        x = -Inf, 
+        y = Inf, 
+        label = label
+      ),
+      hjust = -0.1, 
+      vjust = 1.1, 
+      size = 2, 
+      inherit.aes = FALSE
+    )
   }
 
   # Final styling
   p <- p + labs(
-      title = title, 
-      x = x_label, 
-      y = y_label
-    ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend() +
-    theme(legend.position = "right")
+    title = title, 
+    x = x_label, 
+    y = y_label
+  ) +
+  theme_nature_fonts() +
+  theme_white_background() +
+  theme_small_legend() +
+  theme(legend.position = "right")
 
   return(p)
 }

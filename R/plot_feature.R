@@ -12,7 +12,6 @@
 #' @param g_col Column name in metadata indicating the grouping (e.g., condition)
 #' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)
 #' @param title Optional title for the plot
-#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly)
 #'
 #' @return A ggplot2 object containing the faceted boxplot
 #' @export
@@ -23,9 +22,9 @@ plot_feature <- function(
   MY, 
   g_col, 
   features = NULL,
-  id_col = NULL,
   title = NULL,
-  point_size = 0.5
+  x_label = NULL,
+  y_label = NULL
 ) {
   if (is.null(rownames(X)) || is.null(rownames(Y))) {
       stop("X and Y must have rownames corresponding to sample IDs.")
@@ -34,6 +33,7 @@ plot_feature <- function(
   # Infer features if not provided
   if (is.null(features)) {
     all_feats <- intersect(colnames(X), colnames(Y))
+    
     if (length(all_feats) < 1) {
       stop("No common features found across X and Y.")
     }
@@ -52,20 +52,9 @@ plot_feature <- function(
   # Assign split labels
   split_labels <- c(rep("X", nrow(X)), rep("Y", nrow(Y)))
 
-  # Combine metadata
-  if (!is.null(id_col)) {
-    if (!(id_col %in% colnames(MX)) || !(id_col %in% colnames(MY))) {
-      stop(sprintf("id_col '%s' not found in metadata.", id_col))
-    }
-    ids <- c(MX[[id_col]], MY[[id_col]])
-  } else {
-    ids <- c(rownames(X), rownames(Y))
-  }
-
   conditions <- c(MX[[g_col]], MY[[g_col]])
 
   df_all <- data.frame(
-    sample_id = rep(ids, ncol(combined_scaled)),
     feature = rep(colnames(combined_scaled), each = nrow(combined_scaled)),
     value = as.vector(combined_scaled),
     condition = rep(conditions, ncol(combined_scaled)),
@@ -81,7 +70,8 @@ plot_feature <- function(
     aes(
       x = split, 
       y = value, 
-      fill = condition)
+      fill = condition
+      )
     ) +
     geom_boxplot(
       outlier.size = 0.25,
@@ -95,8 +85,8 @@ plot_feature <- function(
       scales = "free"
     ) +
     labs(
-      x = NULL,
-      y = "Z-score",
+      x = ifelse(is.null(x_label), "", x_label),
+      y = ifelse(is.null(y_label), "z-score", y_label),
       fill = g_col,
       title = title
     ) +
