@@ -1,17 +1,16 @@
-#' Simple Permutation-Based Interaction Test (No Bootstrapping, No Convergence)
+#' Simple permutation interaction test without bootstrapping
 #'
-#' Tests if condition effects (g1 vs g2) are different between ancestries using permutation.
+#' Tests if condition effects differ between ancestries using permutation.
 #'
 #' @param X Expression matrix for ancestry A (samples x genes)
 #' @param Y Expression matrix for ancestry B (samples x genes)
 #' @param MX Metadata for X (must include group and ancestry columns)
 #' @param MY Metadata for Y
-#' @param g_col Column in metadata for condition/group (factor with 2 levels)
+#' @param g_col Metadata column for group (factor with two levels)
 #' @param B Number of permutations
 #' @param seed Optional seed for reproducibility
-#' @param permute Logical. Whether to perform permutation test
 #'
-#' @return A list with summary stats, permutation matrix, and number of valid permutations
+#' @return Summary stats, null matrix, and valid permutation count.
 #' @export
 perm_interaction_effect <- function(
   X,          

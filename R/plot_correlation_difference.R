@@ -11,6 +11,7 @@
 #' @param x_label Label for the x-axis (default is NULL).
 #' @param y_label Label for the y-axis (default is NULL).
 #' @param title Optional plot title.
+#' @param point_size Point size for annotations.
 #'
 #' @return A ggplot2 object showing the correlation comparison.
 #' 

@@ -4,19 +4,19 @@
 #' (X, Y, R) stratified by a grouping column, optionally for
 #' specified features.
 #'
-#' @param X A numeric matrix or data frame for the test split
-#' @param Y A numeric matrix or data frame for the inference split
-#' @param R A numeric matrix or data frame for the train split
-#' @param MX Metadata for X, containing IDs and group information
-#' @param MY Metadata for Y, containing IDs and group information
-#' @param MR Metadata for R, containing IDs and group information
-#' @param features Character vector of feature names to plot.
-#'   Defaults to first 9 common features if NULL.
-#' @param g_col Column name in metadata indicating the grouping
-#'   (e.g., condition)
-#' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are ids)
-#' @param title Optional title for the plot
-#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
+#' @param X Numeric matrix or data frame for the test split.
+#' @param Y Numeric matrix or data frame for the inference split.
+#' @param R Numeric matrix or data frame for the train split.
+#' @param MX Metadata for X with IDs and group information.
+#' @param MY Metadata for Y with IDs and group information.
+#' @param MR Metadata for R with IDs and group information.
+#' @param fill_var Metadata column used for fill grouping.
+#' @param features Features to plot; uses first nine common ones if NULL.
+#' @param id_col Column with sample identifiers. Uses rownames when NULL.
+#' @param title Optional plot title.
+#' @param x_label Label for the x-axis.
+#' @param y_label Label for the y-axis.
+#' @param point_size Numeric value controlling point size.
 #'
 #' @return A ggplot2 object containing the faceted boxplot
 #' @export

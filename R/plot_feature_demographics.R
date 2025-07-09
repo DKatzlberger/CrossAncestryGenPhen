@@ -2,6 +2,8 @@
 #'
 #' @param summary_list The `summary` list from `sim_imbalanced_groups`.
 #' @param title Optional plot title.
+#' @param x_label Label for the x-axis.
+#' @param y_label Label for the y-axis.
 #'
 #' @return A ggplot object.
 #' @export
