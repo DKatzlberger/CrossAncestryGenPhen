@@ -1,43 +1,70 @@
 #' Volcano Plot
 #'
-#' Creates a volcano plot using ggplot2 based on specified x and y variables, 
-#' highlighting points that exceed significance and effect size thresholds.
-#' Supports p-value capping, customizable point size, and optional fill aesthetics.
+#' Creates a volcano plot with capped -log10(p-values) on the y-axis.
+#' Supports effect size threshold lines, feature annotations, and flexible
+#' color and shape aesthetics.
 #'
-#' @param data A data frame containing the variables to be plotted.
-#' @param x_var A string specifying the name of the column to be used as the x-axis (e.g., effect size or test statistic).
-#' @param y_var A string specifying the name of the column to be used for computing \code{-log10(p)} on the y-axis (typically a p-value or adjusted p-value).
-#' @param fill_var Optional string. Name of a column to map to point fill color (used only with shapes that support fill).
-#' @param features Features to annotate in the plot.
-#' @param sig_thr Optional numeric value specifying the significance threshold for p-values. If \code{NULL}, no significance filtering is applied.
-#' @param effect_thr Optional numeric value specifying the minimum absolute effect size threshold. If \code{NULL}, no effect size filtering is applied.
-#' @param x_label Optional string for the x-axis label. 
-#' @param y_label Optional string for the y-axis label. 
-#' @param title Optional string for the plot title.
-#' @param log_cap Numeric value specifying the maximum \code{-log10(p)} to display. Values above this are capped. Default is \code{5}.
-#' @param epsilon Numeric constant added to p-values before log transformation to avoid \code{log10(0)}. Default is \code{1e-16}.
+#' @param data Data frame with variables to plot.
+#' @param x_var String. Column name for x-axis (e.g., effect size).
+#' @param y_var String. Column name for y-axis (p-values to transform).
+#' @param color_var String. Column name mapped to point colors.
+#' @param shape_var String. Column name mapped to point shapes.
+#' @param features Optional vector. Feature names to annotate.
+#' @param sig_thr Numeric. Significance threshold for horizontal line.
+#' @param effect_thr Numeric. Effect size threshold for vertical lines.
+#' @param title String. Plot title.
+#' @param x_label String. Custom x-axis label.
+#' @param y_label String. Custom y-axis label.
+#' @param color_label String. Legend title for color.
+#' @param shape_label String. Legend title for shape.
+#' @param log_cap Numeric. Max -log10(p) to cap values. Default is 5.
+#' @param epsilon Numeric. Small constant to avoid log10(0). Default 1e-15.
+#' @param point_size Numeric. Size of points. Default is 1.
 #'
-#' @return A \code{ggplot} object representing the volcano plot.
+#' @return A ggplot2 object.
 #'
 #' @import ggplot2
+#' @import ggrepel
 #' @export
 plot_volcano <- function(
   data, 
   x_var, 
   y_var, 
-  fill_var = NULL,
+  color_var = NULL,
+  shape_var = NULL,
   features = NULL,
   sig_thr = NULL, 
   effect_thr = NULL, 
   title = NULL, 
   x_label = NULL,
   y_label = NULL,
-  point_size = 1,
+  color_label = NULL,
+  shape_label = NULL,
   log_cap = 5,
-  epsilon = 1e-15
+  epsilon = 1e-15,
+  point_size = 1
 ) {
   
   df <- as.data.frame(data)
+
+  # Dynamic mapping
+  dyn_mapping <- aes(
+    !!!rlang::syms(
+      c(
+        x = x_var,
+        y = y_var,
+        if (!is.null(color_var)) c(color = color_var),
+        if (!is.null(shape_var)) c(shape = shape_var)
+      )
+    )
+  )
+
+  # Annotate features if provided and 'feature' exists
+  if (!is.null(features) && "feature" %in% colnames(df)) {
+    df$annotate <- ifelse(df$feature %in% features, df$feature, NA)
+  } else {
+    df$annotate <- NA
+  }
 
   # Extract relevant columns
   x_col <- df[[x_var]]
@@ -46,70 +73,25 @@ plot_volcano <- function(
   # Compute -log10(p-values) and cap them
   log_p <- -log10(y_col + epsilon)
   log_p_capped <- pmin(log_p, log_cap)
-  capped <- factor(ifelse(log_p > log_cap, "Capped", "Uncapped"), levels = c("Uncapped", "Capped"))
 
-  # Create plotting data frame
-  plot_data <- data.frame(
-    x = x_col, 
-    y = log_p_capped, 
-    capped = capped
+  # Capping of high -log10(p-values)
+  capped <- factor(
+    ifelse(log_p > log_cap, "Capped", "Uncapped"), 
+    levels = c("Uncapped", "Capped")
   )
 
-  # Add fill_var if provided
-  if (!is.null(fill_var)) {
-    plot_data$fill_var <- df[[fill_var]]
-  }
-
-  # Add feature names if available
-  if ("feature" %in% colnames(df)) {
-    plot_data$feature <- df$feature
-  } else {
-    plot_data$feature <- rownames(df)
-  }
-
-  # Base aesthetics
-  aes_mapping <- if (!is.null(fill_var)) {
-    aes(
-      x = x, 
-      y = y, 
-      shape = capped, 
-      fill = fill_var,
-      color = fill_var
-    )
-  } else {
-    aes(
-      x = x, 
-      y = y, 
-      shape = capped
-    )
-  }
+  # Add to data
+  df[[y_var]] = log_p_capped
+  df$capped = capped
 
   # Base plot
   p <- ggplot(
-      data = plot_data, 
-      mapping = aes_mapping
+      data = df, 
+      mapping = dyn_mapping
     ) +
     geom_point(
       size = point_size
-    ) +  
-    scale_shape_manual(
-      name = "p-value capping",
-      values = c(
-        "Uncapped" = 21, 
-        "Capped" = 23
-      )
-    ) 
-
-  if (!is.null(fill_var)) {
-    p <- p + scale_fill_viridis_c( 
-      name = fill_var,
-      option = "viridis"
-    ) +
-    scale_color_viridis_c(
-      name = fill_var,
-      option = "viridis"
     )
-  }
 
   # Threshold lines
   if (!is.null(sig_thr)) {
@@ -122,6 +104,7 @@ plot_volcano <- function(
       color = "blue"
     )
   }
+
   if (!is.null(effect_thr)) {
     p <- p + geom_vline(
       xintercept = c(
@@ -135,14 +118,12 @@ plot_volcano <- function(
   }
 
   # Feature annotation
-  if (!is.null(features)) {
-    plot_data$annotate <- ifelse(plot_data$feature %in% features, plot_data$feature, NA)
-
+  if (!is.null(features) && "feature" %in% colnames(df)) {
     p <- p + ggrepel::geom_text_repel(
-      data = subset(plot_data, !is.na(annotate)),
+      data = subset(df, !is.na(annotate)),
       aes(
-        x = x,
-        y = y,
+        x = .data[[x_var]],
+        y = .data[[y_var]],
         label = annotate
       ),
       size = 2,
@@ -162,12 +143,13 @@ plot_volcano <- function(
     labs(
       title = title,
       x = ifelse(is.null(x_label), x_var, x_label),
-      y = ifelse(is.null(y_label), paste0("-log10(", y_var, ")"), y_label)
+      y = ifelse(is.null(y_label), paste(y_var, "(-log10)"), y_label),
+      color = color_label,
+      shape = shape_label
     ) +
     theme_nature_fonts() +
     theme_white_background() +
-    theme_small_legend() +
-    theme(legend.position = "right")
+    theme_small_legend() 
 
   return(p)
 }

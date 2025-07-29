@@ -16,7 +16,8 @@ theme_nature_fonts <- function(base_size = 8) {
     legend.title = ggplot2::element_text(size = base_size),
     legend.text = ggplot2::element_text(size = base_size),
     strip.text = ggplot2::element_text(size = base_size),
-    plot.caption = ggplot2::element_text(size = base_size, hjust = 0)
+    plot.caption = ggplot2::element_text(size = base_size, hjust = 0),
+    plot.caption.position = "plot"
   )
 }
 
@@ -27,8 +28,7 @@ theme_nature_fonts <- function(base_size = 8) {
 #'
 #' @param base_size Base text size to scale legend keys (default: 5).
 #' @param ... Additional arguments passed to [ggplot2::theme()].
-#'
-#' @return A ggplot2 theme object with small legend spacing.
+#' @return A ggplot2 theme object.
 #' @keywords internal
 #' @noRd
 theme_small_legend <- function(base_size = 8, ...) {
@@ -44,9 +44,17 @@ theme_small_legend <- function(base_size = 8, ...) {
 }
 
 
+#' A clean white ggplot2 theme with optional facet labels
+#'
+#' Custom theme with white background, minimal gridlines, and optional control
+#' over facet label display.
+#'
+#' @param show_facets Logical. If `TRUE`, facet strip labels are shown. If `FALSE`, facet strip text is removed.
+#' @param ... Additional arguments passed to [ggplot2::theme()].
+#' @return A ggplot2 theme object.
 #' @keywords internal
 #' @noRd
-theme_white_background <- function(...) {
+theme_white_background <- function(show_facets = TRUE, ...) {
   ggplot2::theme(
     panel.background = ggplot2::element_rect(fill = "white", color = NA),
     plot.background = ggplot2::element_rect(fill = "white", color = NA),
@@ -56,7 +64,7 @@ theme_white_background <- function(...) {
     axis.ticks = ggplot2::element_line(color = "black", linewidth = 0.3),
     axis.ticks.length = ggplot2::unit(0.5, "mm"),
     strip.background = ggplot2::element_rect(fill = "white", color = NA),
-    strip.text = ggplot2::element_text(color = "black"),
+    strip.text = if (show_facets) ggplot2::element_text(color = "black") else ggplot2::element_blank(),
     strip.placement = "inside",
     ...
   )

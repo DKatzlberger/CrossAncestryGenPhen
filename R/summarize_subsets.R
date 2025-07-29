@@ -50,8 +50,8 @@ summarize_subsets <- function(
   agg_list <- by(data, data$feature, function(sub) {
 
       T_obs <- mean(sub$T_obs, na.rm = TRUE)
-      p_value <- cct_pval(sub$p_value, na.rm = TRUE)
-      hm_rank <- hm_rank(sub$rank, na.rm = TRUE)
+      p_value <- mean(sub$p_value, na.rm = TRUE)
+      cct_value <- cct_pval(sub$p_value, na.rm = TRUE)
       prob_sig <- mean(sub$p_adj < 0.05, na.rm = TRUE)
       ave_expr <- mean(sub$ave_expr, na.rm = TRUE)
       
@@ -59,7 +59,7 @@ summarize_subsets <- function(
         feature = unique(sub$feature),
         T_obs = T_obs,
         p_value = p_value,
-        hm_rank = hm_rank,
+        cct_value = cct_value,
         prob_sig = prob_sig,
         ave_expr = ave_expr,
         stringsAsFactors = FALSE
@@ -70,15 +70,17 @@ summarize_subsets <- function(
   # Adjust p-values (BH)
   agg_df <- do.call(rbind, agg_list)
   agg_df$p_adj <- p.adjust(agg_df$p_value, method = "BH")
+  agg_df$cct_adj <- p.adjust(agg_df$cct_value, method = "BH")
   
   # Final column order
   agg_df <- agg_df[
     c(
       "feature", 
       "T_obs", 
-      "p_value", 
-      "p_adj", 
-      "hm_rank", 
+      "p_value",
+      "p_adj",
+      "cct_value",
+      "cct_adj",
       "prob_sig", 
       "ave_expr"
     )

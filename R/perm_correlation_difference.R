@@ -104,22 +104,23 @@ perm_correlation_difference <- function(
   # Parametric p-values assuming normal distribution
   mu <- mean(T_perm)
   sigma <- sd(T_perm)
-  z <- (T_obs - mu) / sigma
-  p_vals_param <- 2 * (1 - pnorm(abs(z)))
+  z_scores <- (T_obs - mu) / sigma
+  p_vals_param <- 2 * (1 - pnorm(abs(z_scores)))
 
 
   summary_stats <- data.frame(
     feature = "Global",
     T_obs = T_obs,
+    z_score = z_scores,
     XR = cor_XR,
     YR = cor_YR,
-    p_param_value = p_vals_param,
-    p_emp_value = p_vals_emp,
+    p_value = p_vals_param,
     row.names = NULL
   )
 
   return(list(
     summary_stats = summary_stats,
+    p_emp_value = p_vals_emp,
     T_null = matrix(T_perm, ncol = 1, dimnames = list(NULL, "T_null")),
     B_used = B_used
   ))

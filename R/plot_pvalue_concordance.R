@@ -37,12 +37,13 @@ plot_pvalue_concordance <- function(
   y_sig_source = NULL,
   facet_col = NULL,
   facet_levels = NULL,
-  x_label = paste("-log10(", x_var, ")"),
-  y_label = paste("-log10(", y_var, ")"),
   title = NULL,
+  x_label = NULL,
+  y_label = NULL,
+  color_label = NULL,
   sig_thr = 0.05,
-  epsilon = 1e-16,
   log_cap = 5,
+  epsilon = 1e-16,
   point_size = 0.5,
   hex = FALSE
 ) {
@@ -68,9 +69,7 @@ plot_pvalue_concordance <- function(
   df$logp_y <- -log10(df[[y_var]] + epsilon)
   df$logp_x_capped <- pmin(df$logp_x, log_cap)
   df$logp_y_capped <- pmin(df$logp_y, log_cap)
-  df$capped <- factor(
-    ifelse(df$logp_x > log_cap | df$logp_y > log_cap, "Capped", "Uncapped")
-    )
+  df$capped <- factor(ifelse(df$logp_x > log_cap | df$logp_y > log_cap, "Capped", "Uncapped"))
 
   # Compute correlations and regression lines
   if (!is.null(facet_col)) {
@@ -100,7 +99,7 @@ plot_pvalue_concordance <- function(
   } else {
     valid_idx <- is.finite(df$logp_x) & is.finite(df$logp_y)
     r_val <- if (sum(valid_idx) >= 2) cor(df$logp_x[valid_idx], df$logp_y[valid_idx]) else NA
-    label_text <- paste0("r = ", if (!is.na(r_val)) signif(r_val, 3) else "NA")
+    label_text <- paste0("R = ", if (!is.na(r_val)) signif(r_val, 3) else "NA")
     cor_labels <- data.frame(label = label_text)
     fit <- lm(logp_y[valid_idx] ~ logp_x[valid_idx], data = df)
     reg_lines <- data.frame(intercept = coef(fit)[1], slope = coef(fit)[2])
@@ -121,7 +120,6 @@ plot_pvalue_concordance <- function(
     aes(
       x = logp_x_capped, 
       y = logp_y_capped, 
-      shape = capped, 
       color = sig_source
     )
   } else {
@@ -152,21 +150,13 @@ plot_pvalue_concordance <- function(
       ),
       color = "blue", 
       linetype = "dashed", 
-      linewidth = 0.5
-    ) +
-    scale_shape_manual(
-      name = "Point status",
-      values = c(
-        "Uncapped" = 21, 
-        "Capped" = 23
-      )
-    )
+      linewidth = 0.3
+    ) 
   }
 
   # Add significance color scale
   if (has_sig) {
     p <- p + scale_color_manual(
-      name = "Significance source",
       values = c(
         "None" = "gray80", 
         "Only x" = "#1f77b4", 
@@ -219,13 +209,13 @@ plot_pvalue_concordance <- function(
   # Final styling
   p <- p + labs(
     title = title, 
-    x = x_label, 
-    y = y_label
+    x = ifelse(is.null(x_label), paste("-log10(", x_var, ")"), x_label),
+    y = ifelse(is.null(y_label), paste("-log10(", y_var, ")"), y_label),
+    color = color_label
   ) +
   theme_nature_fonts() +
   theme_white_background() +
-  theme_small_legend() +
-  theme(legend.position = "right")
+  theme_small_legend() 
 
   return(p)
 }

@@ -20,8 +20,6 @@ perm_interaction_effect(X, Y, MX, MY, g_col, B = 1000, seed = NULL)
 \item{B}{Number of permutations}
 
 \item{seed}{Optional seed for reproducibility}
-
-\item{permute}{Logical. Whether to perform permutation test}
 }
 \value{
 A list with summary stats, permutation matrix, and number of valid permutations

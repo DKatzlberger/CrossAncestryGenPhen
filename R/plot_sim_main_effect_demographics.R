@@ -5,15 +5,16 @@
 #'
 #' @return A ggplot object.
 #' @export
-plot_feature_demographics <- function(
+plot_sim_main_effect_demographics <- function(
     summary_list, 
     title = NULL,
     x_label = NULL,
-    y_label = NULL
+    y_label = NULL,
+    fill_name = NULL
 ) {
 
   # Information on feature summary
-  feature_summary <- summary_list$feature[, c("ancestry", "total_DEGs", "total_non_DEGs")]
+  feature_summary <- summary_list$main[, c("ancestry", "total_DEGs", "total_non_DEGs")]
   
   # Reshape
   long_df <- reshape(
@@ -21,7 +22,7 @@ plot_feature_demographics <- function(
     direction = "long",
     varying = c("total_DEGs", "total_non_DEGs"),
     v.names = "count",
-    times = c("DEG", "Non-DEG"),
+    times = c("DEGs", "Non-DEGs"),
     timevar = "status",
     idvar = "ancestry"
   )
@@ -31,7 +32,7 @@ plot_feature_demographics <- function(
   long_df$pct <- round(100 * long_df$count / total_counts[long_df$ancestry], 1)
   
   # Convert Status to factor for stacking order
-  long_df$status <- factor(long_df$status, levels = c("DEG", "Non-DEG"))
+  long_df$status <- factor(long_df$status, levels = c("DEGs", "Non-DEGs"))
   
   # Plot
   p <- ggplot(
@@ -65,20 +66,20 @@ plot_feature_demographics <- function(
           "gray80"
           ),
         c(
-          "DEG", 
-          "Non-DEG"
+          "DEGs", 
+          "Non-DEGs"
         )
       ),
       breaks = c(
-        "DEG",
-        "Non-DEG"
+        "DEGs",
+        "Non-DEGs"
       )
     ) +
     labs(
       title = title,
       x = x_label,
       y = ifelse(is.null(y_label), "Count", y_label),
-      fill = "DEG status"
+      fill = fill_name
     ) +
     theme_nature_fonts() +
     theme_white_background() +

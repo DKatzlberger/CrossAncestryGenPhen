@@ -26,6 +26,8 @@
 #' @import compcodeR
 #' @export
 sim_imbalanced_groups <- function(
+  a_X = "X",
+  a_Y = "Y",
   n_vars,
   n_degs_X,
   n_degs_Y,
@@ -77,6 +79,9 @@ sim_imbalanced_groups <- function(
     )
 
     # Features
+    is_DE <- sim@variable.annotations$differential.expression
+    true_log2FC <- sim@variable.annotations$truelog2foldchanges
+    # Observed log2FC
     is_H <- meta$condition == "H"
     is_D <- meta$condition == "D"
     mean_H <- rowMeans(counts[, is_H, drop = FALSE] + 1)
@@ -85,12 +90,24 @@ sim_imbalanced_groups <- function(
 
     features <- data.frame(
       feature = rownames(counts),
-      is_DE = sim@variable.annotations$differential.expression,
-      intended_log2FC = log2FC,
-      true_log2FC = sim@variable.annotations$truelog2foldchanges,
+      is_DE = is_DE,
+      true_log2FC = true_log2FC,
       observed_log2FC = observed_log2FC,
       ancestry = a_name
     )
+
+    # Shuffle gene names consistently for counts + features
+    original_names <- rownames(counts)
+    shuffled_names <- sample(original_names)
+    rownames(counts) <- shuffled_names
+    features$feature <- shuffled_names
+
+    # Order
+    ordered_idx <- order(rownames(counts))
+    counts <- counts[ordered_idx, ]
+    features <- features[ordered_idx, ]
+
+    stopifnot(all(rownames(counts) == features$feature))
 
     list(
       counts = counts,
@@ -100,19 +117,23 @@ sim_imbalanced_groups <- function(
   }
 
   # Simulation step
-  X <- sim_pop("X", n_X, n_vars, n_degs_X, log2FC_X, if (!is.null(seed)) seed else NULL)
-  Y <- sim_pop("Y", n_Y, n_vars, n_degs_Y, log2FC_Y, if (!is.null(seed)) seed + 1000 else NULL)
+  X <- sim_pop(a_X, n_X, n_vars, n_degs_X, log2FC_X, if (!is.null(seed)) seed else NULL)
+  Y <- sim_pop(a_Y, n_Y, n_vars, n_degs_Y, log2FC_Y, if (!is.null(seed)) seed + 1000 else NULL)
 
   fX <- X$features
   fY <- Y$features
 
   # Interaction truth
+  true_log2FC <- fY$true_log2FC - fX$true_log2FC
+  observed_log2FC <- fY$observed_log2FC - fX$observed_log2FC
+  # Is a DE
+  is_DE <- as.numeric(abs(true_log2FC) > 0)
+
   interaction <- data.frame(
     feature = fX$feature,
-    is_DE = as.numeric(xor(fX$is_DE, fY$is_DE)),
-    intended_log2FC = log2FC_Y - log2FC_X,
-    true_log2FC = fY$true_log2FC - fX$true_log2FC,
-    observed_log2FC = fY$observed_log2FC - fX$observed_log2FC,
+    is_DE = is_DE,
+    true_log2FC = true_log2FC,
+    observed_log2FC = observed_log2FC,
     ancestry = "Interaction"
   )
 
@@ -147,7 +168,7 @@ sim_imbalanced_groups <- function(
   )
 
   # Feature level
-  feature_summary <- rbind(
+  main_summary <- rbind(
     data.frame(
       ancestry = "X",
       total_features = nrow(fX),
@@ -178,7 +199,7 @@ sim_imbalanced_groups <- function(
   summary <- list(
     ancestry = ancestry_summary,
     condition = condition_summary,
-    feature = feature_summary,
+    main = main_summary,
     interaction = interaction_summary
   )
 
@@ -190,7 +211,7 @@ sim_imbalanced_groups <- function(
       MY = Y$meta,
       fX = X$features,
       fY = Y$features,
-      interaction = interaction,
+      fI = interaction,
       summary = summary
     )
   )

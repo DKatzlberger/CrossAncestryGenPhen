@@ -12,12 +12,13 @@ plot_pvalue_concordance(
   y_sig_source = NULL,
   facet_col = NULL,
   facet_levels = NULL,
-  x_label = paste("-log10(", x_var, ")"),
-  y_label = paste("-log10(", y_var, ")"),
   title = NULL,
+  x_label = NULL,
+  y_label = NULL,
+  color_label = NULL,
   sig_thr = 0.05,
-  epsilon = 1e-16,
   log_cap = 5,
+  epsilon = 1e-16,
   point_size = 0.5,
   hex = FALSE
 )
@@ -37,17 +38,17 @@ plot_pvalue_concordance(
 
 \item{facet_levels}{Optional character vector. Subset of levels to include from \code{facet_col}.}
 
+\item{title}{Character. Optional plot title.}
+
 \item{x_label}{Character. X-axis label. Defaults to \code{-log10(x_var)}.}
 
 \item{y_label}{Character. Y-axis label. Defaults to \code{-log10(y_var)}.}
 
-\item{title}{Character. Optional plot title.}
-
 \item{sig_thr}{Numeric. P-value threshold for calling significance. Default is 0.05.}
 
-\item{epsilon}{Numeric. Small constant added before log10 transform. Default is 1e-16.}
-
 \item{log_cap}{Numeric. Maximum value shown for -log10(p). Default is 5.}
+
+\item{epsilon}{Numeric. Small constant added before log10 transform. Default is 1e-16.}
 
 \item{point_size}{Numeric. Size of points in the scatter plot. Default is 0.5.}
 

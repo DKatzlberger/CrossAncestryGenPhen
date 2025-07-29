@@ -10,6 +10,7 @@ plot_feature(
   MX,
   MY,
   g_col,
+  a_col,
   features = NULL,
   title = NULL,
   x_label = NULL,
@@ -25,7 +26,9 @@ plot_feature(
 
 \item{MY}{Metadata for Y, containing IDs and group information}
 
-\item{g_col}{Column name in metadata indicating the grouping (e.g., condition)}
+\item{g_col}{Column name in metadata indicating the group}
+
+\item{a_col}{Column name in metadata indicating the ancestry}
 
 \item{features}{Character vector of feature names to plot.
 Defaults to first 9 common features if NULL.}

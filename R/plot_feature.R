@@ -9,7 +9,8 @@
 #' @param MY Metadata for Y, containing IDs and group information
 #' @param features Character vector of feature names to plot.
 #'   Defaults to first 9 common features if NULL.
-#' @param g_col Column name in metadata indicating the grouping (e.g., condition)
+#' @param g_col Column name in metadata indicating the group 
+#' @param a_col Column name in metadata indicating the ancestry 
 #' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)
 #' @param title Optional title for the plot
 #'
@@ -20,7 +21,8 @@ plot_feature <- function(
   Y, 
   MX, 
   MY, 
-  g_col, 
+  g_col,
+  a_col,
   features = NULL,
   title = NULL,
   x_label = NULL,
@@ -49,26 +51,29 @@ plot_feature <- function(
   combined <- rbind(X, Y)
   combined_scaled <- scale(combined)
 
-  # Assign split labels
-  split_labels <- c(rep("X", nrow(X)), rep("Y", nrow(Y)))
-
   conditions <- c(MX[[g_col]], MY[[g_col]])
+  g_1 <- levels(MX[[g_col]])[1]
+  g_2 <- levels(MY[[g_col]])[2]
+
+  ancestries <- c(MX[[a_col]], MY[[a_col]])
+  a_X <- unique(MX[[a_col]])
+  a_Y <- unique(MY[[a_col]])
 
   df_all <- data.frame(
     feature = rep(colnames(combined_scaled), each = nrow(combined_scaled)),
     value = as.vector(combined_scaled),
     condition = rep(conditions, ncol(combined_scaled)),
-    split = rep(split_labels, ncol(combined_scaled)),
+    ancestry = rep(ancestries, ncol(combined_scaled)),
     stringsAsFactors = FALSE
   )
 
   df_all$feature <- factor(df_all$feature, levels = features)
-  df_all$split <- factor(df_all$split, levels = c("X", "Y"))
+  df_all$ancestry <- factor(df_all$ancestry, levels = c(a_X, a_Y))
 
   p <- ggplot(
     data = df_all, 
     aes(
-      x = split, 
+      x = ancestry, 
       y = value, 
       fill = condition
       )

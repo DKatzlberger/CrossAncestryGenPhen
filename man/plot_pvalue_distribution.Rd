@@ -13,6 +13,7 @@ plot_pvalue_distribution(
   title = NULL,
   x_label = NULL,
   y_label = NULL,
+  fill_label = NULL,
   bins = 50,
   n_fill_bins = 9
 )

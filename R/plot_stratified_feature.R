@@ -13,8 +13,6 @@
 #' @param features Character vector of feature names to plot.
 #'   Defaults to first 9 common features if NULL.
 #' @param g_col Column name in metadata indicating the grouping
-#'   (e.g., condition)
-#' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are ids)
 #' @param title Optional title for the plot
 #' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
 #'
@@ -29,16 +27,11 @@ plot_stratified_feature <- function(
   MR,
   fill_var, 
   features = NULL,
-  id_col = NULL,
   title = NULL, 
   x_label = NULL,
   y_label = NULL,
   point_size = 0.5
 ) {
-  
-  if (is.null(rownames(X)) || is.null(rownames(Y)) || is.null(rownames(R))) {
-    stop("All input matrices (X, Y, R) must have rownames corresponding to sample IDs.")
-  }
 
   # Infer features if not provided
   if (is.null(features)) {
@@ -62,20 +55,9 @@ plot_stratified_feature <- function(
   # Assign split labels
   split_labels <- c(rep("R", nrow(R)), rep("X", nrow(X)), rep("Y", nrow(Y)))
 
-  # Combine metadata and ensure proper ordering
-  if (!is.null(id_col)) {
-    if (!(id_col %in% colnames(MR)) || !(id_col %in% colnames(MX)) || !(id_col %in% colnames(MY))) {
-      stop(sprintf("id_col '%s' not found in one or more metadata sets.", id_col))
-    }
-    all_ids <- c(MR[[id_col]], MX[[id_col]], MY[[id_col]])
-  } else {
-    all_ids <- c(rownames(R), rownames(X), rownames(Y))
-  }
-
   all_conditions <- c(MR[[fill_var]], MX[[fill_var]], MY[[fill_var]])
 
   df_all <- data.frame(
-    sample_id = rep(all_ids, ncol(all_scaled)),
     feature = rep(colnames(all_scaled), each = nrow(all_scaled)),
     value = as.vector(all_scaled),
     condition = rep(all_conditions, ncol(all_scaled)),

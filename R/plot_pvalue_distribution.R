@@ -41,6 +41,7 @@ plot_pvalue_distribution <- function(
   title = NULL,
   x_label = NULL,
   y_label = NULL,
+  fill_label = NULL,
   bins = 50,
   n_fill_bins = 9
 ) {
@@ -131,35 +132,35 @@ plot_pvalue_distribution <- function(
      else 
       geom_histogram(
         bins = bins, 
-        fill = "grey", 
+        fill = "grey80", 
         color = "black", 
         linewidth = 0.1
       )
     ) 
+
+  # Fill
+  if (!is.null(fill_var)) {
+    p <- p + scale_fill_manual(
+      values = colors
+    )
+  }
+
+  # Facets
+  if (do_facet) {
+    p <- p + facet_wrap(as.formula(paste("~", facet_col)))
+  }
 
   # Final styling
   p <- p +
     labs(
       title = title,
       x = ifelse(is.null(x_label), x_var, x_label),
-      y = ifelse(is.null(y_label), "count", y_label)
+      y = ifelse(is.null(y_label), "Count", y_label),
+      fill = fill_label
     ) +
     theme_nature_fonts() +
     theme_white_background() +
     theme_small_legend()
-
-
-  # Facetting
-  if (!is.null(fill_var)) {
-    p <- p + scale_fill_manual(
-      values = colors, 
-      name = fill_var
-    )
-  }
-
-  if (do_facet) {
-    p <- p + facet_wrap(as.formula(paste("~", facet_col)))
-  }
 
   return(p)
 }

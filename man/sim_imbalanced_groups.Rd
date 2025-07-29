@@ -5,6 +5,8 @@
 \title{Simulate two populations with synthetic bulk RNA-seq count data (compcodeR)}
 \usage{
 sim_imbalanced_groups(
+  a_X = "X",
+  a_Y = "Y",
   n_vars,
   n_degs_X,
   n_degs_Y,

@@ -24,7 +24,7 @@
 #' @import future
 #' @import furrr
 #' @export
-subset_interaction_effect <- function(
+subset_perm_interaction_effect <- function(
   X,
   Y,
   MX,
@@ -93,10 +93,11 @@ subset_interaction_effect <- function(
   }
 
   # Run in parallel
-  res <- furrr::future_map(
-    list(args$i, args$seed_iter), 
+  res <- furrr::future_pmap(
+    args,
     run_one, 
-    .options = furrr::furrr_options(seed = seed)
+    .options = furrr::furrr_options(seed = seed),
+    .progress = TRUE
   )
 
   # Extract and combine

@@ -2,28 +2,32 @@
 % Please edit documentation in R/plot_sim_interaction_effect.R
 \name{plot_sim_interaction_effect}
 \alias{plot_sim_interaction_effect}
-\title{Plot observed vs. true interaction effects}
+\title{Scatter plot: observed vs. true interaction effects (diff-of-diff)}
 \usage{
 plot_sim_interaction_effect(
-  data,
+  fX,
+  fY,
   x_var,
   y_var,
-  color_var,
+  effect_thr = NULL,
   features = NULL,
   title = NULL,
   x_label = NULL,
   y_label = NULL,
+  caption = NULL,
   point_size = 1
 )
 }
 \arguments{
-\item{data}{Data frame with columns `x_var`, `y_var`, and `color_var`.}
+\item{fX}{Data frame for ancestry X features.}
 
-\item{x_var}{Name of column for true interaction effect.}
+\item{fY}{Data frame for ancestry Y features.}
 
-\item{y_var}{Name of column for observed interaction effect.}
+\item{x_var}{Column in fX/fY for true ancestry effect.}
 
-\item{color_var}{Name of column indicating true interaction status.}
+\item{y_var}{Column in fX/fY for observed ancestry effect.}
+
+\item{effect_thr}{Optional numeric threshold for ribbon band.}
 
 \item{features}{Optional vector of feature names to annotate.}
 
@@ -33,15 +37,15 @@ plot_sim_interaction_effect(
 
 \item{y_label}{Y-axis label.}
 
-\item{point_size}{Point size (default 1).}
+\item{caption}{Optional plot caption.}
+
+\item{point_size}{Size of scatter points.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Visualize how your difference-of-differences estimate captures 
-true interaction effects in a simulation.
-}
-\details{
-True interactions should align on the 45° line; others scatter vertically.
+Visualize how observed interaction effects align with true effects in a
+simulation. Points on the diagonal show perfect estimation; a horizontal
+ribbon indicates a filtering threshold for the observed effect.
 }

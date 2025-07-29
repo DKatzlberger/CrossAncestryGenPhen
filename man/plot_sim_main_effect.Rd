@@ -9,35 +9,55 @@ plot_sim_main_effect(
   fY,
   x_var,
   y_var,
+  intended_main_effect_X = NULL,
+  intended_main_effect_Y = NULL,
+  effect_thr = NULL,
   features = NULL,
   title = NULL,
   x_label = NULL,
   y_label = NULL,
+  caption = NULL,
   point_size = 1
 )
 }
 \arguments{
-\item{fX}{Data frame for ancestry X features.}
+\item{fX}{Data frame for ancestry X features (must contain `true_log2FC` or `observed_log2FC`).}
 
 \item{fY}{Data frame for ancestry Y features.}
 
-\item{x_var}{Column name in `fX` to use for X-axis effect.}
+\item{x_var}{Column name in `fX` to use for X-axis effect (e.g., "true_log2FC").}
 
-\item{y_var}{Column name in `fY` to use for Y-axis effect.}
+\item{y_var}{Column name in `fY` to use for Y-axis effect (e.g., "true_log2FC").}
 
-\item{features}{Optional character vector of feature names to annotate.}
+\item{intended_main_effect_X}{Optional numeric intended log2FC for X ancestry.}
 
-\item{title}{Plot title (optional).}
+\item{intended_main_effect_Y}{Optional numeric intended log2FC for Y ancestry.}
 
-\item{x_label}{X-axis label (optional).}
+\item{effect_thr}{Optional numeric threshold for interaction effect band (e.g., 1).}
 
-\item{y_label}{Y-axis label (optional).}
+\item{features}{Optional character vector of feature names to label.}
 
-\item{point_size}{Size of points (default: 1).}
+\item{title}{Plot title.}
+
+\item{x_label}{X-axis label.}
+
+\item{y_label}{Y-axis label.}
+
+\item{caption}{Plot caption (optional).}
+
+\item{point_size}{Numeric size of scatter points (default: 1).}
 }
 \value{
 A ggplot object.
 }
 \description{
-Create a scatter plot comparing realized log2FC for ancestry X vs. Y.
+Create a scatter plot comparing realized or observed log2 fold-change
+effects for two ancestries (populations). This helps visualize how the 
+main effects in X and Y relate to each other, highlighting features 
+that are DEGs in one or both populations.
+}
+\details{
+Points are colored by DEG status (Both, X-only, Y-only, None) and shaped 
+by presence of an interaction effect. Intended effect sizes and a 
+biological threshold band can be shown for reference.
 }

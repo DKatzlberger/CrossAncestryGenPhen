@@ -8,48 +8,59 @@ plot_volcano(
   data,
   x_var,
   y_var,
-  fill_var = NULL,
+  color_var = NULL,
+  shape_var = NULL,
   features = NULL,
   sig_thr = NULL,
   effect_thr = NULL,
   title = NULL,
   x_label = NULL,
   y_label = NULL,
-  point_size = 1,
+  color_label = NULL,
+  shape_label = NULL,
   log_cap = 5,
-  epsilon = 1e-15
+  epsilon = 1e-15,
+  point_size = 1
 )
 }
 \arguments{
-\item{data}{A data frame containing the variables to be plotted.}
+\item{data}{Data frame with variables to plot.}
 
-\item{x_var}{A string specifying the name of the column to be used as the x-axis (e.g., effect size or test statistic).}
+\item{x_var}{String. Column name for x-axis (e.g., effect size).}
 
-\item{y_var}{A string specifying the name of the column to be used for computing \code{-log10(p)} on the y-axis (typically a p-value or adjusted p-value).}
+\item{y_var}{String. Column name for y-axis (p-values to transform).}
 
-\item{fill_var}{Optional string. Name of a column to map to point fill color (used only with shapes that support fill).}
+\item{color_var}{String. Column name mapped to point colors.}
 
-\item{features}{Features to annotate in the plot.}
+\item{shape_var}{String. Column name mapped to point shapes.}
 
-\item{sig_thr}{Optional numeric value specifying the significance threshold for p-values. If \code{NULL}, no significance filtering is applied.}
+\item{features}{Optional vector. Feature names to annotate.}
 
-\item{effect_thr}{Optional numeric value specifying the minimum absolute effect size threshold. If \code{NULL}, no effect size filtering is applied.}
+\item{sig_thr}{Numeric. Significance threshold for horizontal line.}
 
-\item{title}{Optional string for the plot title.}
+\item{effect_thr}{Numeric. Effect size threshold for vertical lines.}
 
-\item{x_label}{Optional string for the x-axis label.}
+\item{title}{String. Plot title.}
 
-\item{y_label}{Optional string for the y-axis label.}
+\item{x_label}{String. Custom x-axis label.}
 
-\item{log_cap}{Numeric value specifying the maximum \code{-log10(p)} to display. Values above this are capped. Default is \code{5}.}
+\item{y_label}{String. Custom y-axis label.}
 
-\item{epsilon}{Numeric constant added to p-values before log transformation to avoid \code{log10(0)}. Default is \code{1e-16}.}
+\item{color_label}{String. Legend title for color.}
+
+\item{shape_label}{String. Legend title for shape.}
+
+\item{log_cap}{Numeric. Max -log10(p) to cap values. Default is 5.}
+
+\item{epsilon}{Numeric. Small constant to avoid log10(0). Default 1e-15.}
+
+\item{point_size}{Numeric. Size of points. Default is 1.}
 }
 \value{
-A \code{ggplot} object representing the volcano plot.
+A ggplot2 object.
 }
 \description{
-Creates a volcano plot using ggplot2 based on specified x and y variables, 
-highlighting points that exceed significance and effect size thresholds.
-Supports p-value capping, customizable point size, and optional fill aesthetics.
+Creates a volcano plot with capped -log10(p-values) on the y-axis.
+Supports effect size threshold lines, feature annotations, and flexible
+color and shape aesthetics.
 }
