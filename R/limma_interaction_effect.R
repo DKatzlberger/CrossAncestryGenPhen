@@ -10,6 +10,7 @@
 #' @param MY Metadata for Y. Must include group and ancestry columns.
 #' @param g_col Name of the column indicating group.
 #' @param a_col Name of the column indicating ancestry.
+#' @param use_eBayes Use eBayes mehtod.
 #'
 #' @return A list with:
 #' \describe{
@@ -28,7 +29,8 @@ limma_interaction_effect <- function(
   MX,
   MY,
   g_col,
-  a_col
+  a_col,
+  use_eBayes = TRUE
 ) {
   stopifnot(is.matrix(X), is.matrix(Y))
   stopifnot(ncol(X) == ncol(Y))
@@ -56,7 +58,6 @@ limma_interaction_effect <- function(
 
   # Fit linear model
   fit <- limma::lmFit(t(XY), design)
-  fit <- limma::eBayes(fit)
 
   # Identify interaction coefficient
   coef_name <- grep("^group.*:ancestry", colnames(design), value = TRUE)
@@ -64,9 +65,20 @@ limma_interaction_effect <- function(
     stop("Interaction term not uniquely identified.")
   }
 
-  # Extract statistics
-  res <- limma::topTable(fit, coef = coef_name, number = Inf, sort.by = "none")
-  res$SE <- res$logFC / res$t
+  # Optionally use eBayes
+  if (use_eBayes) {
+    fit <- limma::eBayes(fit)
+    res <- limma::topTable(fit, coef = coef_name, number = Inf, sort.by = "none")
+  } else {
+    coef_idx <- which(colnames(design) == coef_name)
+    res <- data.frame(
+      logFC = fit$coefficients[, coef_idx],
+      P.Value = NA,
+      adj.P.Val = NA,
+      AveExpr = rowMeans(t(XY)),
+      row.names = rownames(fit$coefficients)
+    )
+  }
 
   summary_stats <- data.frame(
     feature = rownames(res),

@@ -8,6 +8,7 @@
 #' @param estimates_Y A list returned by `estimate_params()` for dataset Y. Must contain a `means` sublist.
 #' @param method Character. Type of gene-level mean to compare. One of `"raw"` (unadjusted counts),
 #'   `"libnorm"` (library-normalized counts), or `"logcpm"` (log2 counts per million).
+#' @param log Logical. Whether to log10-transform the mean values before plotting. Default is `FALSE`.
 #' @param ancestry_X Character. Label used for dataset X in axis titles. Default is `"Dataset X"`.
 #' @param ancestry_Y Character. Label used for dataset Y in axis titles. Default is `"Dataset Y"`.
 #' @param title Plot title.
@@ -21,14 +22,15 @@
 #' \dontrun{
 #' estimates_X <- estimate_params(count_matrix_X)
 #' estimates_Y <- estimate_params(count_matrix_Y)
-#' plot_estimated_mean(estimates_X, estimates_Y, method = "logcpm")
+#' plot_estimated_means(estimates_X, estimates_Y, method = "libnorm", log = TRUE)
 #' }
 #'
 #' @export
-plot_estimated_mean <- function(
+plot_estimated_means <- function(
   estimates_X,
   estimates_Y,
-  method = c("raw", "libnorm", "logcpm"),
+  method = c("raw", "logcpm", "mle", "map", "libnorm_mle", "libnorm_map"),
+  log = TRUE,
   ancestry_X = "Dataset X", 
   ancestry_Y = "Dataset Y",
   title = NULL,
@@ -37,14 +39,18 @@ plot_estimated_mean <- function(
   point_size = 1
 ){
 
-  method <- match.arg(method)
-
   # Extract selected mean type
   x_vals <- estimates_X$means[[method]]
   y_vals <- estimates_Y$means[[method]]
 
   if (length(x_vals) != length(y_vals)) {
     stop("x_means and y_means must have the same number of genes.")
+  }
+
+  # Optionally log-transform
+  if (log) {
+    x_vals <- log2(x_vals)
+    y_vals <- log2(y_vals)
   }
 
   df <- data.frame(
@@ -65,14 +71,15 @@ plot_estimated_mean <- function(
   geom_abline(
     slope = 1,
     intercept = 0,
-    color = "gray50"
+    color = "gray50",
+    linewidth = 0.3
   )
 
   # Final style
   p <- p + labs(
     title = title,
-    x = ifelse(is.null(x_label), paste0(ancestry_X, " means ", "(", toupper(method), ")"), x_label),
-    y = ifelse(is.null(y_label), paste0(ancestry_Y, " means ", "(", toupper(method), ")"), y_label)
+    x = ifelse(is.null(x_label), paste0(if (log) "Log2 " else "", toupper(method), " means (", ancestry_X, ")"), x_label),
+    y = ifelse(is.null(y_label), paste0(if (log) "Log2 " else "", toupper(method), " means (", ancestry_Y, ")"), y_label)
   ) +
   theme_nature_fonts() +
   theme_white_background() +

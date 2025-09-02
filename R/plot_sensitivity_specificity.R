@@ -42,8 +42,8 @@ plot_sensitivity_specificity <- function(
   TN <- ifelse(!is.na(cm["0", "0"]), cm["0", "0"], 0)
   
   # Compute metrics
-  sensitivity <- ifelse((TP + FN) > 0, TP / (TP + FN), NA)
-  specificity <- ifelse((TN + FP) > 0, TN / (TN + FP), NA)
+  sensitivity <- ifelse((TP + FN) > 0, TP / (TP + FN), 0)
+  specificity <- ifelse((TN + FP) > 0, TN / (TN + FP), 0)
   
   # Build tidy DF for ggplot
   metrics_df <- data.frame(
@@ -62,12 +62,9 @@ plot_sensitivity_specificity <- function(
     geom_col(
       width = 0.5
     ) +
-    geom_text(
-      mapping = aes(
-        label = scales::percent(Value, accuracy = 0.1)
-      ),
-      size = 2,
-      vjust = -0.5
+    facet_wrap(
+      ~ Metric, 
+      scales = "free_x"
     ) +
     ylim(0, 1) +
     labs(
@@ -76,7 +73,7 @@ plot_sensitivity_specificity <- function(
       x = x_label
     ) +
     theme_nature_fonts() +
-    theme_white_background() +
+    theme_white_background(show_facets = FALSE) +
     theme_small_legend()
   
   return(p)

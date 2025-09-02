@@ -36,8 +36,8 @@ plot_tsne_cluster <- function(
 ) {
   if (!is.null(seed)) set.seed(seed)
 
-  # Combine
-  X_comb <- rbind(X, Y)
+  # Combine expression matrices
+  X_comb <- rbind(X, Y) 
   M_comb <- rbind(MX, MY)
 
   # Run t-SNE
@@ -63,8 +63,8 @@ plot_tsne_cluster <- function(
     ) +
     labs(
       title = title,
-      x = ifelse(is.null(x_label), "TSNE_1", x_label),
-      y = ifelse(is.null(y_label), "TSNE_2", y_label),
+      x = ifelse(is.null(x_label), "TSNE1", x_label),
+      y = ifelse(is.null(y_label), "TSNE2", y_label),
       color = color_var,
       shape = shape_var
     ) +

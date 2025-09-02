@@ -35,6 +35,7 @@ subset_limma_interaction_effect <- function(
   seed = NULL,
   workers = future::availableCores() - 1  # optional: reserve 1 core
 ) {
+
   # Save current plan and set new one
   orig_plan <- future::plan()
   future::plan(multisession, workers = workers)
@@ -67,10 +68,11 @@ subset_limma_interaction_effect <- function(
       g_col = g_col,
       seed = NULL
     )
+
     # Track the sample ids
     id <- track_sample_ids(split, i)
 
-    # Run C++ core
+    # Run limma on subset
     limma_res <- limma_interaction_effect(
       X = split$test$X,
       Y = split$inference$X,
@@ -107,7 +109,7 @@ subset_limma_interaction_effect <- function(
   )
 
   list(
-    aggregated_stats = aggregated_limma,
+    summary_stats = aggregated_limma,
     iteration_stats = limma_log,
     sample_log = id_log,
     meta = list(

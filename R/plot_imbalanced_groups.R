@@ -33,7 +33,8 @@ plot_imbalanced_groups <- function(
   ) +
   geom_bar(
     position = "dodge",
-    color = "black"
+    color = "black",
+    linewidth = 0.1
   ) +
   labs(
     title = title,

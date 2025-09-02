@@ -5,8 +5,7 @@
 #'
 #' @param base_size Base font size for all text elements (default: 5).
 #' @return A ggplot2 theme object.
-#' @keywords internal
-#' @noRd
+#' @export
 theme_nature_fonts <- function(base_size = 8) {
   ggplot2::theme(
     axis.text = ggplot2::element_text(size = base_size),
@@ -29,8 +28,7 @@ theme_nature_fonts <- function(base_size = 8) {
 #' @param base_size Base text size to scale legend keys (default: 5).
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #' @return A ggplot2 theme object.
-#' @keywords internal
-#' @noRd
+#' @export
 theme_small_legend <- function(base_size = 8, ...) {
   key_size_pt <- base_size * 1.3  # visually balances with text height
 
@@ -39,6 +37,7 @@ theme_small_legend <- function(base_size = 8, ...) {
     legend.key.height = ggplot2::unit(key_size_pt, "pt"),
     legend.key.width = ggplot2::unit(key_size_pt, "pt"),
     legend.margin = ggplot2::margin(0.5, 0.5, 0.5, 0.5),
+    legend.title = ggplot2::element_text(margin = ggplot2::margin(b = 5)),
     ...
   )
 }
@@ -52,8 +51,7 @@ theme_small_legend <- function(base_size = 8, ...) {
 #' @param show_facets Logical. If `TRUE`, facet strip labels are shown. If `FALSE`, facet strip text is removed.
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #' @return A ggplot2 theme object.
-#' @keywords internal
-#' @noRd
+#' @export
 theme_white_background <- function(show_facets = TRUE, ...) {
   ggplot2::theme(
     panel.background = ggplot2::element_rect(fill = "white", color = NA),

@@ -138,7 +138,7 @@ plot_null_distribution <- function(
     labs(
       title = title,
       x = ifelse(is.null(x_label), "T_obs (under null)", x_label),
-      y = ifelse(is.null(y_label), "count", y_label),
+      y = ifelse(is.null(y_label), "Count", y_label),
     ) +
     theme_nature_fonts() +
     theme_white_background() +
