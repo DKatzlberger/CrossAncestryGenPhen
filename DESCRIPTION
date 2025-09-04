@@ -18,7 +18,8 @@ Imports:
     ComplexHeatmap,
     edgeR,
     ggrepel,
-    compcodeR
+    compcodeR,
+    fields
 LinkingTo: 
     Rcpp,
     RcppArmadillo
