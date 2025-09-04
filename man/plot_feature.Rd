@@ -9,8 +9,8 @@ plot_feature(
   Y,
   MX,
   MY,
-  g_col,
-  a_col,
+  x_var,
+  fill_var,
   features = NULL,
   title = NULL,
   x_label = NULL,
@@ -26,14 +26,14 @@ plot_feature(
 
 \item{MY}{Metadata for Y, containing IDs and group information}
 
-\item{g_col}{Column name in metadata indicating the group}
-
-\item{a_col}{Column name in metadata indicating the ancestry}
-
 \item{features}{Character vector of feature names to plot.
 Defaults to first 9 common features if NULL.}
 
 \item{title}{Optional title for the plot}
+
+\item{g_col}{Column name in metadata indicating the group}
+
+\item{a_col}{Column name in metadata indicating the ancestry}
 
 \item{id_col}{Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)}
 }

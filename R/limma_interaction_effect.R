@@ -8,9 +8,10 @@
 #' @param Y Expression matrix for ancestry Y. Rows = samples, columns = genes.
 #' @param MX Metadata for X. Must include group and ancestry columns.
 #' @param MY Metadata for Y. Must include group and ancestry columns.
-#' @param g_col Name of the column indicating group.
-#' @param a_col Name of the column indicating ancestry.
-#' @param use_eBayes Use eBayes mehtod.
+#' @param g_col Name of the column indicating group (factor 1).
+#' @param a_col Name of the column indicating ancestry (factor 2).
+#' @param covariates Optional vector of covariate column names to adjust for.
+#' @param verbose Logical, whether to print messages.
 #'
 #' @return A list with:
 #' \describe{
@@ -21,8 +22,9 @@
 #'   \item{coef}{Name of the interaction coefficient extracted.}
 #' }
 #' @export
-#' @importFrom limma lmFit eBayes topTable
-#' @importFrom stats model.matrix
+#' @importFrom edgeR DGEList calcNormFactors
+#' @importFrom limma voom lmFit eBayes topTable makeContrasts contrasts.fit
+
 limma_interaction_effect <- function(
   X,
   Y,
@@ -30,72 +32,154 @@ limma_interaction_effect <- function(
   MY,
   g_col,
   a_col,
-  use_eBayes = TRUE
+  covariates = NULL,
+  use_voom = TRUE,
+  verbose = TRUE
 ) {
-  stopifnot(is.matrix(X), is.matrix(Y))
-  stopifnot(ncol(X) == ncol(Y))
 
-  # Extract and validate group/ancestry
-  g_X <- MX[[g_col]]
-  g_Y <- MY[[g_col]]
+  ## --- Input data structure check ---
+  assert_input(
+    X = X, 
+    Y = Y, 
+    MX = MX, 
+    MY = MY, 
+    g_col = g_col, 
+    a_col = a_col
+  )
 
-  g1 <- levels(factor(g_X))[1]
-  g2 <- levels(factor(g_X))[2]
 
-  a_X <- unique(MX[[a_col]])
-  a_Y <- unique(MY[[a_col]])
-
-  # Combine expression and metadata
-  XY <- rbind(X, Y)
+  ## --- Combine expression and metadata ---
+  XY  <- rbind(X, Y)
   MXY <- rbind(MX, MY)
 
-  # Factor setup
-  group <- factor(MXY[[g_col]], levels = c(g1, g2)) 
-  ancestry <- factor(MXY[[a_col]], levels = c(a_X, a_Y))  
 
-  # Design matrix with interaction
-  design <- model.matrix(~ group * ancestry)
+  ## --- Factor setup ---
+  a_1 <- unique(MX[[a_col]]); a_2 <- unique(MY[[a_col]])
 
-  # Fit linear model
-  fit <- limma::lmFit(t(XY), design)
+  MXY[[a_col]] <- factor(MXY[[a_col]], levels = c(a_1, a_2))
 
-  # Identify interaction coefficient
-  coef_name <- grep("^group.*:ancestry", colnames(design), value = TRUE)
-  if (length(coef_name) != 1) {
-    stop("Interaction term not uniquely identified.")
+  g_levels <- levels(MXY[[g_col]])
+  a_levels <- levels(MXY[[a_col]])
+
+  if (length(g_levels) != 2 || length(a_levels) != 2) {
+    stop("Function currently supports only 2x2 designs (two levels in g_col × two levels a_col).")
   }
 
-  # Optionally use eBayes
-  if (use_eBayes) {
-    fit <- limma::eBayes(fit)
-    res <- limma::topTable(fit, coef = coef_name, number = Inf, sort.by = "none")
+  ## --- Build 4 groups ----
+  g_1 <- g_levels[1]; g_2 <- g_levels[2]
+  a_1 <- a_levels[1]; a_2 <- a_levels[2]
+
+  MXY[["groups"]] <- factor(
+    paste(
+      MXY[[g_col]], 
+      MXY[[a_col]], 
+      sep = "."
+    ), 
+    levels = c(
+      paste(g_1, a_1, sep = "."),  
+      paste(g_2, a_1, sep = "."),  
+      paste(g_1, a_2, sep = "."),    
+      paste(g_2, a_2, sep = ".")     
+    )
+  )
+
+
+  ## --- Build means model formula (4 groups) ---
+  form_str <- paste("~0 + groups")
+  if (!is.null(covariates)) {
+    form_str <- paste(form_str, "+", paste(covariates, collapse = " + "))
+  }
+  design <- model.matrix(as.formula(form_str), data = MXY)
+  colnames(design) <- make.names(colnames(design))
+
+
+  ## --- Group vs covariates coef ---
+  all_coefs <- colnames(design)
+  group_mask <- grepl("^groups", all_coefs)
+  group_coefs <- all_coefs[group_mask]
+  covar_coefs <- all_coefs[!group_mask]
+
+
+  ## --- Clean coef names ---
+  group_coefs <- gsub("groups", "", group_coefs)               
+  colnames(design)[group_mask] <- group_coefs
+
+  if (!is.null(covariates)) {
+    for (cov in covariates) {
+      if (is.factor(MXY[[cov]]) || is.character(MXY[[cov]])) {
+        covar_coefs <- sub(paste0("^", cov), "", covar_coefs)
+      }
+    }
+    colnames(design)[!group_mask] <- covar_coefs
+  }
+
+
+  ## --- Define contrasts ---
+  cols <- colnames(design)[group_mask]
+
+  # Contrast calculations
+  contrast_calculations <- list(
+    baseline_1     = paste(cols[3], "-", cols[1]), # G1.A2 - G1.A1
+    baseline_2     = paste(cols[4], "-", cols[2]), # G2.A2 - G2.A1
+    relationship_1 = paste(cols[2], "-", cols[1]), # G2.A1 - G1.A1
+    relationship_2 = paste(cols[4], "-", cols[3]), # G2.A2 - G1.A2
+    interaction    = paste0("(", cols[4], " - ", cols[3], ") - (", cols[2], " - ", cols[1], ")")
+  )
+
+  contrast_matrix <- limma::makeContrasts(
+    contrasts = contrast_calculations,
+    levels    = design
+  )
+
+
+  ## --- Verbose message ---
+  if (verbose) {
+    message("\nLinear model summary:")
+    message(sprintf("Formula:         %s", form_str))
+    message(sprintf("Groups:          %s", paste(group_coefs, collapse = "  ")))
+    message(sprintf("Baseline:        %s", paste(contrast_calculations[1:2], collapse = "  ")))
+    message(sprintf("Relationship:    %s", paste(contrast_calculations[3:4], collapse = "  ")))
+    message(sprintf("Interaction:     %s", paste(contrast_calculations[[5]], collapse = "  ")))
+  }
+
+
+  # --- Model fit with/without voom ----
+  if (use_voom) {
+    counts_gxS <- t(XY)
+    dge <- edgeR::DGEList(counts = counts_gxS)
+    dge <- edgeR::calcNormFactors(dge)                 
+    v   <- limma::voom(dge, design = design, plot = FALSE)
+    fit <- limma::lmFit(v, design)
   } else {
-    coef_idx <- which(colnames(design) == coef_name)
-    res <- data.frame(
-      logFC = fit$coefficients[, coef_idx],
-      P.Value = NA,
-      adj.P.Val = NA,
-      AveExpr = rowMeans(t(XY)),
-      row.names = rownames(fit$coefficients)
-    )
+    fit <- limma::lmFit(t(XY), design)                 
   }
 
-  summary_stats <- data.frame(
-    feature = rownames(res),
-    T_obs = res$logFC,
-    p_value = res$P.Value,
-    p_adj = res$adj.P.Val,
-    ave_expr = res$AveExpr,
-    row.names = NULL
-  )
 
-  return(
-    list(
-      summary_stats = summary_stats,
-      fit = fit,
-      group_levels = levels(group),
-      ancestry_levels = levels(ancestry),
-      coef = coef_name
-    )
+  ## --- Apply contrasts + eBayes (always) ---
+  fit2 <- limma::contrasts.fit(fit, contrast_matrix)
+  fit2 <- limma::eBayes(fit2)
+
+
+  ## --- Extract results ---
+  results_list <- lapply(
+      seq_along(colnames(contrast_matrix)), function(i) {
+      cn <- colnames(contrast_matrix)[i]
+      tt <- limma::topTable(fit2, coef = cn, number = Inf, sort.by = "none")
+      data.frame(
+        coef_type = names(contrast_calculations)[i],
+        contrast  = cn,
+        feature   = rownames(tt),
+        T_obs     = tt$logFC,
+        p_value   = tt$P.Value,
+        p_adj     = tt$adj.P.Val,
+        ave_expr  = tt$AveExpr,
+        row.names = NULL
+      )
+    }
   )
+  summary_stats <- do.call(rbind, results_list)
+
+
+  ## --- Return ----
+  return(summary_stats)
 }

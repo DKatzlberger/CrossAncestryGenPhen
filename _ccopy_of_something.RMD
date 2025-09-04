@@ -1,83 +1,4 @@
----
-title: "Permutation Interaction Effect"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Permutation Interaction Effect}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-# Introduction
-Here we showcase how permutation testing is used to assess if genotype-phenotype relationships differ across ancestries.
-In omics research frameworks like `limma` are gold standard to test for differetnial expressed genes.
-However, such frameworks are build on biological and statistical assuptions on the underlying data. 
-In permutation testing theses assumptions are reduced, because pvalues are derived by modelling an empirical null distribution.
-In case of interaction effects of the form `phenotype x ancestry`, the ancestry label is permuted creating a null, which assumes no effect by ancestry.
-
-## Overrepresentation of EUR ancestry
-In omics research EUR ancestry is often overrepresented compared to other ancestries.
-Hence, data of non-Europeans is often sparse and can effect the discovery of true effects.
-The framework`CrossAncestryGenPhen` tries to be fair by subsampling the overrepresented ancestry to match the sample size of the underrepresented ancestry.
-The following code snippet showcases such an imbalance on a simulated dataset.
-
-```{r data setup, fig.alt = "Bar plot showing condition imbalance across ancestries"}
-library(CrossAncestryGenPhen)
-library(ggplot2)
-
-# Seed for reproducibility
-seed <- 42  
-set.seed(seed)
-
-# Simulate example data
-p <- 100  # Number of genes
-n_EUR <- 600 
-n_AFR <- 40  
-
-# Expression matrices for EUR and AFR ancestries
-X <- matrix(rnorm(n_EUR * p), nrow = n_EUR, ncol = p)
-Y <- matrix(rnorm(n_AFR * p), nrow = n_AFR, ncol = p)
-colnames(X) <- colnames(Y) <- paste0("Feature_", seq_len(p))
-
-# Metadata for EUR and AFR ancestries
-# EUR: overrepresented compared to AFR
-MX <- data.frame(
-  id = paste0("Sample_", seq_len(n_EUR)),
-  condition = factor(c(rep("Control", 400), rep("Case", 200))),
-  ancestry = "A"
-)
-
-# AFR: underrepresented compared to EUR
-MY <- data.frame(
-  id = paste0("Sample_", seq_len(n_AFR)),
-  condition = factor(c(rep("Control", 10), rep("Case", 30))),
-  ancestry = "B"
-)
-
-# Rownames of matrix must be smaple ids
-rownames(X) <- MX$id
-rownames(Y) <- MY$id
-
-# Visualize sample size imbalance
-meta <- rbind(MX, MY)
-
-# Plot
-ggplot(meta, aes(x = ancestry, fill = condition)) +
-  geom_bar(position = "dodge", color = "black") +
-  labs(
-    title = "Condition Imbalance Across Ancestries",
-    x = "Ancestry",
-    y = "Sample Count",
-    fill = "Condition"
-  ) 
-```
-
+<!-- 
 Running a `limma` pipeline on such imbalanced data might lead to false positive results, because the underrepresented ancestry is not well represented in the data.
 One way `CrossAncestryGenPhen` tries to mitigate this is by stratifying the data.
 This approach is limited to cases where the European ancestry is truly overrepreseted. 
@@ -139,7 +60,7 @@ In case of interaction effects the `split$test` and `split$inference` sets are u
 The function `perm_interaction_effect` estimates the difference in phenotype means between the two sets. Where `X` represents one ancestry and `Y` the other ancestry.
 
 ```{r single_interaction_effect}
-B <- 100  # Number of permutations
+B <- 1  # Number of permutations
 
 perm_res <- perm_interaction_effect(
   X = split$test$X,
@@ -200,7 +121,7 @@ Hence, aggregating p-values or test statistics is not trivial.
 ## Loop run over multiple subsets
 
 ```{r multiple_subsets_run}
-n_subsets <- 100  # Number of subsets to run
+n_subsets <- 10  # Number of subsets to run
 
 # Track ids and results
 perm_results <- list()
@@ -294,4 +215,4 @@ plot_correlation_heatmap(
 ```
 
 ## Aggregation across subsets
-** To be continued... **
+** To be continued... ** -->

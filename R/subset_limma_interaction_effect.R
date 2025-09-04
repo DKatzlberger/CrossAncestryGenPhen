@@ -31,32 +31,47 @@ subset_limma_interaction_effect <- function(
   MY,
   g_col,
   a_col,
+  covariates = NULL,
+  use_voom = TRUE,
   n_iter = 1000,
+  workers = future::availableCores() - 1,
   seed = NULL,
-  workers = future::availableCores() - 1  # optional: reserve 1 core
+  verbose = TRUE
 ) {
 
-  # Save current plan and set new one
+  ## --- Input data structure check ---
+  assert_input(
+    X = X, 
+    Y = Y, 
+    MX = MX, 
+    MY = MY, 
+    g_col = g_col, 
+    a_col = a_col
+  )
+
+  ## --- Parallelization steps ---
   orig_plan <- future::plan()
   future::plan(multisession, workers = workers)
   on.exit(future::plan(orig_plan), add = TRUE)
 
-  # Precompute seeds for reproducibility
+  ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
 
-  # Prepare arguments for parallelize
+
+  ## --- Prepare arguments for parallel execution ---
   args <- data.frame(
     i = seq_len(n_iter),
     seed_iter = seeds
   )
 
-  # Define the function for one iteration
+
+  ## --- Define the function for one iteration ---
   run_one <- function(
     i,
     seed_iter
   ) {
     
-    # Set RNG 
+    # Seed 
     if (!is.null(seed_iter)) set.seed(seed_iter)
 
     # Stratified splits
@@ -66,55 +81,65 @@ subset_limma_interaction_effect <- function(
       MX = MX,
       MY = MY,
       g_col = g_col,
-      seed = NULL
+      a_col = a_col,
+      seed = seed_iter,
+      verbose = verbose
     )
-
-    # Track the sample ids
+      
+    # Store sample ids
     id <- track_sample_ids(split, i)
 
     # Run limma on subset
-    limma_res <- limma_interaction_effect(
-      X = split$test$X,
-      Y = split$inference$X,
-      MX = split$test$M,
-      MY = split$inference$M,
+    res <- limma_interaction_effect(
+      X = split$X$counts,
+      Y = split$Y$counts,
+      MX = split$X$meta,
+      MY = split$Y$meta,
       g_col = g_col,
-      a_col = a_col
+      a_col = a_col,
+      covariates = covariates,
+      use_voom = TRUE,
+      verbose = verbose
     )
 
-    stats <- limma_res$summary_stats
-    stats$iteration <- i
+    # Filter interaction coef
+    res <- subset(res, coef_type == "interaction")
+
+    # Add the iteration number
+    res$iteration <- i
 
     list(
-      stats = stats,
-      id = id
+      res = res,
+      ids = id
     )
   }
 
-  # Run in parallel
-  res <- furrr::future_pmap(
+
+  ## --- Run in parallel ---
+  parallel_res <- furrr::future_pmap(
     args,
     run_one, 
     .options = furrr::furrr_options(seed = seed),
     .progress = TRUE
   )
 
-  # Extract and combine
-  limma_log <- do.call(rbind, lapply(res, `[[`, "stats"))
-  id_log   <- do.call(rbind, lapply(res, `[[`, "id"))
 
-  aggregated_limma <- summarize_subsets(
-    data = limma_log,
-    iter_col = "iteration"
+  ## --- Extract and combine ---
+  res_log <- do.call(rbind, lapply(parallel_res, `[[`, "res"))
+  ids_log <- do.call(rbind, lapply(parallel_res, `[[`, "ids"))
+
+
+  ## --- Aggregation of iterations ---
+  agg_res <- summarize_subsets(
+    data = res_log
   )
 
-  list(
-    summary_stats = aggregated_limma,
-    iteration_stats = limma_log,
-    sample_log = id_log,
-    meta = list(
-      n_iter = n_iter,
-      seed = seed
+  ## --- Return ---
+  return(
+    list(
+      summary_stats   = agg_res,
+      iteration_stats = res_log,
+      sample_stats    = ids_log
     )
   )
 }

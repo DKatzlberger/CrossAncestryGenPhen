@@ -34,7 +34,8 @@ subset_perm_interaction_effect <- function(
   B = 1000,
   save_null = FALSE,
   seed = NULL,
-  workers = future::availableCores() - 1  # optional: reserve 1 core
+  workers = future::availableCores() - 1,
+  verbose = TRUE
 ) {
   # Save current plan and set new one
   orig_plan <- future::plan()
@@ -106,8 +107,7 @@ subset_perm_interaction_effect <- function(
   t_null_log <- if (save_null) lapply(res, `[[`, "t_null") else NULL
 
   aggregated_perm <- summarize_subsets(
-    data = perm_log,
-    iter_col = "iteration"
+    data = perm_log
   )
 
   list(

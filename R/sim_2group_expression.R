@@ -36,8 +36,7 @@
 #' @importFrom compcodeR generateSyntheticData
 #' @importFrom stats setNames
 sim_2group_expression <- function(
-  X,
-  estimates = NULL,
+  estimates,
   ancestry,
   n_samples,
   n_degs,
@@ -46,17 +45,21 @@ sim_2group_expression <- function(
   disp_method = c("mle", "map"),
   seed = NULL 
 ){
-  # Set seed 
+
+  ## --- Set seed ---
   if (!is.null(seed)) set.seed(seed)
 
-  # Match method arguments safely
+
+  ## --- Match method arguments safely ---
   mean_method <- match.arg(mean_method)
   disp_method <- match.arg(disp_method)
 
-  # Estimate parameters
-  real_estimates <- if (!is.null(estimates)) estimates else estimate_params(X)
 
-  # Extract means
+  ## ---  Estimate parameters ---
+  real_estimates <- estimates
+
+
+  ## --- Extract means ---
   real_means <- switch(
     mean_method,
     mle = real_estimates$means$mle,
@@ -65,14 +68,16 @@ sim_2group_expression <- function(
     libnorm_map = real_estimates$means$libnorm_map
   )
 
-  # Extract dispersions
+
+  ## --- Extract dispersions ---
   real_disps <- switch(
     disp_method,
     mle = real_estimates$disps$mle,
     map = real_estimates$disps$map
   )
 
-  # Use generateSyntheticData from compcodeR
+
+  ## --- Use generateSyntheticData from compcodeR ---
   sim_ancestry <- paste0(ancestry, "_sim")
   sim <- compcodeR::generateSyntheticData(
     dataset = sim_ancestry,
@@ -96,27 +101,32 @@ sim_2group_expression <- function(
     repl.id = seed
   )
 
-  # Extract counts (sample x features)
+
+  ## --- Extract counts (sample x features) ---
   sim_counts <- sim@count.matrix
   colnames(sim_counts) <- paste0(sim_ancestry, "_", seq_len(ncol(sim_counts)))
   sim_counts <- t(sim_counts) # rownames are samples (matrix)
 
-  # Meta
+
+  ## --- Meta ---
   sim_meta <- sim@sample.annotations
-  sim_meta$condition <- as.factor(sim_meta$condition)
+  sim_meta$condition <- factor(sim_meta$condition, levels = c(1, 2), labels = c("Control", "Case"))
   sim_meta$ancestry <- sim_ancestry
   rownames(sim_meta) <- rownames(sim_counts) # rownames are samples (matrix)
 
-  # Features
+
+  ## --- Features ---
   is_DE <- sim@variable.annotations$differential.expression
   true_log2FC <- sim@variable.annotations$truelog2foldchanges
   sim_features <- data.frame(is_DE = is_DE, true_log2FC = true_log2FC)
   rownames(sim_features) <- colnames(sim_counts) # rownames are feature names (matrix)
 
-  # Comparison real vs. sim
+
+  ## --- Comparison real vs. sim ---
   sim_estimates <- estimate_params(sim_counts)
 
-  # Gene means
+
+  ## --- Gene means ---
   real_sim_means <- plot_estimated_means(
     estimates_X = real_estimates,
     estimates_Y = sim_estimates,
@@ -126,7 +136,7 @@ sim_2group_expression <- function(
     title = "Simulated vs real gene-wise means"
   )
 
-  # Gene dispersions
+  ## --- Gene dispersions ---
   real_sim_disps <- plot_estimated_dispersions(
     estimates_X = real_estimates,
     estimates_Y = sim_estimates,
@@ -136,19 +146,23 @@ sim_2group_expression <- function(
      title = "Simulated vs real gene-wise dispersions"
   )
 
+
+  ## --- Plots ---
   plots <- list(
     means = real_sim_means,
     disps = real_sim_disps
   )
 
+
+  ## --- Return ---
   return(
     list(
-      X = sim_counts,
-      M = sim_meta,
-      f = sim_features,
-      input_params = real_estimates,
+      counts        = sim_counts,
+      meta          = sim_meta,
+      feats         = sim_features,
+      input_params  = real_estimates,
       output_params = sim_estimates,
-      in_out_plots = plots
+      in_out_plots  = plots
     )
   )
 }

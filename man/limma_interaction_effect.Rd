@@ -4,7 +4,17 @@
 \alias{limma_interaction_effect}
 \title{Limma-Based Interaction Test}
 \usage{
-limma_interaction_effect(X, Y, MX, MY, g_col, a_col, use_eBayes = TRUE)
+limma_interaction_effect(
+  X,
+  Y,
+  MX,
+  MY,
+  g_col,
+  a_col,
+  covariates = NULL,
+  use_voom = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{X}{Expression matrix for ancestry X. Rows = samples, columns = genes.}
@@ -15,11 +25,13 @@ limma_interaction_effect(X, Y, MX, MY, g_col, a_col, use_eBayes = TRUE)
 
 \item{MY}{Metadata for Y. Must include group and ancestry columns.}
 
-\item{g_col}{Name of the column indicating group.}
+\item{g_col}{Name of the column indicating group (factor 1).}
 
-\item{a_col}{Name of the column indicating ancestry.}
+\item{a_col}{Name of the column indicating ancestry (factor 2).}
 
-\item{use_eBayes}{Use eBayes mehtod.}
+\item{covariates}{Optional vector of covariate column names to adjust for.}
+
+\item{verbose}{Logical, whether to print messages.}
 }
 \value{
 A list with:

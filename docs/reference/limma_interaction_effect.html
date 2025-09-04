@@ -44,7 +44,17 @@ between ancestries (ancestry X minus ancestry Y), matching the logic of
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">limma_interaction_effect</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="va">MX</span>, <span class="va">MY</span>, <span class="va">g_col</span>, <span class="va">a_col</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">limma_interaction_effect</span><span class="op">(</span></span>
+<span>  <span class="va">X</span>,</span>
+<span>  <span class="va">Y</span>,</span>
+<span>  <span class="va">MX</span>,</span>
+<span>  <span class="va">MY</span>,</span>
+<span>  <span class="va">g_col</span>,</span>
+<span>  <span class="va">a_col</span>,</span>
+<span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use_voom <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -68,11 +78,19 @@ between ancestries (ancestry X minus ancestry Y), matching the logic of
 
 
 <dt id="arg-g-col">g_col<a class="anchor" aria-label="anchor" href="#arg-g-col"></a></dt>
-<dd><p>Name of the column indicating group.</p></dd>
+<dd><p>Name of the column indicating group (factor 1).</p></dd>
 
 
 <dt id="arg-a-col">a_col<a class="anchor" aria-label="anchor" href="#arg-a-col"></a></dt>
-<dd><p>Name of the column indicating ancestry.</p></dd>
+<dd><p>Name of the column indicating ancestry (factor 2).</p></dd>
+
+
+<dt id="arg-covariates">covariates<a class="anchor" aria-label="anchor" href="#arg-covariates"></a></dt>
+<dd><p>Optional vector of covariate column names to adjust for.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, whether to print messages.</p></dd>
 
 </dl></div>
     <div class="section level2">

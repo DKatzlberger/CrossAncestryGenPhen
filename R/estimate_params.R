@@ -50,9 +50,14 @@
 #'
 #' @export
 estimate_params <- function(
-  X
+  X,
+  seed = NULL
 ) {
-  if (!is.matrix(X)) stop("Counts must be a matrix.")
+
+  if (!is.null(seed)) set.seed(seed)
+  
+  # Checks
+  if (!is.matrix(X)) stop("X must be a matrix.")
 
   # Transpose to genes x samples
   X <- t(X)

@@ -4,12 +4,10 @@
 \alias{summarize_subsets}
 \title{Summarize subsets results by feature, with Cauchy-combined p-value}
 \usage{
-summarize_subsets(data, iter_col)
+summarize_subsets(data)
 }
 \arguments{
 \item{data}{A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`, `iteration`.}
-
-\item{iter_col}{Name of the iteration column (string).}
 }
 \description{
 Summarize subsets results by feature, with Cauchy-combined p-value

@@ -5,8 +5,6 @@
 \title{Simulate RNA-seq Expression Data for Four Groups (Two Ancestries × Two Conditions)}
 \usage{
 sim_4group_expression(
-  X,
-  Y,
   estimates_X = NULL,
   estimates_Y = NULL,
   ancestry_X,
@@ -23,12 +21,6 @@ sim_4group_expression(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data frame of counts for the first ancestry
-(samples in rows, genes in columns).}
-
-\item{Y}{Numeric matrix or data frame of counts for the second ancestry
-(samples in rows, genes in columns).}
-
 \item{estimates_X}{Optional list of parameter estimates from \code{\link{estimate_params}}
 for ancestry X. If \code{NULL}, parameters are estimated from \code{X}.}
 
@@ -59,6 +51,12 @@ One of \code{"mle"}, \code{"map"}.}
 
 \item{seed}{Optional integer random seed for reproducibility. The simulation
 for ancestry Y will use \code{seed + 1000} to ensure different DE gene sets.}
+
+\item{X}{Numeric matrix or data frame of counts for the first ancestry
+(samples in rows, genes in columns).}
+
+\item{Y}{Numeric matrix or data frame of counts for the second ancestry
+(samples in rows, genes in columns).}
 }
 \value{
 A list with the following elements:

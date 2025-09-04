@@ -6,7 +6,7 @@
 \usage{
 plot_jaccard_heatmap(
   data,
-  role = "test",
+  role,
   row_names = NULL,
   title = NULL,
   file = NULL,

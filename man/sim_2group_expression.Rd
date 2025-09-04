@@ -5,8 +5,7 @@
 \title{Simulate RNA-seq Expression Data for Two Groups}
 \usage{
 sim_2group_expression(
-  X,
-  estimates = NULL,
+  estimates,
   ancestry,
   n_samples,
   n_degs,
@@ -17,9 +16,6 @@ sim_2group_expression(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data frame of counts from the real data
-(samples in rows, genes in columns).}
-
 \item{estimates}{Optional list of pre-computed parameter estimates
 from \code{\link{estimate_params}}. If \code{NULL}, parameters
 are estimated from \code{X}.}
@@ -39,6 +35,9 @@ One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.}
 One of \code{"mle"}, \code{"map"}.}
 
 \item{seed}{Optional integer random seed for reproducibility.}
+
+\item{X}{Numeric matrix or data frame of counts from the real data
+(samples in rows, genes in columns).}
 }
 \value{
 A list with the following elements:

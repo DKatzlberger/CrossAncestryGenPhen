@@ -15,7 +15,7 @@
 #' @export
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
-plot_sim_main_effects <- function(
+plot_sim_main_effect <- function(
   fX,
   fY,
   ancestry_X = "Dataset X", 

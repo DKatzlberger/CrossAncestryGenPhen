@@ -27,6 +27,7 @@
 #'        One of \code{"mle"}, \code{"map"}.
 #' @param seed Optional integer random seed for reproducibility. The simulation
 #'        for ancestry Y will use \code{seed + 1000} to ensure different DE gene sets.
+#' @param verbose Logical; if `TRUE`, print a summary of simulated groups.
 #'
 #' @return A list with the following elements:
 #' \describe{
@@ -51,8 +52,6 @@
 #'
 #' @export
 sim_4group_expression <- function(
-  X,
-  Y,
   estimates_X = NULL,
   estimates_Y = NULL,
   ancestry_X,
@@ -65,16 +64,18 @@ sim_4group_expression <- function(
   log2FC_Y,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
-  seed = NULL
+  seed = NULL,
+  verbose = TRUE
 ){
-  # Match methods
+
+  ## --- Match methods ---
   mean_method <- match.arg(mean_method)
   disp_method <- match.arg(disp_method)
 
-  # Simulate two ancestries
+
+  ## --- Simulate two ancestries ----
   sim_ancestry_X <- paste0(ancestry_X, "_sim")
   sim_X <- sim_2group_expression(
-    X = X,
     estimates = estimates_X,
     ancestry = ancestry_X,
     n_samples = n_samples_X,
@@ -87,7 +88,6 @@ sim_4group_expression <- function(
 
   sim_ancestry_Y <- paste0(ancestry_Y, "_sim")
   sim_Y <- sim_2group_expression(
-    X = Y,
     estimates = estimates_Y,
     ancestry = ancestry_Y,
     n_samples = n_samples_Y,
@@ -98,33 +98,45 @@ sim_4group_expression <- function(
     seed = (seed + 1000)
   )
 
-  # Calculating interaction truth
-  fX <- sim_X$f
-  fY <- sim_Y$f
+
+  ## --- Calculating interaction truth ---
+  fX <- sim_X$feats
+  fY <- sim_Y$feats
 
   true_log2FC <- fY$true_log2FC - fX$true_log2FC
   is_DE <- as.numeric(abs(true_log2FC) > 0)
   sim_features <- data.frame(is_DE = is_DE, true_log2FC = true_log2FC)
   rownames(sim_features) <- rownames(fX) # rownames are features (matrix)
 
-  # Comparison of X vs. Y (input and output)
-  input_X <- sim_X$input_params
-  input_Y <- sim_Y$input_params
 
-  output_X <- sim_X$output_params
-  output_Y <- sim_Y$output_params
+  ## --- Verbose message ---
+  if (verbose) {
+    fmt_counts <- function(meta, label) {
+      tab <- table(meta$condition, dnn = NULL)
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+    }
 
+    message("\n4-group simulation summary:")
+    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4d  %s", sim_ancestry_X, nrow(sim_X$counts), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X)))
+    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4d  %s", sim_ancestry_Y, nrow(sim_Y$counts), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y)))
+  }
+
+
+  ## --- Return ---
   return(
     list(
-      # Return counts samples x genes
-      X = sim_X$X,  # matrix with rownames = samples
-      Y = sim_Y$X,  # matrix with rownames = samples
-      MX = sim_X$M, # matrix with rownames = samples
-      MY = sim_Y$M, # matrix with rownames = samples
-      fX = sim_X$f, # matrix with rownames = features
-      fY = sim_Y$f, # matrix with rownames = features
-      pX = sim_X$in_out_plots,
-      pY = sim_Y$in_out_plots,
+      X = list(
+        counts = sim_X$counts, 
+        meta   = sim_X$meta, 
+        feats  = sim_X$feats, 
+        plots  = sim_X$in_out_plots
+      ),
+      Y = list(
+        counts = sim_Y$counts, 
+        meta   = sim_Y$meta, 
+        feats  = sim_Y$feats, 
+        plots  = sim_Y$in_out_plots
+      ),
       fI = sim_features
     )
   )

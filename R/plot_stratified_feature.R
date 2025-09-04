@@ -4,19 +4,20 @@
 #' (X, Y, R) stratified by a grouping column, optionally for
 #' specified features.
 #'
-#' @param X A numeric matrix or data frame for the test split
-#' @param Y A numeric matrix or data frame for the inference split
-#' @param R A numeric matrix or data frame for the train split
-#' @param MX Metadata for X, containing IDs and group information
-#' @param MY Metadata for Y, containing IDs and group information
-#' @param MR Metadata for R, containing IDs and group information
-#' @param features Character vector of feature names to plot.
-#'   Defaults to first 9 common features if NULL.
-#' @param g_col Column name in metadata indicating the grouping
-#' @param title Optional title for the plot
-#' @param point_size Numeric value controlling point/label size (currently not used in plotting directly).
+#' @param X Numeric matrix or data.frame of features for cohort X (train).
+#' @param Y Numeric matrix or data.frame of features for cohort Y (test).
+#' @param R Numeric matrix or data.frame of features for cohort R (inference).
+#' @param MX Metadata for `X` (train).
+#' @param MY Metadata for `Y` (test).
+#' @param MR Metadata for `R` (inference).
+#' @param x_var Name of the metadata column for x-axis (string).
+#' @param fill_var Name of the metadata column for fill (string).
+#' @param features Character vector of features to plot (defaults to first 9).
+#' @param title Plot title (optional).
+#' @param x_label Label for x-axis (optional).
+#' @param y_label Label for y-axis (optional).
 #'
-#' @return A ggplot2 object containing the faceted boxplot
+#' @return A ggplot2 object.
 #' @export
 plot_stratified_feature <- function(
   X, 
@@ -25,22 +26,29 @@ plot_stratified_feature <- function(
   MX, 
   MY, 
   MR,
+  x_var,
   fill_var, 
   features = NULL,
   title = NULL, 
   x_label = NULL,
-  y_label = NULL,
-  point_size = 0.5
+  y_label = NULL
 ) {
 
-  # Infer features if not provided
+  ## --- Input data structure check ---
+  assert_input(
+    X = X,
+    Y = Y,
+    R = R,
+    MX = MX, 
+    MY = MY,
+    MR = MR,
+    g_col = fill_var,
+    a_col = x_var
+  )
+
+  ## --- Infer features if not provided ---
   if (is.null(features)) {
-    all_feats <- Reduce(intersect, list(colnames(X), colnames(Y), colnames(R)))
-    if (length(all_feats) < 1) {
-      stop("No common features found across X, Y, R.")
-    }
-    features <- sort(all_feats)
-    features <- head(features, 9)
+    features <- colnames(X)[1:9]
   }
 
   # Subset matrices to selected features
@@ -48,54 +56,68 @@ plot_stratified_feature <- function(
   Y <- Y[, features, drop = FALSE]
   R <- R[, features, drop = FALSE]
 
-  # Combine and scale all rows together
-  all_mat <- rbind(R, X, Y)
-  all_scaled <- scale(all_mat)
 
-  # Assign split labels
-  split_labels <- c(rep("R", nrow(R)), rep("X", nrow(X)), rep("Y", nrow(Y)))
+  ## --- Scale counts ---
+  RXY <- rbind(R, X, Y)
+  RXY_scaled <- scale(RXY)
 
-  all_conditions <- c(MR[[fill_var]], MX[[fill_var]], MY[[fill_var]])
+  ## --- Prepare x_var label ---
+  MR[[x_var]] <- paste0(MR[[x_var]], "\n(Reference, R)")
+  MX[[x_var]] <- paste0(MX[[x_var]], "\n(Subset, X)")
+  MY[[x_var]] <- paste0(MY[[x_var]], "\n(Inference, Y)")
 
-  df_all <- data.frame(
-    feature = rep(colnames(all_scaled), each = nrow(all_scaled)),
-    value = as.vector(all_scaled),
-    condition = rep(all_conditions, ncol(all_scaled)),
-    split = rep(split_labels, ncol(all_scaled)),
+  # Ensure factor levels
+  M <- rbind(MR, MX, MY)
+  M[[x_var]] <- factor(
+    M[[x_var]], 
+    levels = c(
+      unique(MR[[x_var]]),  
+      unique(MX[[x_var]]),  
+      unique(MY[[x_var]]) 
+    )
+  )
+  stopifnot(identical(rownames(RXY), rownames(M)))
+
+  ## --- Pivot long ---
+  df_long <- data.frame(
+    feature   = rep(colnames(RXY_scaled), each = nrow(RXY_scaled)),
+    value     = as.vector(RXY_scaled),
+    condition = rep(M[[fill_var]], times = length(features)),
+    x_group   = rep(M[[x_var]],   times = length(features)),
     stringsAsFactors = FALSE
   )
+  # Ensure factor levels
+  df_long$feature <- factor(df_long$feature, levels = features)
 
-  df_all$feature <- factor(df_all$feature, levels = features)
-  df_all$split <- factor(df_all$split, levels = c("R", "X", "Y"))
-
+  ## --- Boxplot ---
   p <- ggplot(
-    data = df_all, 
+    data = df_long, 
     aes(
-      x = split, 
+      x = x_group, 
       y = value, 
       fill = condition
       )
     ) +
     geom_boxplot(
-      outlier.size = 0.25, 
-      width = 0.7, 
-      position = position_dodge2(
-        preserve = "single"
-      )
+      position = "dodge",
+      color = "black",
+      linewidth = 0.1,
+      outlier.size = 0.25
     ) +
     facet_wrap(
       ~feature, 
-      scales = "free"
+      scales = "free_y"
     ) +
     labs(
       title = title,
       x = ifelse(is.null(x_label), x_var, x_label),
-      y = ifelse(is.null(y_label), "z-score", y_label),,
+      y = ifelse(is.null(y_label), "Z-score", y_label),
       fill = fill_var
     ) +
     theme_nature_fonts() +
     theme_white_background() +
     theme_small_legend()
 
+  ## --- Return ----
   return(p)
 }

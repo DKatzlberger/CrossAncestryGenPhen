@@ -14,7 +14,7 @@
 #' @param x_label Label for the x-axis. Defaults to the value of \code{x_var}.
 #' @param y_label Label for the y-axis. Defaults to \code{"Count"}.
 #' @param bins Integer. Number of bins to use for the x-axis histogram (default is 50).
-#' @param n_fill_bins Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.
+#' @param fill_bins Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.
 #'
 #' @return A \code{ggplot2} object showing a histogram of \code{x_var}, with bars stacked and colored by binned values of \code{fill_var}. Faceting is applied if specified.
 #'
@@ -43,22 +43,24 @@ plot_pvalue_distribution <- function(
   y_label = NULL,
   fill_label = NULL,
   bins = 50,
-  n_fill_bins = 9
+  fill_bins = 9
 ) {
 
-  # Convert to dataframe
+  ## --- Convert to dataframe ---
   df <- as.data.frame(data)
 
-  # Validate x_var
+
+  ## --- Validate x_var ---
   if (!(x_var %in% names(df))) {
-    stop("Input data must contain column: ", x_var)
+    stop("Data must contain column: ", x_var)
   }
 
-  # Faceting
+
+  ## --- Faceting ---
   do_facet <- !is.null(facet_col)
   if (do_facet) {
     if (!(facet_col %in% names(df))) {
-      stop(sprintf("Column '%s' specified as facet_col not found in data.", facet_col))
+      stop("Data must contain column: ", facet_col)
     }
     if (is.null(facet_levels)) {
       facet_levels <- head(unique(df[[facet_col]]), 9)
@@ -67,23 +69,38 @@ plot_pvalue_distribution <- function(
     df[[facet_col]] <- factor(df[[facet_col]], levels = facet_levels)
   }
 
-  # Fill logic
+  ## --- Fill logic ---
   if (!is.null(fill_var)) {
     if (!(fill_var %in% names(df))) {
-      stop("Input data must contain column: ", fill_var)
+      stop("Data must contain column: ", fill_var)
     }
 
+    # Fill values
     t_vals <- df[[fill_var]]
     max_abs <- max(abs(t_vals), na.rm = TRUE)
 
+    # Fallbacks if we are at 0
+    if (max_abs < 1e-6) {
+      max_abs <- 1
+    }
+    
+    # Define uper lower limit
     pos_limit <- floor(max_abs)
     neg_limit <- ceiling(-max_abs)
 
-    if (n_fill_bins %% 2 == 0) {
-      stop("n_fill_bins must be odd to ensure a center bin at 0.")
+    # Fallback if the same
+    if (pos_limit == neg_limit) {
+      pos_limit <- pos_limit + 1
+      neg_limit <- neg_limit - 1
     }
 
-    bin_centers <- seq(neg_limit, pos_limit, length.out = n_fill_bins)
+    # Check that fill bins have a center
+    if (fill_bins %% 2 == 0) {
+      stop("fill_bins must be odd to ensure a center bin at 0.")
+    }
+
+    # Bin fill values
+    bin_centers <- seq(neg_limit, pos_limit, length.out = fill_bins)
     bin_width <- diff(bin_centers)[1]
 
     bin_breaks <- c(-Inf, head(bin_centers, -1) + bin_width / 2, Inf)
@@ -113,7 +130,7 @@ plot_pvalue_distribution <- function(
     fill_aes <- NULL
   }
 
-  # Plot
+  ## --- Plot ---
   p <- ggplot(
     data = df, 
     aes(

@@ -2,30 +2,39 @@
 % Please edit documentation in R/plot_stratified_sets.R
 \name{plot_stratified_sets}
 \alias{plot_stratified_sets}
-\title{Plot Sample Counts by Stratified Variable and Dataset Split}
+\title{Plot stratified ancestry sets.}
 \usage{
-plot_stratified_sets(MX, MY, MR, g_col, title = NULL)
+plot_stratified_sets(
+  MX,
+  MY,
+  MR,
+  x_var,
+  fill_var,
+  title = NULL,
+  x_label = NULL,
+  y_label = NULL
+)
 }
 \arguments{
-\item{MX}{A data.frame containing metadata for the test set (usually output from `split_stratified_ancestry_sets()`).}
+\item{MX}{A data frame of train meta.}
 
-\item{MY}{A data.frame containing metadata for the inference set.}
+\item{MY}{A data frame of test meta.}
 
-\item{MR}{A data.frame containing metadata for the train set.}
+\item{MR}{A data frame of inference meta.}
 
-\item{g_col}{Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).}
+\item{x_var}{Name of the variable for the x-axis (string).}
 
-\item{title}{Optional character string to use as the plot title.}
+\item{fill_var}{Name of the variable for the fill color (string).}
+
+\item{title}{Plot title (optional).}
+
+\item{x_label}{Label for the x-axis (optional).}
+
+\item{y_label}{Label for the y-axis (optional).}
 }
 \value{
-A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.
+A ggplot object.
 }
 \description{
-Creates a bar plot showing the number of samples in each dataset split
-(train, test, inference), grouped and colored by stratification variables.
-Each stratification column is shown in a separate facet for clear comparison.
-}
-\details{
-This is useful for visually checking balance or representation across
-strata (e.g., ancestry or condition) within each split.
+Create a bar plot comparing stratified ancestry sets.
 }

@@ -22,8 +22,23 @@ plot_imbalanced_groups <- function(
   y_label = NULL
 ){
 
-  M <- rbind(MX, MY)
+  ## --- Input data structure check ---
+  assert_input(
+    MX = MX, 
+    MY = MY,
+    g_col = fill_var, 
+    a_col = x_var
+  )
 
+  ## --- Ancetsry levels ----
+  a_1 <- unique(MX[[x_var]]); a_2 <- unique(MY[[x_var]])
+  a_levels <- c(a_1, a_2)
+
+  ## --- Bind frames ---
+  M <- rbind(MX, MY)
+  M[[x_var]] <- factor(M[[x_var]], levels = a_levels)
+
+  ## --- Bar plot ---
   p <- ggplot(
     data = M,
     mapping = aes(
@@ -39,12 +54,13 @@ plot_imbalanced_groups <- function(
   labs(
     title = title,
     x = ifelse(is.null(x_label), x_var, x_label),
-    y = ifelse(is.null(y_label), "count", y_label),
+    y = ifelse(is.null(y_label), "Count", y_label),
     fill = fill_var
   ) +
   theme_nature_fonts() +
   theme_white_background() +
   theme_small_legend()
 
+  ## --- Return ----
   return(p)
 }

@@ -11,38 +11,41 @@ plot_stratified_feature(
   MX,
   MY,
   MR,
+  x_var,
   fill_var,
   features = NULL,
   title = NULL,
   x_label = NULL,
-  y_label = NULL,
-  point_size = 0.5
+  y_label = NULL
 )
 }
 \arguments{
-\item{X}{A numeric matrix or data frame for the test split}
+\item{X}{Numeric matrix or data.frame of features for cohort X (train).}
 
-\item{Y}{A numeric matrix or data frame for the inference split}
+\item{Y}{Numeric matrix or data.frame of features for cohort Y (test).}
 
-\item{R}{A numeric matrix or data frame for the train split}
+\item{R}{Numeric matrix or data.frame of features for cohort R (inference).}
 
-\item{MX}{Metadata for X, containing IDs and group information}
+\item{MX}{Metadata for `X` (train).}
 
-\item{MY}{Metadata for Y, containing IDs and group information}
+\item{MY}{Metadata for `Y` (test).}
 
-\item{MR}{Metadata for R, containing IDs and group information}
+\item{MR}{Metadata for `R` (inference).}
 
-\item{features}{Character vector of feature names to plot.
-Defaults to first 9 common features if NULL.}
+\item{x_var}{Name of the metadata column for x-axis (string).}
 
-\item{title}{Optional title for the plot}
+\item{fill_var}{Name of the metadata column for fill (string).}
 
-\item{point_size}{Numeric value controlling point/label size (currently not used in plotting directly).}
+\item{features}{Character vector of features to plot (defaults to first 9).}
 
-\item{g_col}{Column name in metadata indicating the grouping}
+\item{title}{Plot title (optional).}
+
+\item{x_label}{Label for x-axis (optional).}
+
+\item{y_label}{Label for y-axis (optional).}
 }
 \value{
-A ggplot2 object containing the faceted boxplot
+A ggplot2 object.
 }
 \description{
 Generates boxplots of scaled feature values across data splits

@@ -15,7 +15,7 @@ plot_pvalue_distribution(
   y_label = NULL,
   fill_label = NULL,
   bins = 50,
-  n_fill_bins = 9
+  fill_bins = 9
 )
 }
 \arguments{
@@ -37,7 +37,7 @@ plot_pvalue_distribution(
 
 \item{bins}{Integer. Number of bins to use for the x-axis histogram (default is 50).}
 
-\item{n_fill_bins}{Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.}
+\item{fill_bins}{Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.}
 }
 \value{
 A \code{ggplot2} object showing a histogram of \code{x_var}, with bars stacked and colored by binned values of \code{fill_var}. Faceting is applied if specified.

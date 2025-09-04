@@ -38,49 +38,73 @@ navbar:
 
 
 reference:
-  - title: "Main Functions"
+  - title: "Main DGE functions"
     contents:
-      - split_stratified_ancestry_sets
-      - perm_interaction_effect
       - limma_interaction_effect
-      - perm_correlation_difference
-      - perm_prediction_difference
-      - param_gls_summary
-      - RP_aggregation
+      - perm_interaction_effect
+      - subset_limma_interaction_effect
+      - subset_perm_interaction_effect
+  
+  - title: "Simulation functions"
+    contents:
+     - estimate_params
+     - sim_2group_expression
+     - sim_4group_expression
+     - sim_imbalanced_ancestry
 
   - title: "Visualization Functions"
     contents:
-      - plot_feature
-      - plot_stratified_sets
-      - plot_stratified_feature
-      - plot_null_distribution
-      - plot_pvalue_distribution
-      - plot_correlation_heatmap
-      - plot_jaccard_heatmap
+      - plot_BCV
+      - plot_confusion_matrix
       - plot_correlation_difference
-      - plot_volcano
+      - plot_correlation_heatmap
+      - plot_estimated_dispersions
+      - plot_estimated_means
+      - plot_expression_heatmap
+      - plot_feature
+      - plot_imbalanced_groups
+      - plot_jaccard_heatmap
+      - plot_mean_variance_density
+      - plot_mean_variance_trend
+      - plot_null_distribution
+      - plot_pca_cluster
       - plot_pvalue_concordance
+      - plot_pvalue_distribution
+      - plot_qq_correlation
+      - plot_sensitivity_specificity
+      - plot_sim_interaction_effect
+      - plot_sim_main_effect
+      - plot_stratified_feature
+      - plot_stratified_sets
+      - plot_tsne_cluster
+      - plot_volcano
 
   - title: "Utility Functions"
     contents:
+      - split_stratified_ancestry_sets
       - track_sample_ids
       - compute_jaccard_matrix
       - compute_correlation_matrix
-      
-  - title: "Simulation Functions (not yet finished)"
+      - compute_qq_correlation
+      - summarize_subsets
+      - ggsaveDK
+  
+  - title: "Plot themes"
     contents:
-      - inject_DEG_signal
-      - plot_simulated_features
-      - simulate_NB_counts
+    - theme_nature_fonts
+    - theme_small_legend
+    - theme_white_background
   
   - title: "TESTING"
     contents:
       - boot_interaction_effect
       - boot_correlation_diff
+      - loo_interaction_effect
+      - perm_prediction_difference
+      - perm_correlation_difference
 
 articles:
   - title: "Vignettes"
     contents:
-      - permutation_interaction_effect
-      - permutation_correlation_difference
+      - subset_interaction_effect
 

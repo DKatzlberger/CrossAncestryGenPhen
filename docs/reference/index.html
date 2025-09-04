@@ -31,7 +31,232 @@
     </div>
 
     <div class="section level2">
-      <h2 id="main-functions">Main Functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
+      <h2 id="main-dge-functions">Main DGE functions<a class="anchor" aria-label="anchor" href="#main-dge-functions"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="limma_interaction_effect.html">limma_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Limma-Based Interaction Test</dd>
+      </dl><dl><dt>
+
+          <code><a href="perm_interaction_effect.html">perm_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Simple Permutation-Based Interaction Test (No Bootstrapping, No Convergence)</dd>
+      </dl><dl><dt>
+
+          <code><a href="subset_limma_interaction_effect.html">subset_limma_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Subset Limma Interaction Effect with Stratified Cross-Validation</dd>
+      </dl><dl><dt>
+
+          <code><a href="subset_perm_interaction_effect.html">subset_perm_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Parallel Subset-Based Interaction Effect Analysis</dd>
+      </dl></div><div class="section level2">
+      <h2 id="simulation-functions">Simulation functions<a class="anchor" aria-label="anchor" href="#simulation-functions"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="estimate_params.html">estimate_params()</a></code>
+
+        </dt>
+        <dd>Estimate RNA-seq Model Parameters from Count Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="sim_2group_expression.html">sim_2group_expression()</a></code>
+
+        </dt>
+        <dd>Simulate RNA-seq Expression Data for Two Groups</dd>
+      </dl><dl><dt>
+
+          <code><a href="sim_4group_expression.html">sim_4group_expression()</a></code>
+
+        </dt>
+        <dd>Simulate RNA-seq Expression Data for Four Groups (Two Ancestries × Two Conditions)</dd>
+      </dl><dl><dt>
+
+          <code><a href="sim_imbalanced_ancestry.html">sim_imbalanced_ancestry()</a></code>
+
+        </dt>
+        <dd>Simulate imbalanced ancestry sampling across two cohorts</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualization-functions">Visualization Functions<a class="anchor" aria-label="anchor" href="#visualization-functions"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="plot_BCV.html">plot_BCV()</a></code>
+
+        </dt>
+        <dd>Mean–Dispersion Scatter Plot with Optional Overlay</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_confusion_matrix.html">plot_confusion_matrix()</a></code>
+
+        </dt>
+        <dd>Plot a binary confusion matrix as a heatmap with TP, FP, FN, TN labels.</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_correlation_difference.html">plot_correlation_difference()</a></code>
+
+        </dt>
+        <dd>Plot correlation differences with optional facets</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_correlation_heatmap.html">plot_correlation_heatmap()</a></code>
+
+        </dt>
+        <dd>ComplexHeatmap of Correlation Matrix Across Iterations</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_estimated_dispersions.html">plot_estimated_dispersions()</a></code>
+
+        </dt>
+        <dd>Plot Estimated Gene Dispersions Between Two Datasets</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_estimated_means.html">plot_estimated_means()</a></code>
+
+        </dt>
+        <dd>Plot Estimated Gene Means Between Two Datasets</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_expression_heatmap.html">plot_expression_heatmap()</a></code>
+
+        </dt>
+        <dd>Expression Heatmap with Ancestry and Group Split</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_feature.html">plot_feature()</a></code>
+
+        </dt>
+        <dd>Plot feature distributions across two splits</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_imbalanced_groups.html">plot_imbalanced_groups()</a></code>
+
+        </dt>
+        <dd>Plot Imbalanced Groups</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_jaccard_heatmap.html">plot_jaccard_heatmap()</a></code>
+
+        </dt>
+        <dd>Plot Jaccard Heatmap of Sample Reuse Across Iterations</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_mean_variance_density.html">plot_mean_variance_density()</a></code>
+
+        </dt>
+        <dd>Plot Mean-Variance Relationship with Density Overlay</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_mean_variance_trend.html">plot_mean_variance_trend()</a></code>
+
+        </dt>
+        <dd>Plot Mean-Variance Trend Using log2-CPM (voom-style)</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_null_distribution.html">plot_null_distribution()</a></code>
+
+        </dt>
+        <dd>Plot permutation-based T-statistics with observed values and p-values</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_pca_cluster.html">plot_pca_cluster()</a></code>
+
+        </dt>
+        <dd>PCA Cluster Plot</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_pvalue_concordance.html">plot_pvalue_concordance()</a></code>
+
+        </dt>
+        <dd>Plot concordance of -log10 p-values between two methods</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_pvalue_distribution.html">plot_pvalue_distribution()</a></code>
+
+        </dt>
+        <dd>Plot P-value Distribution Colored by a Binned Fill Variable</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_qq_correlation.html">plot_qq_correlation()</a></code>
+
+        </dt>
+        <dd>Faceted QQ plots for specified genes</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_sensitivity_specificity.html">plot_sensitivity_specificity()</a></code>
+
+        </dt>
+        <dd>Plot sensitivity and specificity as a bar plot.</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_sim_interaction_effect.html">plot_sim_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Plot Simulated Interaction Effects</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_sim_main_effect.html">plot_sim_main_effect()</a></code>
+
+        </dt>
+        <dd>Plot Simulated Main Effects</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_stratified_feature.html">plot_stratified_feature()</a></code>
+
+        </dt>
+        <dd>Plot stratified feature distributions across splits</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_stratified_sets.html">plot_stratified_sets()</a></code>
+
+        </dt>
+        <dd>Plot stratified ancestry sets.</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_tsne_cluster.html">plot_tsne_cluster()</a></code>
+
+        </dt>
+        <dd>t-SNE Cluster Plot</dd>
+      </dl><dl><dt>
+
+          <code><a href="plot_volcano.html">plot_volcano()</a></code>
+
+        </dt>
+        <dd>Volcano Plot</dd>
+      </dl></div><div class="section level2">
+      <h2 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
 
 
 
@@ -46,126 +271,8 @@
           <code><a href="split_stratified_ancestry_sets.html">split_stratified_ancestry_sets()</a></code>
 
         </dt>
-        <dd>Split Expression and Metadata into Train, Test, and Inference Sets</dd>
+        <dd>Split Expression and Metadata into Reference (R), Subset (X), and Inference (Y) Sets</dd>
       </dl><dl><dt>
-
-          <code><a href="perm_interaction_effect.html">perm_interaction_effect()</a></code>
-
-        </dt>
-        <dd>Simple Permutation-Based Interaction Test (No Bootstrapping, No Convergence)</dd>
-      </dl><dl><dt>
-
-          <code><a href="limma_interaction_effect.html">limma_interaction_effect()</a></code>
-
-        </dt>
-        <dd>Limma-Based Interaction Test</dd>
-      </dl><dl><dt>
-
-          <code><a href="perm_correlation_difference.html">perm_correlation_difference()</a></code>
-
-        </dt>
-        <dd>Simple Permutation Test for Correlation Differences</dd>
-      </dl><dl><dt>
-
-          <code><a href="perm_prediction_difference.html">perm_prediction_difference()</a></code>
-
-        </dt>
-        <dd>Permutation Test for Prediction Performance Differences</dd>
-      </dl><dl><dt>
-
-          <code><a href="param_gls_summary.html">param_gls_summary()</a></code>
-
-        </dt>
-        <dd>Parametric GLS Feature Summary Across Iterations</dd>
-      </dl><dl><dt>
-
-          <code><a href="RP_aggregation.html">RP_aggregation()</a></code>
-
-        </dt>
-        <dd>Aggregate gene statistics using Rank Product</dd>
-      </dl></div><div class="section level2">
-      <h2 id="visualization-functions">Visualization Functions<a class="anchor" aria-label="anchor" href="#visualization-functions"></a></h2>
-
-
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="plot_feature.html">plot_feature()</a></code>
-
-        </dt>
-        <dd>Plot feature distributions across two splits</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_stratified_sets.html">plot_stratified_sets()</a></code>
-
-        </dt>
-        <dd>Plot Sample Counts by Stratified Variable and Dataset Split</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_stratified_feature.html">plot_stratified_feature()</a></code>
-
-        </dt>
-        <dd>Plot stratified feature distributions across splits</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_null_distribution.html">plot_null_distribution()</a></code>
-
-        </dt>
-        <dd>Plot permutation-based T-statistics with observed values and p-values</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_pvalue_distribution.html">plot_pvalue_distribution()</a></code>
-
-        </dt>
-        <dd>Plot P-value Distribution Colored by a Binned Fill Variable</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_correlation_heatmap.html">plot_correlation_heatmap()</a></code>
-
-        </dt>
-        <dd>ComplexHeatmap of Correlation Matrix Across Iterations</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_jaccard_heatmap.html">plot_jaccard_heatmap()</a></code>
-
-        </dt>
-        <dd>Plot Jaccard Heatmap of Sample Reuse Across Iterations</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_correlation_difference.html">plot_correlation_difference()</a></code>
-
-        </dt>
-        <dd>Plot correlation differences with optional facets</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_volcano.html">plot_volcano()</a></code>
-
-        </dt>
-        <dd>Volcano Plot</dd>
-      </dl><dl><dt>
-
-          <code><a href="plot_pvalue_concordance.html">plot_pvalue_concordance()</a></code>
-
-        </dt>
-        <dd>Plot concordance of -log10 p-values between two methods</dd>
-      </dl></div><div class="section level2">
-      <h2 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
-
-
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
 
           <code><a href="track_sample_ids.html">track_sample_ids()</a></code>
 
@@ -183,8 +290,26 @@
 
         </dt>
         <dd>Compute Correlation Matrix from Long-format Data</dd>
+      </dl><dl><dt>
+
+          <code><a href="compute_qq_correlation.html">compute_qq_correlation()</a></code>
+
+        </dt>
+        <dd>Gene-wise quantile correlations</dd>
+      </dl><dl><dt>
+
+          <code><a href="summarize_subsets.html">summarize_subsets()</a></code>
+
+        </dt>
+        <dd>Summarize subsets results by feature, with Cauchy-combined p-value</dd>
+      </dl><dl><dt>
+
+          <code><a href="ggsaveDK.html">ggsaveDK()</a></code>
+
+        </dt>
+        <dd>Save ggplot with optional legend removal and sensible defaults</dd>
       </dl></div><div class="section level2">
-      <h2 id="simulation-functions-not-yet-finished-">Simulation Functions (not yet finished)<a class="anchor" aria-label="anchor" href="#simulation-functions-not-yet-finished-"></a></h2>
+      <h2 id="plot-themes">Plot themes<a class="anchor" aria-label="anchor" href="#plot-themes"></a></h2>
 
 
 
@@ -196,22 +321,22 @@
 
       <dl><dt>
 
-          <code><a href="inject_DEG_signal.html">inject_DEG_signal()</a></code>
+          <code><a href="theme_nature_fonts.html">theme_nature_fonts()</a></code>
 
         </dt>
-        <dd>Inject Simulated DEGs and Interaction Effects into NB Counts</dd>
+        <dd>Nature-Inspired Font Sizes Theme (Internal)</dd>
       </dl><dl><dt>
 
-          <code><a href="plot_simulated_features.html">plot_simulated_features()</a></code>
+          <code><a href="theme_small_legend.html">theme_small_legend()</a></code>
 
         </dt>
-        <dd>Plot Simulated Features by Ancestry and Group (base R + data.table)</dd>
+        <dd>Small Legend Theme (Internal)</dd>
       </dl><dl><dt>
 
-          <code><a href="simulate_NB_counts.html">simulate_NB_counts()</a></code>
+          <code><a href="theme_white_background.html">theme_white_background()</a></code>
 
         </dt>
-        <dd>Simulate Negative Binomial RNA-seq Counts from Real Data</dd>
+        <dd>A clean white ggplot2 theme with optional facet labels</dd>
       </dl></div><div class="section level2">
       <h2 id="testing">TESTING<a class="anchor" aria-label="anchor" href="#testing"></a></h2>
 
@@ -235,6 +360,24 @@
 
         </dt>
         <dd>Bootstrap-Based Correlation Difference Test (Unstratified)</dd>
+      </dl><dl><dt>
+
+          <code><a href="loo_interaction_effect.html">loo_interaction_effect()</a></code>
+
+        </dt>
+        <dd>Leave-One-Out Diagnostic for interaction effects</dd>
+      </dl><dl><dt>
+
+          <code><a href="perm_prediction_difference.html">perm_prediction_difference()</a></code>
+
+        </dt>
+        <dd>Permutation Test for Prediction Performance Differences</dd>
+      </dl><dl><dt>
+
+          <code><a href="perm_correlation_difference.html">perm_correlation_difference()</a></code>
+
+        </dt>
+        <dd>Simple Permutation Test for Correlation Differences</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

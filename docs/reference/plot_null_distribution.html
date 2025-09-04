@@ -44,13 +44,12 @@ Adds dashed lines for observed T-statistics, optional normal fit overlay, and op
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_null_distribution</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  p_normal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  p_empirical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_p <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  show_normal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_empirical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  bins <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  point_size <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  x_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bins <span class="op">=</span> <span class="fl">50</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -67,32 +66,28 @@ Adds dashed lines for observed T-statistics, optional normal fit overlay, and op
 <dd><p>Character vector of features to plot. Defaults to first 9 if NULL.</p></dd>
 
 
+<dt id="arg-show-p">show_p<a class="anchor" aria-label="anchor" href="#arg-show-p"></a></dt>
+<dd><p>Logical. Show parametric p-values? (default TRUE)</p></dd>
+
+
 <dt id="arg-show-normal">show_normal<a class="anchor" aria-label="anchor" href="#arg-show-normal"></a></dt>
 <dd><p>Logical. Overlay fitted normal curve? (default TRUE)</p></dd>
-
-
-<dt id="arg-show-empirical">show_empirical<a class="anchor" aria-label="anchor" href="#arg-show-empirical"></a></dt>
-<dd><p>Logical. Overlay empirical density curve? (default TRUE)</p></dd>
-
-
-<dt id="arg-bins">bins<a class="anchor" aria-label="anchor" href="#arg-bins"></a></dt>
-<dd><p>Integer number of histogram bins (default 50)</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
 <dd><p>Optional plot title.</p></dd>
 
 
-<dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>
-<dd><p>Numeric value controlling point/label size (currently not used in plotting directly).</p></dd>
+<dt id="arg-x-label">x_label<a class="anchor" aria-label="anchor" href="#arg-x-label"></a></dt>
+<dd><p>Optional string for the x-axis label.</p></dd>
 
 
-<dt id="arg-show-param">show_param<a class="anchor" aria-label="anchor" href="#arg-show-param"></a></dt>
-<dd><p>Logical. Show parametric p-values? (default TRUE)</p></dd>
+<dt id="arg-y-label">y_label<a class="anchor" aria-label="anchor" href="#arg-y-label"></a></dt>
+<dd><p>Optional string for the y-axis label.</p></dd>
 
 
-<dt id="arg-show-emp">show_emp<a class="anchor" aria-label="anchor" href="#arg-show-emp"></a></dt>
-<dd><p>Logical. Show empirical p-values? (default TRUE)</p></dd>
+<dt id="arg-bins">bins<a class="anchor" aria-label="anchor" href="#arg-bins"></a></dt>
+<dd><p>Integer number of histogram bins (default 50)</p></dd>
 
 </dl></div>
     <div class="section level2">

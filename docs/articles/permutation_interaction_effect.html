@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Permutation Interaction Effect • CrossAncestryGenPhen</title>
+<title>Subset interaction effect • CrossAncestryGenPhen</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Permutation Interaction Effect">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Subset interaction effect">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,7 +48,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Permutation Interaction Effect</h1>
+      <h1>Subset interaction effect</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/DKatzlberger/CrossAncestryGenPhen/blob/HEAD/vignettes/permutation_interaction_effect.Rmd" class="external-link"><code>vignettes/permutation_interaction_effect.Rmd</code></a></small>
@@ -85,61 +85,54 @@ imbalance on a simulated dataset.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Seed for reproducibility</span></span>
-<span><span class="va">seed</span> <span class="op">&lt;-</span> <span class="fl">42</span>  </span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Simulate example data</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">100</span>  <span class="co"># Number of genes</span></span>
+<span><span class="co"># Example data </span></span>
+<span><span class="va">n_features</span> <span class="op">&lt;-</span> <span class="fl">100</span>  </span>
 <span><span class="va">n_EUR</span> <span class="op">&lt;-</span> <span class="fl">600</span> </span>
 <span><span class="va">n_AFR</span> <span class="op">&lt;-</span> <span class="fl">40</span>  </span>
 <span></span>
+<span><span class="va">id_EUR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sample_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_EUR</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">id_AFR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sample_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_AFR</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
 <span><span class="co"># Expression matrices for EUR and AFR ancestries</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_EUR</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n_EUR</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_AFR</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n_AFR</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Feature_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_EUR</span> <span class="op">*</span> <span class="va">n_features</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n_EUR</span>, ncol <span class="op">=</span> <span class="va">n_features</span><span class="op">)</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_AFR</span> <span class="op">*</span> <span class="va">n_features</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n_AFR</span>, ncol <span class="op">=</span> <span class="va">n_features</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Feature_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_features</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Metadata for EUR and AFR ancestries</span></span>
 <span><span class="co"># EUR: overrepresented compared to AFR</span></span>
 <span><span class="va">MX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sample_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_EUR</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Control"</span>, <span class="fl">400</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Case"</span>, <span class="fl">200</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  ancestry <span class="op">=</span> <span class="st">"A"</span></span>
+<span>  ancestry <span class="op">=</span> <span class="st">"EUR"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># AFR: underrepresented compared to EUR</span></span>
 <span><span class="va">MY</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sample_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_AFR</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Control"</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Case"</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  ancestry <span class="op">=</span> <span class="st">"B"</span></span>
+<span>  ancestry <span class="op">=</span> <span class="st">"AFR"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Rownames of matrix must be smaple ids</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">MX</span><span class="op">$</span><span class="va">id</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">MY</span><span class="op">$</span><span class="va">id</span></span>
-<span></span>
-<span><span class="co"># Visualize sample size imbalance</span></span>
-<span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">MX</span>, <span class="va">MY</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">MX</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">id_EUR</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">MY</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">id_AFR</span></span>
 <span></span>
 <span><span class="co"># Plot</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">meta</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">ancestry</span>, fill <span class="op">=</span> <span class="va">condition</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"dodge"</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Condition Imbalance Across Ancestries"</span>,</span>
-<span>    x <span class="op">=</span> <span class="st">"Ancestry"</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"Sample Count"</span>,</span>
-<span>    fill <span class="op">=</span> <span class="st">"Condition"</span></span>
-<span>  <span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_imbalanced_groups.html">plot_imbalanced_groups</a></span><span class="op">(</span></span>
+<span>  MX <span class="op">=</span> <span class="va">MX</span>,</span>
+<span>  MY <span class="op">=</span> <span class="va">MY</span>,</span>
+<span>  x_var <span class="op">=</span> <span class="st">"ancestry"</span>,</span>
+<span>  fill_var <span class="op">=</span> <span class="st">"condition"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Imbalanced ancestry groups"</span>,</span>
+<span>  x_label <span class="op">=</span> <span class="st">"Ancestry group"</span>,</span>
+<span>  y_label <span class="op">=</span> <span class="st">"No. of patients"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="permutation_interaction_effect_files/figure-html/data%20setup-1.png" alt="Bar plot showing condition imbalance across ancestries" width="700"></p>
-<p>Running a <code>limma</code> pipeline on such imbalanced data might
-lead to false positive results, because the underrepresented ancestry is
-not well represented in the data. One way
-<code>CrossAncestryGenPhen</code> tries to mitigate this is by
-stratifying the data. This approach is limited to cases where the
-European ancestry is truly overrepreseted.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="single-subset-run-of-permutation-interaction-effect">Single subset run of permutation interaction effect<a class="anchor" aria-label="anchor" href="#single-subset-run-of-permutation-interaction-effect"></a>
+<h2 id="single-subset-run">Single subset run<a class="anchor" aria-label="anchor" href="#single-subset-run"></a>
 </h2>
 <div class="section level3">
 <h3 id="stratification-step">Stratification step<a class="anchor" aria-label="anchor" href="#stratification-step"></a>
@@ -150,9 +143,14 @@ phenotype imbalance in the underrepresented ancestry. The idea is to
 create a EUR <code>train set</code>, which is the remaining EUR cohort
 after subsampling, a EUR-subset <code>test set</code> (mimicking the
 underrepresented ancestry) based on the compared ancestry
-<code>inferecnce set</code>.</p>
+<code>inferecnce set</code>. The output will contain <code>train</code>,
+<code>test</code> and <code>inference</code> sets and additional
+information on used strata. Each subset contains a gene expression
+matrix (<code>$X</code>), a metadata frame (<code>$M</code>) and the
+used ids (<code>$ids</code>).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">stratify_col</span> <span class="op">&lt;-</span> <span class="st">"condition"</span> <span class="co"># Column to stratify on</span></span>
+<code class="sourceCode R"><span><span class="va">g_col</span> <span class="op">&lt;-</span> <span class="st">"condition"</span> <span class="co"># Column with group information (stratified for)</span></span>
+<span><span class="va">a_col</span> <span class="op">&lt;-</span> <span class="st">"ancestry"</span>  <span class="co"># Column with ancestry information</span></span>
 <span></span>
 <span><span class="co"># Split the data into stratified sets</span></span>
 <span><span class="va">split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/split_stratified_ancestry_sets.html">split_stratified_ancestry_sets</a></span><span class="op">(</span></span>
@@ -160,7 +158,8 @@ underrepresented ancestry) based on the compared ancestry
 <span>  Y <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>  MX <span class="op">=</span> <span class="va">MX</span>,</span>
 <span>  MY <span class="op">=</span> <span class="va">MY</span>,</span>
-<span>  g_col <span class="op">=</span> <span class="va">stratify_col</span>,</span>
+<span>  g_col <span class="op">=</span> <span class="va">g_col</span>,</span>
+<span>  a_col <span class="op">=</span> <span class="va">a_col</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">42</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -169,290 +168,13 @@ underrepresented ancestry) based on the compared ancestry
 <span>  MX <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">M</span>,</span>
 <span>  MY <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">M</span>,</span>
 <span>  MR <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">train</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  g_col <span class="op">=</span> <span class="va">stratify_col</span></span>
+<span>  x_var <span class="op">=</span> <span class="st">"ancestry"</span>,</span>
+<span>  fill_var <span class="op">=</span> <span class="st">"condition"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Stratified ancestry sets"</span>,</span>
+<span>  x_label <span class="op">=</span> <span class="st">"Ancestry group"</span>,</span>
+<span>  y_label <span class="op">=</span> <span class="st">"No. of patients"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="permutation_interaction_effect_files/figure-html/stratification-1.png" alt="Bar plot showing balanced subset" width="700"></p>
-<p>The output will contain <code>train</code>, <code>test</code> and
-<code>inference</code> sets and additional information on used strata.
-Each subset contains a gene expression matrix (<code>$X</code>), a
-metadata frame (<code>$M</code>) and the used ids
-(<code>$ids</code>).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Output</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">split</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 4</span></span>
-<span><span class="co">#&gt;  $ train      :List of 3</span></span>
-<span><span class="co">#&gt;   ..$ X  : num [1:560, 1:100] 1.371 -0.565 0.363 0.633 0.404 ...</span></span>
-<span><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:560] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:100] "Feature_1" "Feature_2" "Feature_3" "Feature_4" ...</span></span>
-<span><span class="co">#&gt;   ..$ M  :'data.frame':  560 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;   .. ..$ id       : chr [1:560] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;   .. ..$ condition: Factor w/ 2 levels "Case","Control": 2 2 2 2 2 2 2 2 2 2 ...</span></span>
-<span><span class="co">#&gt;   .. ..$ ancestry : chr [1:560] "A" "A" "A" "A" ...</span></span>
-<span><span class="co">#&gt;   ..$ ids: chr [1:560] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;  $ test       :List of 3</span></span>
-<span><span class="co">#&gt;   ..$ X  : num [1:40, 1:100] 1.215 -1.097 1.113 -0.8 0.446 ...</span></span>
-<span><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:40] "Sample_24" "Sample_136" "Sample_146" "Sample_158" ...</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:100] "Feature_1" "Feature_2" "Feature_3" "Feature_4" ...</span></span>
-<span><span class="co">#&gt;   ..$ M  :'data.frame':  40 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;   .. ..$ id       : chr [1:40] "Sample_24" "Sample_136" "Sample_146" "Sample_158" ...</span></span>
-<span><span class="co">#&gt;   .. ..$ condition: Factor w/ 2 levels "Case","Control": 2 2 2 2 2 2 2 2 2 2 ...</span></span>
-<span><span class="co">#&gt;   .. ..$ ancestry : chr [1:40] "A" "A" "A" "A" ...</span></span>
-<span><span class="co">#&gt;   ..$ ids: chr [1:40] "Sample_24" "Sample_136" "Sample_146" "Sample_158" ...</span></span>
-<span><span class="co">#&gt;  $ inference  :List of 3</span></span>
-<span><span class="co">#&gt;   ..$ X  : num [1:40, 1:100] 0.389 0.442 -0.533 -0.781 -0.124 ...</span></span>
-<span><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:40] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;   .. .. ..$ : chr [1:100] "Feature_1" "Feature_2" "Feature_3" "Feature_4" ...</span></span>
-<span><span class="co">#&gt;   ..$ M  :'data.frame':  40 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;   .. ..$ id       : chr [1:40] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;   .. ..$ condition: Factor w/ 2 levels "Case","Control": 2 2 2 2 2 2 2 2 2 2 ...</span></span>
-<span><span class="co">#&gt;   .. ..$ ancestry : chr [1:40] "B" "B" "B" "B" ...</span></span>
-<span><span class="co">#&gt;   ..$ ids: chr [1:40] "Sample_1" "Sample_2" "Sample_3" "Sample_4" ...</span></span>
-<span><span class="co">#&gt;  $ strata_info:List of 3</span></span>
-<span><span class="co">#&gt;   ..$ usable      : chr [1:2] "Case" "Control"</span></span>
-<span><span class="co">#&gt;   ..$ missing     : chr(0) </span></span>
-<span><span class="co">#&gt;   ..$ insufficient: chr(0)</span></span></code></pre></div>
-<p>The function <code>plot_stratified_feature</code> allows to plot
-single or multiple features per split.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_stratified_feature.html">plot_stratified_feature</a></span><span class="op">(</span></span>
-<span>  X <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>  Y <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>  R <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">train</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>  MX <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  MY <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  MR <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">train</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  features <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># will use first 9 features</span></span>
-<span>  g_col <span class="op">=</span> <span class="va">stratify_col</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/stratified_feature-1.png" alt="Distribution of features per split" width="700"></p>
-</div>
-<div class="section level3">
-<h3 id="permutation-interaction-analysis">Permutation interaction analysis<a class="anchor" aria-label="anchor" href="#permutation-interaction-analysis"></a>
-</h3>
-<p>The function <code>split_stratified_ancestry_sets</code> creates on
-downsampling of the overrepresented ancestry. Note: A single subset only
-generates one estimate of the difference it is recomendet to run
-multiple subsets to get a more robust estimate of the interaction
-effect. In case of interaction effects the <code>split$test</code> and
-<code>split$inference</code> sets are used. The function
-<code>perm_interaction_effect</code> estimates the difference in
-phenotype means between the two sets. Where <code>X</code> represents
-one ancestry and <code>Y</code> the other ancestry.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">100</span>  <span class="co"># Number of permutations</span></span>
-<span></span>
-<span><span class="va">perm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perm_interaction_effect.html">perm_interaction_effect</a></span><span class="op">(</span></span>
-<span>  X <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>  Y <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>  MX <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  MY <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>  g_col <span class="op">=</span> <span class="va">stratify_col</span>,</span>
-<span>  B <span class="op">=</span> <span class="va">B</span>, </span>
-<span>  seed <span class="op">=</span> <span class="va">seed</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">perm_res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 3</span></span>
-<span><span class="co">#&gt;  $ summary_stats:'data.frame':   100 obs. of  7 variables:</span></span>
-<span><span class="co">#&gt;   ..$ feature      : chr [1:100] "Feature_1" "Feature_2" "Feature_3" "Feature_4" ...</span></span>
-<span><span class="co">#&gt;   ..$ T_obs        : num [1:100] -0.513 -0.668 -0.332 0.556 -0.534 ...</span></span>
-<span><span class="co">#&gt;   ..$ z_score      : num [1:100] -1.259 -1.27 -0.666 1.313 -0.905 ...</span></span>
-<span><span class="co">#&gt;   ..$ p_param_value: num [1:100] 0.208 0.204 0.506 0.189 0.366 ...</span></span>
-<span><span class="co">#&gt;   ..$ p_param_adj  : num [1:100] 0.814 0.814 0.897 0.814 0.831 ...</span></span>
-<span><span class="co">#&gt;   ..$ p_emp_value  : num [1:100] 0.228 0.139 0.475 0.198 0.396 ...</span></span>
-<span><span class="co">#&gt;   ..$ p_emp_adj    : num [1:100] 0.862 0.862 0.897 0.862 0.866 ...</span></span>
-<span><span class="co">#&gt;  $ T_null       : num [1:100, 1:100] 0.798 -0.241 0.42 -0.561 0.399 ...</span></span>
-<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
-<span><span class="co">#&gt;   .. ..$ : chr [1:100] "Feature_1" "Feature_2" "Feature_3" "Feature_4" ...</span></span>
-<span><span class="co">#&gt;  $ B_used       : int 100</span></span></code></pre></div>
-<p>The output of the function contains three items:</p>
-<ol style="list-style-type: decimal">
-<li><p><strong><code>summary_stats</code></strong>: Contains estimated
-interaction effects (<code>T_obs</code>) per feature,
-<code>p_values</code>, and <code>p_adj</code>, which are adjusted for
-multiple testing using the Benjamini–Hochberg method.</p></li>
-<li><p><strong><code>T_null</code></strong>: The observed null
-distribution for each feature across permutations.</p></li>
-<li><p><strong><code>B_used</code></strong>: The number of permutation
-iterations used to estimate the null distribution.</p></li>
-</ol>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_null_distribution.html">plot_null_distribution</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">perm_res</span>, </span>
-<span>  p_normal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  p_empirical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_normal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_empirical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  features <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># will use first 9 features</span></span>
-<span>  title <span class="op">=</span> <span class="st">"Null distribution of test statistic with two-sided p-values"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/Null_distribution-1.png" alt="Distribution of test statistic under null hypothesis" width="700"></p>
-</div>
-<div class="section level3">
-<h3 id="results-of-single-subset-run">Results of single subset run<a class="anchor" aria-label="anchor" href="#results-of-single-subset-run"></a>
-</h3>
-<p>Using the summary statistics, the effect sizes and associated
-p-values can be viusalized in a volcano plot using thr function
-<code>plot_volcano.R</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_volcano.html">plot_volcano</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">perm_res</span><span class="op">$</span><span class="va">summary_stats</span>,</span>
-<span>  x_var <span class="op">=</span> <span class="st">"T_obs"</span>, </span>
-<span>  y_var <span class="op">=</span> <span class="st">"p_param_adj"</span>, </span>
-<span>  sig_thr <span class="op">=</span> <span class="fl">0.05</span>, </span>
-<span>  effect_thr <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>  x_label <span class="op">=</span> <span class="st">"effect size (T_obs)"</span>,</span>
-<span>  y_label <span class="op">=</span> <span class="st">"-log10(p_param_adj)"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Volcano plot of interaction effect in a single subset run"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/volcano_plot-1.png" alt="Volcano plot of interaction effect" width="700"></p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="multiple-subset-run-of-permutation-interaction-effect">Multiple subset run of permutation interaction effect<a class="anchor" aria-label="anchor" href="#multiple-subset-run-of-permutation-interaction-effect"></a>
-</h2>
-<p>As previly mentioned, a single subset only generates one estimate of
-the difference. To get a more robust estimate of the interaction effect,
-it is recommended to run multiple subsets. In this case the pipeline is
-similar to run a single subset but with concerns on how to aggregate
-over multiple subsets. Because the samples from the underrepresented
-ancestry are identical over multiple subsets this introduced dependence.
-Hence, aggregating p-values or test statistics is not trivial.</p>
-<div class="section level3">
-<h3 id="loop-run-over-multiple-subsets">Loop run over multiple subsets<a class="anchor" aria-label="anchor" href="#loop-run-over-multiple-subsets"></a>
-</h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n_subsets</span> <span class="op">&lt;-</span> <span class="fl">100</span>  <span class="co"># Number of subsets to run</span></span>
-<span></span>
-<span><span class="co"># Track ids and results</span></span>
-<span><span class="va">perm_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">id_log</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_subsets</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="co"># Stratified ancestry sets</span></span>
-<span>  <span class="va">split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/split_stratified_ancestry_sets.html">split_stratified_ancestry_sets</a></span><span class="op">(</span></span>
-<span>    X <span class="op">=</span> <span class="va">X</span>,</span>
-<span>    Y <span class="op">=</span> <span class="va">Y</span>,</span>
-<span>    MX <span class="op">=</span> <span class="va">MX</span>,</span>
-<span>    MY <span class="op">=</span> <span class="va">MY</span>,</span>
-<span>    g_col <span class="op">=</span> <span class="va">stratify_col</span>,</span>
-<span>    seed <span class="op">=</span> <span class="va">seed</span> <span class="op">+</span> <span class="va">i</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Store sample id usage with role (train, test, inference) and iteration</span></span>
-<span>  <span class="va">id_log</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/track_sample_ids.html">track_sample_ids</a></span><span class="op">(</span><span class="va">split</span>, <span class="va">i</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">perm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perm_interaction_effect.html">perm_interaction_effect</a></span><span class="op">(</span></span>
-<span>    X <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>    Y <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">X</span>,</span>
-<span>    MX <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">test</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>    MY <span class="op">=</span> <span class="va">split</span><span class="op">$</span><span class="va">inference</span><span class="op">$</span><span class="va">M</span>,</span>
-<span>    g_col <span class="op">=</span> <span class="va">stratify_col</span>,</span>
-<span>    B <span class="op">=</span> <span class="va">B</span>, </span>
-<span>    seed <span class="op">=</span> <span class="va">seed</span> <span class="op">+</span> <span class="va">i</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Add up permutation result</span></span>
-<span>  <span class="va">perm_stats</span> <span class="op">&lt;-</span> <span class="va">perm_res</span><span class="op">$</span><span class="va">summary_stats</span></span>
-<span>  <span class="va">perm_stats</span><span class="op">$</span><span class="va">iteration</span> <span class="op">&lt;-</span> <span class="va">i</span></span>
-<span>  <span class="va">perm_results</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">perm_results</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">perm_stats</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Combine across iterations</span></span>
-<span><span class="va">perm_combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">perm_results</span><span class="op">)</span></span>
-<span><span class="va">id_usage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">id_log</span><span class="op">)</span></span></code></pre></div>
-<p>The object <code>perm_combined</code> contains the combined
-permutation results across all subsets. The function
-<code><a href="../reference/plot_pvalue_distribution.html">plot_pvalue_distribution()</a></code> will plot the distribution of
-p-values across subsets.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">perm_combined</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       feature       T_obs      z_score p_param_value p_param_adj p_emp_value</span></span>
-<span><span class="co">#&gt; 1   Feature_1 -0.42964519 -0.798741934     0.4244401   0.8726044   0.4158416</span></span>
-<span><span class="co">#&gt; 2   Feature_2  0.03005561  0.002321042     0.9981481   0.9981481   0.9603960</span></span>
-<span><span class="co">#&gt; 3   Feature_3 -0.34510354 -0.858368388     0.3906891   0.8726044   0.3564356</span></span>
-<span><span class="co">#&gt; 4   Feature_4 -0.31790285 -0.536222071     0.5918051   0.9193499   0.5841584</span></span>
-<span><span class="co">#&gt; 5   Feature_5 -0.21040408 -0.296899930     0.7665429   0.9532724   0.7326733</span></span>
-<span><span class="co">#&gt; 6   Feature_6 -0.22639552 -0.367383802     0.7133328   0.9532724   0.6732673</span></span>
-<span><span class="co">#&gt; 7   Feature_7  0.37994413  0.706411269     0.4799324   0.8726044   0.5643564</span></span>
-<span><span class="co">#&gt; 8   Feature_8  0.37742283  0.779812988     0.4355010   0.8726044   0.5346535</span></span>
-<span><span class="co">#&gt; 9   Feature_9  0.42564843  0.797356992     0.4252437   0.8726044   0.4851485</span></span>
-<span><span class="co">#&gt; 10 Feature_10  0.70502336  1.519475735     0.1286428   0.8240990   0.0990099</span></span>
-<span><span class="co">#&gt;    p_emp_adj iteration</span></span>
-<span><span class="co">#&gt; 1  0.8316832         1</span></span>
-<span><span class="co">#&gt; 2  0.9603960         1</span></span>
-<span><span class="co">#&gt; 3  0.8316832         1</span></span>
-<span><span class="co">#&gt; 4  0.9350935         1</span></span>
-<span><span class="co">#&gt; 5  0.9350935         1</span></span>
-<span><span class="co">#&gt; 6  0.9350935         1</span></span>
-<span><span class="co">#&gt; 7  0.9350935         1</span></span>
-<span><span class="co">#&gt; 8  0.9350935         1</span></span>
-<span><span class="co">#&gt; 9  0.9153746         1</span></span>
-<span><span class="co">#&gt; 10 0.8250825         1</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/plot_pvalue_distribution.html">plot_pvalue_distribution</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">perm_combined</span>,</span>
-<span>  x_var <span class="op">=</span> <span class="st">"p_param_value"</span>,</span>
-<span>  fill_var <span class="op">=</span> <span class="st">"T_obs"</span>,</span>
-<span>  features <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># will use first 9 features</span></span>
-<span>  title <span class="op">=</span> <span class="st">"Histogram of p-values across subsets"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/perm_combined-1.png" alt="Histogram of p-values across iterations" width="700"></p>
-</div>
-<div class="section level3">
-<h3 id="dependence-of-multiple-subsets">Dependence of multiple subsets<a class="anchor" aria-label="anchor" href="#dependence-of-multiple-subsets"></a>
-</h3>
-<p>From a biological view, feautures with low p-value across subsets are
-more likely to be true positives. However, from a statistical
-perspective, the p-values are not independent across subsets and hence
-to aggregate them it is important to consider. The samples are shared
-across the subsets and this sharing of samples can be visualized using
-the <code><a href="../reference/plot_jaccard_heatmap.html">plot_jaccard_heatmap()</a></code> function.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_jaccard_heatmap.html">plot_jaccard_heatmap</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">id_usage</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"test"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Jaccard heatmap of sample usage across test sets"</span>,</span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/jaccard_heatmap-1.png" alt="Heatmap of Jaccard index across iterations" width="700"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/plot_jaccard_heatmap.html">plot_jaccard_heatmap</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">id_usage</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"inference"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Jaccard heatmap of sample usage across inference sets"</span>,</span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/jaccard_heatmap-2.png" alt="Heatmap of Jaccard index across iterations" width="700"></p>
-<p>Correlation of the test statistic and the p-values can be visualized
-using the <code><a href="../reference/plot_correlation_heatmap.html">plot_correlation_heatmap()</a></code> function.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_correlation_heatmap.html">plot_correlation_heatmap</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">perm_combined</span>,</span>
-<span>  value_col <span class="op">=</span> <span class="st">"T_obs"</span>,</span>
-<span>  iter_col <span class="op">=</span> <span class="st">"iteration"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Test statistic correlation across subsets"</span>,</span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/correlation_heatmap-1.png" alt="Heatmap of correlations" width="700"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/plot_correlation_heatmap.html">plot_correlation_heatmap</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">perm_combined</span>,</span>
-<span>  value_col <span class="op">=</span> <span class="st">"p_param_value"</span>,</span>
-<span>  iter_col <span class="op">=</span> <span class="st">"iteration"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"P-value correlation across subsets"</span>,</span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="permutation_interaction_effect_files/figure-html/correlation_heatmap-2.png" alt="Heatmap of correlations" width="700"></p>
-</div>
-<div class="section level3">
-<h3 id="aggregation-across-subsets">Aggregation across subsets<a class="anchor" aria-label="anchor" href="#aggregation-across-subsets"></a>
-</h3>
-<p>** To be continued… **</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

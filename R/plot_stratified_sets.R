@@ -1,74 +1,76 @@
-#' Plot Sample Counts by Stratified Variable and Dataset Split
+#' Plot stratified ancestry sets.
 #'
-#' Creates a bar plot showing the number of samples in each dataset split
-#' (train, test, inference), grouped and colored by stratification variables.
-#' Each stratification column is shown in a separate facet for clear comparison.
+#' Create a bar plot comparing stratified ancestry sets.
 #'
-#' This is useful for visually checking balance or representation across
-#' strata (e.g., ancestry or condition) within each split.
+#' @param MX A data frame of train meta.
+#' @param MY A data frame of test meta.
+#' @param MR A data frame of inference meta.
+#' @param x_var Name of the variable for the x-axis (string).
+#' @param fill_var Name of the variable for the fill color (string).
+#' @param title Plot title (optional).
+#' @param x_label Label for the x-axis (optional).
+#' @param y_label Label for the y-axis (optional).
 #'
-#' @param MX A data.frame containing metadata for the test set (usually output from `split_stratified_ancestry_sets()`).
-#' @param MY A data.frame containing metadata for the inference set.
-#' @param MR A data.frame containing metadata for the train set.
-#' @param g_col Character vector of column names in the metadata to stratify and plot by (e.g., c("ancestry", "sex")).
-#' @param title Optional character string to use as the plot title.
-#'
-#' @return A ggplot2 object showing counts per stratum and dataset split, faceted by stratification variable.
+#' @return A ggplot object.
 #' @export
 plot_stratified_sets <- function(
   MX, 
   MY, 
   MR, 
-  g_col,
-  title = NULL
+  x_var,
+  fill_var,
+  title = NULL,
+  x_label = NULL,
+  y_label = NULL
 ) {
-  # Add dataset split labels
-  train_M <- MR
-  test_M  <- MX
-  infer_M <- MY
 
-  train_M$set <- "R"
-  test_M$set  <- "X"
-  infer_M$set <- "Y"
+  ## --- Input data structure check ---
+  assert_input(
+    MX = MX, 
+    MY = MY,
+    MR = MR,
+    g_col = fill_var, 
+    a_col = x_var
+  )
 
-  all_M <- rbind(train_M, test_M, infer_M)
-  all_M$set <- factor(all_M$set, levels = c("R", "X", "Y"))
+  ## --- Prepare x_var label ---
+  MR[[x_var]] <- paste0(MR[[x_var]], "\n(Reference, R)")
+  MX[[x_var]] <- paste0(MX[[x_var]], "\n(Subset, X)")
+  MY[[x_var]] <- paste0(MY[[x_var]], "\n(Inference, Y)")
 
-  # Combine counts for each stratification column separately
-  plot_data_list <- lapply(g_col, function(col) {
-    tab <- as.data.frame(table(set = all_M$set, stratum = all_M[[col]]))
-    tab$variable <- col
-    names(tab)[2] <- "value"
-    tab
-  })
+  # Ensure factor levels
+  M <- rbind(MX, MY, MR)
+  M[[x_var]] <- factor(
+    M[[x_var]], 
+    levels = c(
+      unique(MR[[x_var]]),  
+      unique(MX[[x_var]]),  
+      unique(MY[[x_var]]) 
+    )
+  )
 
-  plot_data <- do.call(rbind, plot_data_list)
-
-  # Plot: dodged bars per split, fill by stratum value, facet by stratification variable
+  ## --- Bar plot ---
   p <- ggplot(
-    data = plot_data, 
-    aes(
-      x = set, 
-      y = Freq, 
-      fill = value
-      )
-    ) +
-    geom_col(
-      position = "dodge",
-      color = "black"
-    ) +
-    facet_wrap(
-      ~ variable
-    ) +
-    labs(
-      title = title,
-      x = NULL,
-      y = "Count",
-      fill = "Stratum value"
-    ) +
-    theme_nature_fonts() +
-    theme_small_legend() +
-    theme_white_background() 
+    data = M,
+    mapping = aes(
+      x = .data[[x_var]],
+      fill = .data[[fill_var]]
+    )
+  ) +
+  geom_bar(
+    position = "dodge",
+    color = "black",
+    linewidth = 0.1
+  ) +
+  labs(
+    title = title,
+    x = ifelse(is.null(x_label), x_var, x_label),
+    y = ifelse(is.null(y_label), "Count", y_label),
+    fill = fill_var
+  ) +
+  theme_nature_fonts() +
+  theme_white_background() +
+  theme_small_legend()
 
   return(p)
 }

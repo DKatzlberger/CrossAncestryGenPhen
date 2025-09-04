@@ -46,11 +46,12 @@
 <span>  <span class="va">Y</span>,</span>
 <span>  <span class="va">MX</span>,</span>
 <span>  <span class="va">MY</span>,</span>
+<span>  <span class="va">x_var</span>,</span>
+<span>  <span class="va">fill_var</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">g_col</span>,</span>
-<span>  id_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  point_size <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  x_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y_label <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -79,20 +80,20 @@
 Defaults to first 9 common features if NULL.</p></dd>
 
 
-<dt id="arg-g-col">g_col<a class="anchor" aria-label="anchor" href="#arg-g-col"></a></dt>
-<dd><p>Column name in metadata indicating the grouping (e.g., condition)</p></dd>
-
-
-<dt id="arg-id-col">id_col<a class="anchor" aria-label="anchor" href="#arg-id-col"></a></dt>
-<dd><p>Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)</p></dd>
-
-
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
 <dd><p>Optional title for the plot</p></dd>
 
 
-<dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>
-<dd><p>Numeric value controlling point/label size (currently not used in plotting directly)</p></dd>
+<dt id="arg-g-col">g_col<a class="anchor" aria-label="anchor" href="#arg-g-col"></a></dt>
+<dd><p>Column name in metadata indicating the group</p></dd>
+
+
+<dt id="arg-a-col">a_col<a class="anchor" aria-label="anchor" href="#arg-a-col"></a></dt>
+<dd><p>Column name in metadata indicating the ancestry</p></dd>
+
+
+<dt id="arg-id-col">id_col<a class="anchor" aria-label="anchor" href="#arg-id-col"></a></dt>
+<dd><p>Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)</p></dd>
 
 </dl></div>
     <div class="section level2">

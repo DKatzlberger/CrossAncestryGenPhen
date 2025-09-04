@@ -51,11 +51,12 @@ specified features.</p>
 <span>  <span class="va">MX</span>,</span>
 <span>  <span class="va">MY</span>,</span>
 <span>  <span class="va">MR</span>,</span>
+<span>  <span class="va">x_var</span>,</span>
+<span>  <span class="va">fill_var</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">g_col</span>,</span>
-<span>  id_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  point_size <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  x_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y_label <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -64,54 +65,56 @@ specified features.</p>
 
 
 <dl><dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A numeric matrix or data frame for the test split</p></dd>
+<dd><p>Numeric matrix or data.frame of features for cohort X (train).</p></dd>
 
 
 <dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>A numeric matrix or data frame for the inference split</p></dd>
+<dd><p>Numeric matrix or data.frame of features for cohort Y (test).</p></dd>
 
 
 <dt id="arg-r">R<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
-<dd><p>A numeric matrix or data frame for the train split</p></dd>
+<dd><p>Numeric matrix or data.frame of features for cohort R (inference).</p></dd>
 
 
 <dt id="arg-mx">MX<a class="anchor" aria-label="anchor" href="#arg-mx"></a></dt>
-<dd><p>Metadata for X, containing IDs and group information</p></dd>
+<dd><p>Metadata for `X` (train).</p></dd>
 
 
 <dt id="arg-my">MY<a class="anchor" aria-label="anchor" href="#arg-my"></a></dt>
-<dd><p>Metadata for Y, containing IDs and group information</p></dd>
+<dd><p>Metadata for `Y` (test).</p></dd>
 
 
 <dt id="arg-mr">MR<a class="anchor" aria-label="anchor" href="#arg-mr"></a></dt>
-<dd><p>Metadata for R, containing IDs and group information</p></dd>
+<dd><p>Metadata for `R` (inference).</p></dd>
+
+
+<dt id="arg-x-var">x_var<a class="anchor" aria-label="anchor" href="#arg-x-var"></a></dt>
+<dd><p>Name of the metadata column for x-axis (string).</p></dd>
+
+
+<dt id="arg-fill-var">fill_var<a class="anchor" aria-label="anchor" href="#arg-fill-var"></a></dt>
+<dd><p>Name of the metadata column for fill (string).</p></dd>
 
 
 <dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
-<dd><p>Character vector of feature names to plot.
-Defaults to first 9 common features if NULL.</p></dd>
-
-
-<dt id="arg-g-col">g_col<a class="anchor" aria-label="anchor" href="#arg-g-col"></a></dt>
-<dd><p>Column name in metadata indicating the grouping
-(e.g., condition)</p></dd>
-
-
-<dt id="arg-id-col">id_col<a class="anchor" aria-label="anchor" href="#arg-id-col"></a></dt>
-<dd><p>Column name in metadata for sample identifiers (assumes rownames of matrix are ids)</p></dd>
+<dd><p>Character vector of features to plot (defaults to first 9).</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
-<dd><p>Optional title for the plot</p></dd>
+<dd><p>Plot title (optional).</p></dd>
 
 
-<dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>
-<dd><p>Numeric value controlling point/label size (currently not used in plotting directly).</p></dd>
+<dt id="arg-x-label">x_label<a class="anchor" aria-label="anchor" href="#arg-x-label"></a></dt>
+<dd><p>Label for x-axis (optional).</p></dd>
+
+
+<dt id="arg-y-label">y_label<a class="anchor" aria-label="anchor" href="#arg-y-label"></a></dt>
+<dd><p>Label for y-axis (optional).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot2 object containing the faceted boxplot</p>
+    <p>A ggplot2 object.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

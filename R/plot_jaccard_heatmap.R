@@ -14,7 +14,7 @@
 #' @export
 plot_jaccard_heatmap <- function(
   data,
-  role = "test",
+  role,
   row_names = NULL,
   title = NULL,
   file = NULL,

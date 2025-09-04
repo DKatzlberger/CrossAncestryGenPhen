@@ -14,7 +14,7 @@
 #' @export
 #'
 #' @importFrom ggplot2 ggplot aes geom_histogram labs
-plot_sim_interaction_effects <- function(
+plot_sim_interaction_effect <- function(
   fI,
   exclude_zeros = TRUE,
   title = NULL,

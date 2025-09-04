@@ -21,81 +21,90 @@ plot_feature <- function(
   Y, 
   MX, 
   MY, 
-  g_col,
-  a_col,
+  x_var,
+  fill_var,
   features = NULL,
   title = NULL,
   x_label = NULL,
   y_label = NULL
 ) {
-  if (is.null(rownames(X)) || is.null(rownames(Y))) {
-      stop("X and Y must have rownames corresponding to sample IDs.")
-    }
 
-  # Infer features if not provided
+   ## --- Input data structure check ---
+  assert_input(
+    X = X,
+    Y = Y,
+    MX = MX, 
+    MY = MY,
+    g_col = fill_var,
+    a_col = x_var
+  )
+
+  ## --- Infer features if not provided ---
   if (is.null(features)) {
-    all_feats <- intersect(colnames(X), colnames(Y))
-    
-    if (length(all_feats) < 1) {
-      stop("No common features found across X and Y.")
-    }
-    features <- sort(all_feats)
-    features <- head(features, 9)
+    features <- colnames(X)[1:9]
   }
 
-  # Subset to common features
+  # Subset matrices to selected features
   X <- X[, features, drop = FALSE]
   Y <- Y[, features, drop = FALSE]
 
-  # Combine matrices and scale together
-  combined <- rbind(X, Y)
-  combined_scaled <- scale(combined)
 
-  conditions <- c(MX[[g_col]], MY[[g_col]])
-  g_1 <- levels(MX[[g_col]])[1]
-  g_2 <- levels(MY[[g_col]])[2]
+  ## --- Ancetsry levels ----
+  a_1 <- unique(MX[[x_var]]); a_2 <- unique(MY[[x_var]])
+  a_levels <- c(a_1, a_2)
 
-  ancestries <- c(MX[[a_col]], MY[[a_col]])
-  a_X <- unique(MX[[a_col]])
-  a_Y <- unique(MY[[a_col]])
 
-  df_all <- data.frame(
-    feature = rep(colnames(combined_scaled), each = nrow(combined_scaled)),
-    value = as.vector(combined_scaled),
-    condition = rep(conditions, ncol(combined_scaled)),
-    ancestry = rep(ancestries, ncol(combined_scaled)),
+  ## --- Bind frames ---
+  M <- rbind(MX, MY)
+  M[[x_var]] <- factor(M[[x_var]], levels = a_levels)
+
+  ## --- Scale counts ---
+  XY <- rbind(X, Y)
+  XY_scaled <- scale(XY)
+  stopifnot(identical(rownames(XY), rownames(M)))
+
+
+  ## --- Pivot long ---
+  df_long <- data.frame(
+    feature   = rep(colnames(XY_scaled), each = nrow(XY_scaled)),
+    value     = as.vector(XY_scaled),
+    condition = rep(M[[fill_var]], times = length(features)),
+    x_group   = rep(M[[x_var]],   times = length(features)),
     stringsAsFactors = FALSE
   )
+  # Ensure factor levels
+  df_long$feature <- factor(df_long$feature, levels = features)
 
-  df_all$feature <- factor(df_all$feature, levels = features)
-  df_all$ancestry <- factor(df_all$ancestry, levels = c(a_X, a_Y))
 
+  ## --- Boxplot ---
   p <- ggplot(
-    data = df_all, 
+    data = df_long, 
     aes(
-      x = ancestry, 
+      x = x_group, 
       y = value, 
       fill = condition
       )
     ) +
     geom_boxplot(
-      outlier.size = 0.25,
-      width = 0.7,
-      position = position_dodge2(
-        preserve = "single"
-      )
+      position = "dodge",
+      color = "black",
+      linewidth = 0.1,
+      outlier.size = 0.25
     ) +
     facet_wrap(
       ~feature, 
-      scales = "free"
+      scales = "free_y"
     ) +
     labs(
-      x = ifelse(is.null(x_label), "", x_label),
-      y = ifelse(is.null(y_label), "z-score", y_label),
-      fill = g_col,
-      title = title
+      title = title,
+      x = ifelse(is.null(x_label), x_var, x_label),
+      y = ifelse(is.null(y_label), "Z-score", y_label),
+      fill = fill_var
     ) +
     theme_nature_fonts() +
     theme_white_background() +
     theme_small_legend()
+
+  ## --- Return ----
+  return(p)
 }

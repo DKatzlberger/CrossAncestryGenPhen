@@ -13,10 +13,11 @@
 #' non-NA labels in each block. Labels are inferred alphabetically, and
 #' a ratio `r` means "`level1:level2 = r:1`".
 #'
-#' Targets are rounded. If `replace = FALSE` and there are not enough
-#' rows, the function draws what is available. Per-block split
-#' messages are printed only when `verbose = TRUE`. A warning is
-#' emitted on shortfall when sampling without replacement.
+#' Targets are snapped so that the within-ancestry ratio is exact
+#' whenever possible (using floor for the first group, leftover to the
+#' second). If `replace = FALSE` and there are not enough rows, the
+#' function draws what is available. A single compact summary of the
+#' resulting subsets is printed when `verbose = TRUE`.
 #'
 #' @param X Numeric matrix or data.frame of features for cohort X; rows are samples and must align with `MX`.
 #' @param Y Numeric matrix or data.frame of features for cohort Y; rows are samples and must align with `MY`.
@@ -31,7 +32,7 @@
 #' @param within_minor_ratio Positive number, ratio for the two `g_col` levels inside the minority ancestry (`level1:level2 = r:1`).
 #' @param seed Optional integer; if supplied, sets the RNG seed.
 #' @param replace Logical; sample with replacement within each block.
-#' @param verbose Logical; if `TRUE`, print per-block split messages.
+#' @param verbose Logical; if `TRUE`, print a final compact summary.
 #'
 #' @return A list with four elements:
 #'   \describe{
@@ -43,28 +44,6 @@
 #'   Which ancestry lands in `X` vs `Y` depends on `majority`: the
 #'   majority ancestry is always returned first.
 #'
-#' @examples
-#' set.seed(1)
-#' X  <- matrix(rnorm(1000), nrow = 100)
-#' Y  <- matrix(rnorm( 800), nrow =  80)
-#' MX <- data.frame(anc = "EUR",
-#'                  grp = sample(c("A","B"), 100, TRUE))
-#' MY <- data.frame(anc = "AFR",
-#'                  grp = sample(c("A","B"),  80, TRUE))
-#' out <- sim_imbalanced_ancestry(
-#'   X, Y, MX, MY,
-#'   g_col = "grp",
-#'   a_col = "anc",
-#'   majority = "X",
-#'   total_samples = 120,
-#'   between_ratio = 2,
-#'   within_major_ratio = 3,
-#'   within_minor_ratio = 1,
-#'   seed = 123,
-#'   verbose = TRUE
-#' )
-#' lapply(out, nrow)
-#'
 #' @export
 sim_imbalanced_ancestry <- function(
   X,
@@ -74,35 +53,36 @@ sim_imbalanced_ancestry <- function(
   g_col,
   a_col,
   majority = c("X","Y"),
-  total_samples = 100,
-  between_ratio = 1,
-  within_major_ratio = 1,
-  within_minor_ratio = 1,
+  total_samples,
+  between_ratio,
+  within_major_ratio,
+  within_minor_ratio,
   seed = NULL,
   replace = FALSE,
-  verbose = FALSE
+  verbose = TRUE
 ) {
+
+  ## --- Input data structure check ---
+  assert_input(
+    X = X, 
+    Y = Y, 
+    MX = MX, 
+    MY = MY, 
+    g_col = g_col, 
+    a_col = a_col
+  )
+
+  ## --- Set the seed ---
   if (!is.null(seed)) set.seed(seed)
-  stopifnot(nrow(X) == nrow(MX), nrow(Y) == nrow(MY))
-  majority <- match.arg(majority)
 
-  # column checks
-  if (!(g_col %in% names(MX)) || !(g_col %in% names(MY)))
-    stop("g_col must exist in both MX and MY.")
-  if (!(a_col %in% names(MX)) || !(a_col %in% names(MY)))
-    stop("a_col must exist in both MX and MY.")
-
-  # ancestry labels per block (must be single, distinct values)
+  ## --- Unique ancestries ---
   uX <- unique(na.omit(MX[[a_col]]))
   uY <- unique(na.omit(MY[[a_col]]))
-  if (length(uX) != 1L)
-    stop("In MX, a_col must have exactly one non-NA value.")
-  if (length(uY) != 1L)
-    stop("In MY, a_col must have exactly one non-NA value.")
-  if (identical(as.character(uX), as.character(uY)))
-    stop("a_col must differ between MX and MY (it is the split column).")
 
-  # assign majority/minority metas + names
+  ## --- Match arg ---
+  majority <- match.arg(majority)
+
+  # --- Assign majority/minority ---
   if (majority == "X") {
     M_major <- MX; D_major <- X; maj_name <- as.character(uX)
     M_minor <- MY; D_minor <- Y; min_name <- as.character(uY)
@@ -115,29 +95,26 @@ sim_imbalanced_ancestry <- function(
 
   # helper: sample n indices from two groups in g_col at ratio (g1:g2)
   sample_two_way <- function(meta, data, g_col, n, ratio,
-                             block_name = "", replace = FALSE,
-                             verbose = TRUE) {
+                             replace = FALSE) {
     g_vals <- as.character(meta[[g_col]])
-    # infer labels from g_col (alphabetical)
     levs <- sort(unique(na.omit(g_vals)))
     if (length(levs) != 2) {
-      stop("In block ", block_name, ", g_col '", g_col,
-           "' must have exactly 2 non-NA labels; found: ",
+      stop("g_col '", g_col, "' must have exactly 2 non-NA labels; found: ",
            paste(levs, collapse = ", "))
     }
 
-    # targets before availability check
     r <- as.numeric(ratio)
     if (length(r) != 1 || !is.finite(r) || r <= 0)
       stop("ratio must be a positive number")
-    n1_target <- round(n * r / (r + 1))
+
+    # easy fix: floor for group1, leftover to group2
+    p <- r / (r + 1)
+    n1_target <- floor(n * p)
     n2_target <- n - n1_target
 
-    # available indices (compare on character labels)
     i1_all <- which(g_vals == levs[1])
     i2_all <- which(g_vals == levs[2])
 
-    # actual draws (respect availability if replace = FALSE)
     n1 <- if (replace) n1_target else min(n1_target, length(i1_all))
     n2 <- if (replace) n2_target else min(n2_target, length(i2_all))
 
@@ -145,31 +122,14 @@ sim_imbalanced_ancestry <- function(
     i2 <- if (length(i2_all)) sample(i2_all, n2, replace = replace) else integer(0)
     idx <- c(i1, i2)
 
-    # deficits
     def1 <- max(0L, n1_target - n1)
     def2 <- max(0L, n2_target - n2)
 
-    # print a message only when verbose
-    if (isTRUE(verbose)) {
-      message(paste0(
-        "[", block_name, "] Split in ", g_col, ": ",
-        "Target {", levs[1], ":", n1_target, "; ",
-        levs[2], ":", n2_target, "}. ",
-        "Drew {", levs[1], ":", n1, "; ",
-        levs[2], ":", n2, "}. ",
-        "Missing {", levs[1], ":", def1, "; ",
-        levs[2], ":", def2, "}."
-      ))
-    }
-
-    # warn only if there's a shortfall without replacement
     if (!replace && (def1 > 0L || def2 > 0L)) {
-      warning(paste0("[", block_name,
-                     "] Insufficient samples for requested split."),
+      warning("Insufficient samples for requested split in '", g_col, "'.",
               call. = FALSE)
     }
 
-    # return the subset matrices/metadata
     list(
       meta = meta[idx, , drop = FALSE],
       data = data[idx, , drop = FALSE]
@@ -181,33 +141,40 @@ sim_imbalanced_ancestry <- function(
   n_minor <- total_samples - n_major
 
   # sample within each ancestry with its own internal ratio
-  maj <- sample_two_way(
-    meta = M_major, data = D_major, g_col = g_col, n = n_major,
-    ratio = within_major_ratio,
-    block_name = paste0("Majority ", maj_name),
-    replace = replace, verbose = verbose
-  )
-  minr <- sample_two_way(
-    meta = M_minor, data = D_minor, g_col = g_col, n = n_minor,
-    ratio = within_minor_ratio,
-    block_name = paste0("Minority ", min_name),
-    replace = replace, verbose = verbose
-  )
+  maj  <- sample_two_way(M_major, D_major, g_col, n_major, within_major_ratio, replace)
+  minr <- sample_two_way(M_minor, D_minor, g_col, n_minor, within_minor_ratio, replace)
 
-  # return ONLY expression/count matrices (X,Y) and their metadata (MX,MY)
+  ## --- Final compact verbose summary ---
+  if (verbose) {
+    fmt_counts <- function(M, g_col) {
+      if (is.null(M) || !nrow(M)) return("")
+      tab <- table(M[[g_col]], dnn = NULL)
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+    }
+
+    if (x_is_major) {
+      X_name <- maj_name; X_meta <- maj$meta
+      Y_name <- min_name; Y_meta <- minr$meta
+    } else {
+      X_name <- min_name; X_meta <- minr$meta
+      Y_name <- maj_name; Y_meta <- maj$meta
+    }
+
+    message("\nImbalanced ancestry summary:")
+    message(sprintf("%s (X):    N: %-4d %s", X_name, nrow(X_meta), fmt_counts(X_meta, g_col)))
+    message(sprintf("%s (Y):    N: %-4d %s", Y_name, nrow(Y_meta), fmt_counts(Y_meta, g_col)))
+  }
+
+  ## --- Return ---
   if (x_is_major) {
-    return(list(
-      X = maj$data, # matrix with rownames = samples
-      Y = minr$data,
-      MX = maj$meta,
-      MY = minr$meta
-    ))
+    list(
+      X = list(counts = maj$data,  meta = maj$meta),
+      Y = list(counts = minr$data, meta = minr$meta)
+    )
   } else {
-    return(list(
-      X = minr$data,
-      Y = maj$data,
-      MX = minr$meta,
-      MY = maj$meta
-    ))
+    list(
+      X = list(counts = minr$data, meta = minr$meta),
+      Y = list(counts = maj$data,  meta = maj$meta)
+    )
   }
 }

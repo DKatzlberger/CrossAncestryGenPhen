@@ -21,7 +21,7 @@
 #'
 #' @import ggplot2
 #' @export
-qq_correlation <- function(
+compute_qq_correlation <- function(
   empirical,
   theoretical,
   method = c("pearson", "spearman"),

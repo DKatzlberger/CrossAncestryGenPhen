@@ -11,9 +11,11 @@ subset_limma_interaction_effect(
   MY,
   g_col,
   a_col,
+  covariates = NULL,
+  use_voom = TRUE,
   n_iter = 1000,
-  seed = NULL,
-  workers = future::availableCores() - 1
+  workers = future::availableCores() - 1,
+  seed = NULL
 )
 }
 \arguments{
@@ -31,10 +33,10 @@ subset_limma_interaction_effect(
 
 \item{n_iter}{Integer. Number of iterations to run. Default is 1000.}
 
-\item{seed}{Optional integer for random seed to ensure reproducibility.}
-
 \item{workers}{Number of parallel workers to use. 
 Defaults to `future::availableCores() - 1` (reserving one core).}
+
+\item{seed}{Optional integer for random seed to ensure reproducibility.}
 }
 \value{
 A list with the following elements:
