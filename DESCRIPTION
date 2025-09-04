@@ -17,7 +17,8 @@ Imports:
     tidymodels,
     ComplexHeatmap,
     edgeR,
-    ggrepel
+    ggrepel,
+    compcodeR
 LinkingTo: 
     Rcpp,
     RcppArmadillo
