@@ -79,6 +79,14 @@ estimate_params <- function(
   dge <- edgeR::calcNormFactors(dge)
   eff_libsizes <- dge$samples$lib.size * dge$samples$norm.factors
   mean_eff_libsize <- mean(eff_libsizes)
+  min_eff_libsize  <- min(eff_libsizes)
+  max_eff_libsize  <- max(eff_libsizes)
+
+  estimated_libsize <- list(
+    mean = mean_eff_libsize,
+    min = min_eff_libsize,
+    max = max_eff_libsize
+  )
 
   # Estimate dispersions
   dge_disp <- edgeR::estimateGLMCommonDisp(dge, design = design)
@@ -122,6 +130,6 @@ estimate_params <- function(
     mains = mains,
     means = estimated_means,
     disps = estimated_disps,
-    libsize = mean_eff_libsize
+    libsize = estimated_libsize
   ))
 }
