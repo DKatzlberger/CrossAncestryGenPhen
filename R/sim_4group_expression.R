@@ -117,8 +117,8 @@ sim_4group_expression <- function(
     }
 
     message("\n4-group simulation summary:")
-    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4d  %s", sim_ancestry_X, nrow(sim_X$counts), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X)))
-    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4d  %s", sim_ancestry_Y, nrow(sim_Y$counts), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y)))
+    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f  %s", sim_ancestry_X, nrow(sim_X$counts), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X)))
+    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f  %s", sim_ancestry_Y, nrow(sim_Y$counts), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y)))
   }
 
 
