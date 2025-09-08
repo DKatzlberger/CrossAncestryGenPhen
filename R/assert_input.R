@@ -1,3 +1,6 @@
+#' Internal: minimal checks for X/Y/R (+ optional MX/MY/MR, g_col, a_col)
+#' Skips any argument left as NULL.
+#' @noRd
 assert_input <- function(
   X  = NULL, 
   Y  = NULL, 
