@@ -126,7 +126,7 @@ sim_imbalanced_ancestry <- function(
     def2 <- max(0L, n2_target - n2)
 
     if (!replace && (def1 > 0L || def2 > 0L)) {
-      warning("Insufficient samples for requested split in '", g_col, "'.",
+      stop("Insufficient samples for requested split in '", g_col, "'.",
               call. = FALSE)
     }
 
