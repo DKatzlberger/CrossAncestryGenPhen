@@ -1,6 +1,3 @@
-#' Internal: minimal checks for X/Y/R (+ optional MX/MY/MR, g_col, a_col)
-#' Skips any argument left as NULL.
-#' @noRd
 assert_input <- function(
   X  = NULL, 
   Y  = NULL, 
@@ -9,45 +6,62 @@ assert_input <- function(
   MY = NULL,
   MR = NULL,
   g_col = NULL, 
-  a_col = NULL
+  a_col = NULL,
+  .fun = NULL
 ) {
+  .bold <- function(x) paste0("**", as.character(x), "**")
+  .caller <- function() {
+    if (!is.null(.fun)) return(as.character(.fun))
+    cs <- sys.calls()
+    if (length(cs) >= 2L) {
+      as.character(cs[[length(cs) - 1L]][[1L]])
+    } else {
+      "assert_input"
+    }
+  }
+  .stopf <- function(msg, ...) {
+    args <- lapply(list(...), .bold)
+    msg  <- do.call(sprintf, c(list(msg), args))
+    stop(sprintf("[%s] %s", .caller(), msg), call. = FALSE)
+  }
+
   ## Matrices + rownames
   if (!is.null(X)) {
-    if (!is.matrix(X)) stop("X must be a matrix.")
-    if (is.null(rownames(X))) stop("X must have rownames corresponding to sample IDs.")
+    if (!is.matrix(X)) .stopf("X must be a matrix.")
+    if (is.null(rownames(X))) .stopf("X must have rownames corresponding to sample IDs.")
   }
   if (!is.null(Y)) {
-    if (!is.matrix(Y)) stop("Y must be a matrix.")
-    if (is.null(rownames(Y))) stop("Y must have rownames corresponding to sample IDs.")
+    if (!is.matrix(Y)) .stopf("Y must be a matrix.")
+    if (is.null(rownames(Y))) .stopf("Y must have rownames corresponding to sample IDs.")
   }
   if (!is.null(R)) {
-    if (!is.matrix(R)) stop("R must be a matrix.")
-    if (is.null(rownames(R))) stop("R must have rownames corresponding to sample IDs.")
+    if (!is.matrix(R)) .stopf("R must be a matrix.")
+    if (is.null(rownames(R))) .stopf("R must have rownames corresponding to sample IDs.")
   }
 
   ## Metadata frames + rownames
   if (!is.null(MX)) {
-    if (!is.data.frame(MX)) stop("MX must be a data.frame.")
-    if (is.null(rownames(MX))) stop("MX must have rownames corresponding to sample IDs.")
+    if (!is.data.frame(MX)) .stopf("MX must be a data.frame.")
+    if (is.null(rownames(MX))) .stopf("MX must have rownames corresponding to sample IDs.")
   }
   if (!is.null(MY)) {
-    if (!is.data.frame(MY)) stop("MY must be a data.frame.")
-    if (is.null(rownames(MY))) stop("MY must have rownames corresponding to sample IDs.")
+    if (!is.data.frame(MY)) .stopf("MY must be a data.frame.")
+    if (is.null(rownames(MY))) .stopf("MY must have rownames corresponding to sample IDs.")
   }
   if (!is.null(MR)) {
-    if (!is.data.frame(MR)) stop("MR must be a data.frame.")
-    if (is.null(rownames(MR))) stop("MR must have rownames corresponding to sample IDs.")
+    if (!is.data.frame(MR)) .stopf("MR must be a data.frame.")
+    if (is.null(rownames(MR))) .stopf("MR must have rownames corresponding to sample IDs.")
   }
 
   ## Row count alignment
   if (!is.null(X) && !is.null(MX) && nrow(X) != nrow(MX)) {
-    stop("X/MX row counts must match.")
+    .stopf("X/MX row counts must match (got %s vs %s).", nrow(X), nrow(MX))
   }
   if (!is.null(Y) && !is.null(MY) && nrow(Y) != nrow(MY)) {
-    stop("Y/MY row counts must match.")
+    .stopf("Y/MY row counts must match (got %s vs %s).", nrow(Y), nrow(MY))
   }
   if (!is.null(R) && !is.null(MR) && nrow(R) != nrow(MR)) {
-    stop("R/MR row counts must match.")
+    .stopf("R/MR row counts must match (got %s vs %s).", nrow(R), nrow(MR))
   }
 
   ## Required columns
@@ -57,10 +71,10 @@ assert_input <- function(
       M <- md_list[[nm]]
       if (is.null(M)) next
       if (!is.null(g_col) && !(g_col %in% names(M))) {
-        stop(sprintf("g_col must exist in %s.", nm))
+        .stopf("g_col must exist in %s (missing %s).", nm, g_col)
       }
       if (!is.null(a_col) && !(a_col %in% names(M))) {
-        stop(sprintf("a_col must exist in %s.", nm))
+        .stopf("a_col must exist in %s (missing %s).", nm, a_col)
       }
     }
   }
@@ -74,7 +88,8 @@ assert_input <- function(
       if (is.null(M)) next
       u <- unique(na.omit(M[[a_col]]))
       if (length(u) != 1L) {
-        stop(sprintf("In %s, %s must have exactly one non-NA value.", nm, a_col))
+        .stopf("In %s, %s must have exactly one non-NA value (got %s).",
+               nm, a_col, paste(u, collapse = ", "))
       }
       labels[[nm]] <- as.character(u)
     }
@@ -89,10 +104,10 @@ assert_input <- function(
       ref <- g_levels_list[[1]]
       for (nm in names(g_levels_list)[-1]) {
         if (!identical(g_levels_list[[nm]], ref)) {
-          stop(sprintf("g_col levels differ between metadata frames. %s has %s, expected %s",
-                       nm,
-                       paste(g_levels_list[[nm]], collapse = ","),
-                       paste(ref, collapse = ",")))
+          .stopf("g_col levels differ between metadata frames. %s has %s, expected %s",
+                 nm,
+                 paste(g_levels_list[[nm]], collapse = ","),
+                 paste(ref, collapse = ","))
         }
       }
     }

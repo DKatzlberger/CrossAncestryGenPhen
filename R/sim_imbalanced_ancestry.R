@@ -99,13 +99,13 @@ sim_imbalanced_ancestry <- function(
     g_vals <- as.character(meta[[g_col]])
     levs <- sort(unique(na.omit(g_vals)))
     if (length(levs) != 2) {
-      stop("g_col '", g_col, "' must have exactly 2 non-NA labels; found: ",
+      stop("[sim_imbalanced_ancestry] g_col '", g_col, "' must have exactly 2 non-NA labels; found: ",
            paste(levs, collapse = ", "))
     }
 
     r <- as.numeric(ratio)
     if (length(r) != 1 || !is.finite(r) || r <= 0)
-      stop("ratio must be a positive number")
+      stop("[sim_imbalanced_ancestry] Ratio must be a positive number")
 
     # easy fix: floor for group1, leftover to group2
     p <- r / (r + 1)

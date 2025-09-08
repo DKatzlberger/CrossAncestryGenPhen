@@ -52,7 +52,7 @@ split_stratified_ancestry_sets <- function(
   a_levels <- c(ancestry_X, ancestry_Y)
 
   if (length(g_levels) != 2 || length(a_levels) != 2) {
-    stop("Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
+    stop("[split_stratified_ancestry_sets] Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
   }
 
   ## --- Define strata (grouping) ---
@@ -73,7 +73,7 @@ split_stratified_ancestry_sets <- function(
 
   # Error if Y has strata that cannot be matched
   if (length(missing) > 0 || length(insufficient) > 0) {
-    stop("Y contains strata that X cannot match.\n",
+    stop("[split_stratified_ancestry_sets] Y contains strata that X cannot match.\n",
          "Missing strata: ", paste(missing, collapse = ", "), "\n",
          "Insufficient strata: ", paste(names(insufficient), collapse = ", "))
   }
