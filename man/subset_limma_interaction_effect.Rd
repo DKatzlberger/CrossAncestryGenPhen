@@ -14,8 +14,10 @@ subset_limma_interaction_effect(
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
-  workers = future::availableCores() - 1,
-  seed = NULL
+  agg_method = c("mean", "cct", "fisher", "bonferroni", "all"),
+  seed = NULL,
+  verbose = TRUE,
+  workers = future::availableCores() - 1
 )
 }
 \arguments{
@@ -31,20 +33,26 @@ subset_limma_interaction_effect(
 
 \item{a_col}{Name of the ancestry column used for stratified splitting.}
 
+\item{covariates}{Optional vector of covariate column names to adjust for.}
+
+\item{use_voom}{Logical; whether to use limma-voom (default: TRUE).}
+
 \item{n_iter}{Integer. Number of iterations to run. Default is 1000.}
 
-\item{workers}{Number of parallel workers to use. 
-Defaults to `future::availableCores() - 1` (reserving one core).}
+\item{agg_method}{Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni", "all".}
 
 \item{seed}{Optional integer for random seed to ensure reproducibility.}
+
+\item{verbose}{Logical; whether to print progress messages.}
+
+\item{workers}{Number of parallel workers to use. Defaults to `future::availableCores() - 1` (reserving one core).}
 }
 \value{
 A list with the following elements:
 \describe{
-  \item{aggregated_stats}{Data frame with aggregated summary statistics across iterations.}
-  \item{iteration_stats}{Data frame with iteration-level statistics.}
-  \item{sample_log}{Data frame logging sample IDs used in each split.}
-  \item{meta}{List with metadata about the run (e.g., `n_iter` and `seed`).}
+  \item{summary_stats}{Data frame with aggregated summary statistics across iterations.}
+  \item{subsets_stats}{Data frame with iteration-level statistics.}
+  \item{samples_stats}{Data frame logging sample IDs used in each split.}
 }
 }
 \description{

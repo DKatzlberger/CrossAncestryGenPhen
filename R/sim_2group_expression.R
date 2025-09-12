@@ -37,7 +37,10 @@
 #' @importFrom stats setNames
 sim_2group_expression <- function(
   estimates,
-  ancestry,
+  g_col,
+  g_levels,
+  a_col,
+  a_level,
   n_samples,
   n_degs,
   log2FC,
@@ -78,7 +81,7 @@ sim_2group_expression <- function(
 
 
   ## --- Use generateSyntheticData from compcodeR ---
-  sim_ancestry <- paste0(ancestry, "_sim")
+  sim_ancestry <- paste0(a_level, "_sim")
   sim <- compcodeR::generateSyntheticData(
     dataset = sim_ancestry,
     samples.per.cond = n_samples,
@@ -109,9 +112,10 @@ sim_2group_expression <- function(
 
 
   ## --- Meta ---
+  g_1 <- g_levels[1]; g_2 <- g_levels[2]
   sim_meta <- sim@sample.annotations
-  sim_meta$condition <- factor(sim_meta$condition, levels = c(1, 2), labels = c("Control", "Case"))
-  sim_meta$ancestry <- sim_ancestry
+  sim_meta[[g_col]]  <- factor(sim_meta$condition, levels = c(1, 2), labels = c(g_1, g_2))
+  sim_meta[[a_col]]  <- sim_ancestry
   rownames(sim_meta) <- rownames(sim_counts) # rownames are samples (matrix)
 
 
@@ -157,9 +161,9 @@ sim_2group_expression <- function(
   ## --- Return ---
   return(
     list(
-      counts        = sim_counts,
+      matr          = sim_counts,
       meta          = sim_meta,
-      feats         = sim_features,
+      feat          = sim_features,
       input_params  = real_estimates,
       output_params = sim_estimates,
       in_out_plots  = plots

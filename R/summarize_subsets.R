@@ -1,68 +1,125 @@
-#' Summarize subsets results by feature, with Cauchy-combined p-value
+#' Summarize subsets results by feature/coefficient with multiple aggregation methods
 #'
-#' @param data A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`, `iteration`.
+#' @param data A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`.
+#' @param method Aggregation method to highlight/return separately. Options: "mean", "cct", "fisher", "bonferroni".
+#' @param by Additional grouping variables besides `feature` (character vector).
+#'
+#' @importFrom data.table as.data.table
+#' @importFrom data.table .SD
+#' @importFrom stats p.adjust
 #'
 #' @export
 summarize_subsets <- function(
-  data
-) { 
+  data,
+  method = c("mean", "cct", "fisher", "bonferroni"),
+  by = NULL
+) {
+  method <- match.arg(method)
 
-  ## --- CTT helper function ---
-  cct_pval <- function(
-    pvec,
-    na.rm = FALSE,
-    epsilon = 1e-15
-  ) {
 
-    # Remove NA pvals and make them finite
-    if (na.rm) (pvec <- pvec[!is.na(pvec)])
-    if (length(pvec) == 0) return(NA_real_)
-    pvec <- pmin(pmax(pvec, epsilon), 1 - epsilon)
-
-    # Cauchy statistic
-    tstat <- mean(tan((0.5 - pvec) * pi))
-    p_comb <- 1 - pcauchy(tstat)
-    p_comb <- min(max(p_comb, 0), 1) 
-
-    return(p_comb)
+  ## --- Check input ---
+  required <- c(
+    "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", 
+    "feature", "T_obs", "p_value", "p_adj", "ave_expr")
+  missing  <- setdiff(required, colnames(data))
+  if (length(missing) > 0) {
+    stop("[summarize_subsets] Missing required column(s): ", paste(missing, collapse = " "))
   }
-  
-  ## --- Aggregation ---
-  feat_levels <- unique(data$feature)
-  f <- factor(data$feature, levels = feat_levels, ordered = TRUE)
 
-  parts <- split(data, f, drop = TRUE)
 
-  agg_list <- lapply(parts, function(sub) {
-    T_obs     <- mean(sub$T_obs,   na.rm = TRUE)
-    p_value   <- mean(sub$p_value, na.rm = TRUE)
-    cct_value <- cct_pval(sub$p_value, na.rm = TRUE)
-    prob_sig  <- mean(sub$p_adj < 0.05, na.rm = TRUE)
-    ave_expr  <- mean(sub$ave_expr, na.rm = TRUE)
+  ## --- Check grouping vars ---
+  if (!is.null(by) && !all(by %in% colnames(data))) {
+    stop("[summarize_subsets] Grouping column(s) not found: ",
+         paste(setdiff(by, colnames(data)), collapse = " "))
+  }
+  group_vars <- unique(c("feature", by))
 
-    data.frame(
-      feature   = as.character(sub$feature[1]),
-      T_obs     = T_obs,
-      p_value   = p_value,
-      cct_value = cct_value,
-      prob_sig  = prob_sig,
-      ave_expr  = ave_expr,
-      stringsAsFactors = FALSE
+
+  ## --- Helper functions ---
+  mean_pval <- function(pvec) {
+    pvec <- pvec[!is.na(pvec)]
+    if (!length(pvec)) return(NA_real_)
+    mean(pvec)
+  }
+
+  cct_pval <- function(pvec) {
+    pvec <- pvec[!is.na(pvec)]
+    if (!length(pvec)) return(NA_real_)
+    pvec <- pmin(pmax(pvec, 1e-15), 1 - 1e-15)
+    stat <- mean(tan((0.5 - pvec) * pi))
+    p <- 0.5 - atan(stat) / pi
+    max(min(p, 1), 0)
+  }
+
+  fisher_pval <- function(pvec) {
+    pvec <- pvec[!is.na(pvec)]
+    if (!length(pvec)) return(NA_real_)
+    stat <- -2 * sum(log(pvec))
+    df   <- 2 * length(pvec)
+    pchisq(stat, df = df, lower.tail = FALSE)
+  }
+
+  bonferroni_pval <- function(pvec) {
+    pvec <- pvec[!is.na(pvec)]
+    if (!length(pvec)) return(NA_real_)
+    min(1, min(pvec) * length(pvec))
+  }
+
+  aggregators <- list(
+    mean       = mean_pval,
+    cct        = cct_pval,
+    fisher     = fisher_pval,
+    bonferroni = bonferroni_pval
+  )
+
+
+  ## --- Data.table prep ---
+  dt <- as.data.table(data)
+  keep_cols <- setdiff(colnames(dt), c("iteration","T_obs","p_value","p_adj","ave_expr", group_vars))
+
+
+  ## --- Run each aggregation method ---
+  all_results <- lapply(names(aggregators), function(m) {
+    agg_dt <- dt[, {
+      T_obs    <- mean(T_obs, na.rm = TRUE)
+      ave_expr <- mean(ave_expr, na.rm = TRUE)
+      frac_sig <- mean(p_adj < 0.05, na.rm = TRUE)
+
+      res <- list(
+        T_obs = T_obs,
+        ave_expr = ave_expr,
+        frac_sig = frac_sig,
+        p_value = aggregators[[m]](p_value)
+      )
+
+      for (col in keep_cols) res[[col]] <- .SD[[col]][1]
+      res
+    }, by = group_vars]
+
+    ## Adjust p-values
+    agg_dt[, p_adj := p.adjust(p_value, method = "BH")]
+
+    ## Explicit forced order (same as limma_interaction_effect)
+    out_cols <- c(
+      "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2",
+      "feature", "T_obs", "p_value", "p_adj", "ave_expr", "frac_sig"
     )
+
+    ## Keep only those columns that actually exist
+    out_cols <- out_cols[out_cols %in% colnames(agg_dt)]
+
+    as.data.frame(agg_dt[, ..out_cols])
   })
+  names(all_results) <- names(aggregators)
 
-  agg_df <- do.call(rbind, agg_list)
 
+  ## --- Return both all + selected ---
+  out <- list(
+    all_method = all_results,
+    sel_method = all_results[[method]]
+  )
 
-  ## --- Adjust p-values (BH) ---
-  agg_df$p_adj  <- p.adjust(agg_df$p_value,  method = "BH")
-  agg_df$cct_adj<- p.adjust(agg_df$cct_value, method = "BH")
   
-
-  ## --- Final column order ---
-  agg_df <- agg_df[, c("feature","T_obs","p_value","p_adj",
-                       "cct_value","cct_adj","prob_sig","ave_expr")]
-  rownames(agg_df) <- NULL
-  
-  return(agg_df)
+  ## --- Return ---
+  return(out)
 }

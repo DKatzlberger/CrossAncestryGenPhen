@@ -10,17 +10,19 @@
 #' @param MY Additional metadata or covariates for `Y`.
 #' @param g_col Name of the genotype column in `X` used for interaction.
 #' @param a_col Name of the ancestry column used for stratified splitting.
+#' @param covariates Optional vector of covariate column names to adjust for.
+#' @param use_voom Logical; whether to use limma-voom (default: TRUE).
 #' @param n_iter Integer. Number of iterations to run. Default is 1000.
+#' @param agg_method Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni", "all".
 #' @param seed Optional integer for random seed to ensure reproducibility.
-#' @param workers Number of parallel workers to use. 
-#'   Defaults to `future::availableCores() - 1` (reserving one core).
+#' @param verbose Logical; whether to print progress messages.
+#' @param workers Number of parallel workers to use. Defaults to `future::availableCores() - 1` (reserving one core).
 #'
 #' @return A list with the following elements:
 #' \describe{
-#'   \item{aggregated_stats}{Data frame with aggregated summary statistics across iterations.}
-#'   \item{iteration_stats}{Data frame with iteration-level statistics.}
-#'   \item{sample_log}{Data frame logging sample IDs used in each split.}
-#'   \item{meta}{List with metadata about the run (e.g., `n_iter` and `seed`).}
+#'   \item{summary_stats}{Data frame with aggregated summary statistics across iterations.}
+#'   \item{subsets_stats}{Data frame with iteration-level statistics.}
+#'   \item{samples_stats}{Data frame logging sample IDs used in each split.}
 #' }
 #'
 #' @export
@@ -34,10 +36,15 @@ subset_limma_interaction_effect <- function(
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
-  workers = future::availableCores() - 1,
+  agg_method = c("mean", "cct", "fisher", "bonferroni", "all"),
   seed = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  workers = future::availableCores() - 1
 ) {
+
+  ## --- Match the method ---
+  agg_method <- match.arg(agg_method)
+
 
   ## --- Input data structure check ---
   assert_input(
@@ -46,13 +53,15 @@ subset_limma_interaction_effect <- function(
     MX = MX, 
     MY = MY, 
     g_col = g_col, 
-    a_col = a_col
+    a_col = a_col,
+    .fun = "subset_limma_interaction_effect"
   )
 
   ## --- Parallelization steps ---
   orig_plan <- future::plan()
   future::plan(multisession, workers = workers)
   on.exit(future::plan(orig_plan), add = TRUE)
+
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
@@ -102,9 +111,6 @@ subset_limma_interaction_effect <- function(
       verbose = verbose
     )
 
-    # Filter interaction coef
-    res <- subset(res, coef_type == "interaction")
-
     # Add the iteration number
     res$iteration <- i
 
@@ -130,16 +136,24 @@ subset_limma_interaction_effect <- function(
 
 
   ## --- Aggregation of iterations ---
-  agg_res <- summarize_subsets(
-    data = res_log
+  agg_log <- summarize_subsets(
+    data = res_log,
+    method = agg_method,
+    by = c("coef_id")
   )
+
+  # Function should return both
+  sel_method = agg_log$sel_method
+  all_method = agg_log$all_method
+
 
   ## --- Return ---
   return(
     list(
-      summary_stats   = agg_res,
-      iteration_stats = res_log,
-      sample_stats    = ids_log
+      summary_stats = sel_method,
+      methods_stats = all_method,
+      subsets_stats = res_log,
+      samples_stats = ids_log
     )
   )
 }

@@ -1,4 +1,4 @@
-#' Limma-Based Interaction Test
+#' edgeR-Based Interaction Test
 #'
 #' @param X Expression matrix for ancestry X. Rows = samples, columns = genes.
 #' @param Y Expression matrix for ancestry Y. Rows = samples, columns = genes.
@@ -10,12 +10,11 @@
 #' @param verbose Logical, whether to print messages.
 #'
 #' @return summary stats
-#' 
+#'
 #' @export
-#' @importFrom edgeR DGEList calcNormFactors
-#' @importFrom limma voom lmFit eBayes topTable makeContrasts contrasts.fit
+#' @importFrom edgeR DGEList calcNormFactors estimateDisp glmQLFit glmQLFTest topTags
 
-limma_interaction_effect <- function(
+edgeR_interaction_effect <- function(
   X,
   Y,
   MX,
@@ -23,7 +22,6 @@ limma_interaction_effect <- function(
   g_col,
   a_col,
   covariates = NULL,
-  use_voom = TRUE,
   verbose = TRUE
 ) {
 
@@ -34,19 +32,16 @@ limma_interaction_effect <- function(
     MX = MX, 
     MY = MY, 
     g_col = g_col, 
-    a_col = a_col,
-    .fun = "limma_interaction_effect"
+    a_col = a_col
   )
-
 
   ## --- Combine expression and metadata ---
   matr <- rbind(X, Y)
   meta <- rbind(MX, MY)
 
   if (!identical(rownames(matr), rownames(meta))) {
-    stop("[limma_interaction_effect] Matrix and meta rownames must match exactly.")
+    stop("[edgeR_interaction_effect] Matrix and meta rownames must match exactly.")
   }
-
 
   ## --- Factor setup ---
   a_1 <- unique(MX[[a_col]])
@@ -58,7 +53,7 @@ limma_interaction_effect <- function(
   a_levels <- levels(meta[[a_col]])
 
   if (length(g_levels) != 2 || length(a_levels) != 2) {
-    stop("[limma_interaction_effect] Function currently supports only 2x2 designs (two levels in g_col × two levels a_col).")
+    stop("[edgeR_interaction_effect] Function currently supports only 2x2 designs (two levels in g_col × two levels a_col).")
   }
 
   ## --- Build 4 groups ----
@@ -66,15 +61,15 @@ limma_interaction_effect <- function(
 
   meta[["groups"]] <- factor(
     paste(
-      meta[[g_col]], 
-      meta[[a_col]], 
-      sep = "."
-    ), 
+        meta[[g_col]], 
+        meta[[a_col]], 
+        sep = "."
+    ),
     levels = c(
-      paste(g_1, a_1, sep = "."),  
-      paste(g_2, a_1, sep = "."),  
-      paste(g_1, a_2, sep = "."),    
-      paste(g_2, a_2, sep = ".")     
+      paste(g_1, a_1, sep = "."),
+      paste(g_2, a_1, sep = "."),
+      paste(g_1, a_2, sep = "."),
+      paste(g_2, a_2, sep = ".")
     )
   )
 
@@ -92,7 +87,7 @@ limma_interaction_effect <- function(
   }
 
   if (!identical(rownames(matr), rownames(design))) {
-    stop("[limma_interaction_effect] Response matrix does not match design. Can happen if design matrix reorders sample values.")
+    stop("[edgeR_interaction_effect] Response matrix does not match design. Can happen if design matrix reorders sample values.")
   }
 
 
@@ -120,7 +115,6 @@ limma_interaction_effect <- function(
   ## --- Define contrasts ---
   cols <- colnames(design)[group_mask]
 
-  # Contrast calculations
   contrast_calculations <- list(
     baseline_1     = paste(cols[3], "-", cols[1]), # G1.A2 - G1.A1
     baseline_2     = paste(cols[4], "-", cols[2]), # G2.A2 - G2.A1
@@ -134,59 +128,46 @@ limma_interaction_effect <- function(
     levels    = design
   )
 
-
   ## --- Verbose message ---
   if (verbose) {
-    message("\nLinear model summary (limma):")
+    message("\nGLM summary (edgeR):")
     message(sprintf("Formula:         %s", form_str))
-    message(sprintf("Groups:          %s", paste(group_coefs, collapse = "  ")))
+    message(sprintf("Groups:          %s", paste(cols, collapse = "  ")))
     message(sprintf("Baseline:        %s", paste(contrast_calculations[1:2], collapse = "  ")))
     message(sprintf("Relationship:    %s", paste(contrast_calculations[3:4], collapse = "  ")))
     message(sprintf("Interaction:     %s", paste(contrast_calculations[[5]], collapse = "  ")))
   }
 
+  ## --- edgeR pipeline ---
+  dge <- edgeR::DGEList(counts = t(matr)) # samples x genes -> genes x samples
+  dge <- edgeR::calcNormFactors(dge)
+  dge <- edgeR::estimateDisp(dge, design)
 
-  # --- Model fit with/without voom ----
-  if (use_voom) {
-    dge <- edgeR::DGEList(counts = t(matr)) # samples x genes -> genes x samples
-    dge <- edgeR::calcNormFactors(dge) 
-    v   <- limma::voom(dge, design = design, plot = FALSE)
-    fit <- limma::lmFit(v, design)
-  } else {
-    fit <- limma::lmFit(t(matr), design)                 
-  }
+  fit <- edgeR::glmQLFit(dge, design)
 
+  ## --- Extract results for each contrast ---
+  results_list <- lapply(seq_along(colnames(contrast_matrix)), function(i) {
+    cn <- colnames(contrast_matrix)[i]
+    test <- edgeR::glmQLFTest(fit, contrast = contrast_matrix[, i])
+    tt <- edgeR::topTags(test, n = Inf, sort.by = "none")$table
+    data.frame(
+      coef_id   = names(contrast_calculations)[i],
+      coef_type = sub("_[0-9]+$", "", names(contrast_calculations)[i]),
+      contrast  = cn,
+      g_1       = g_1,
+      g_2       = g_2,
+      a_1       = a_1,
+      a_2       = a_2,
+      feature   = rownames(tt),
+      T_obs     = tt$logFC,
+      p_value   = tt$PValue,
+      p_adj     = tt$FDR,
+      ave_expr  = tt$logCPM,
+      row.names = NULL
+    )
+  })
 
-  ## --- Apply contrasts + eBayes (always) ---
-  fit2 <- limma::contrasts.fit(fit, contrast_matrix)
-  fit2 <- limma::eBayes(fit2)
-
-
-  ## --- Extract results ---
-  results_list <- lapply(
-      seq_along(colnames(contrast_matrix)), function(i) {
-      cn <- colnames(contrast_matrix)[i]
-      tt <- limma::topTable(fit2, coef = cn, number = Inf, sort.by = "none")
-      data.frame(
-        coef_id   = names(contrast_calculations)[i],
-        coef_type = sub("_[0-9]+$", "", names(contrast_calculations)[i]),
-        contrast  = cn,
-        g_1       = g_1,
-        g_2       = g_2,
-        a_1       = a_1,
-        a_2       = a_2,
-        feature   = rownames(tt),
-        T_obs     = tt$logFC,
-        p_value   = tt$P.Value,
-        p_adj     = tt$adj.P.Val,
-        ave_expr  = tt$AveExpr,
-        row.names = NULL
-      )
-    }
-  )
   summary_stats <- do.call(rbind, results_list)
 
-
-  ## --- Return ----
   return(summary_stats)
 }

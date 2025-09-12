@@ -17,8 +17,6 @@
 #' @param y_label String. Custom y-axis label.
 #' @param color_label String. Legend title for color.
 #' @param shape_label String. Legend title for shape.
-#' @param log_cap Numeric. Max -log10(p) to cap values. Default is 5.
-#' @param epsilon Numeric. Small constant to avoid log10(0). Default 1e-15.
 #' @param point_size Numeric. Size of points. Default is 1.
 #'
 #' @return A ggplot2 object.
@@ -40,14 +38,12 @@ plot_volcano <- function(
   y_label = NULL,
   color_label = NULL,
   shape_label = NULL,
-  log_cap = 5,
-  epsilon = 1e-15,
   point_size = 1
 ) {
   
   df <- as.data.frame(data)
 
-  # Dynamic mapping
+  ## --- Dynamic mapping ---
   dyn_mapping <- aes(
     !!!rlang::syms(
       c(
@@ -59,32 +55,15 @@ plot_volcano <- function(
     )
   )
 
-  # Annotate features if provided and 'feature' exists
+  ## --- Annotate features if provided and 'feature' exists ---
   if (!is.null(features) && "feature" %in% colnames(df)) {
     df$annotate <- ifelse(df$feature %in% features, df$feature, NA)
   } else {
     df$annotate <- NA
   }
 
-  # Extract relevant columns
-  x_col <- df[[x_var]]
-  y_col <- df[[y_var]]
-  
-  # Compute -log10(p-values) and cap them
-  log_p <- -log10(y_col + epsilon)
-  log_p_capped <- pmin(log_p, log_cap)
 
-  # Capping of high -log10(p-values)
-  capped <- factor(
-    ifelse(log_p > log_cap, "Capped", "Uncapped"), 
-    levels = c("Uncapped", "Capped")
-  )
-
-  # Add to data
-  df[[y_var]] = log_p_capped
-  df$capped = capped
-
-  # Base plot
+  ## --- Base plot ---
   p <- ggplot(
       data = df, 
       mapping = dyn_mapping
@@ -92,13 +71,26 @@ plot_volcano <- function(
     geom_point(
       size = point_size
     )
+  
+  ## --- Axis scale ---
+  neglog10_trans <- scales::trans_new(
+    name      = "neglog10",
+    transform = function(x) -log10(x),
+    inverse   = function(x) 10^(-x),
+    domain    = c(1e-300, 1),
+    breaks    = scales::trans_breaks(function(x) -log10(x), function(x) 10^(-x)),
+    format    = scales::scientific_format(digits = 1)
+  )
 
-  # Threshold lines
+  p <- p + scale_y_continuous(
+    trans = neglog10_trans
+  )
+
+
+  ## --- Threshold lines ---
   if (!is.null(sig_thr)) {
     p <- p + geom_hline(
-      yintercept = -log10(
-        sig_thr + epsilon
-      ), 
+      yintercept = sig_thr,
       linetype = "dashed", 
       linewidth = 0.3,
       color = "blue"
@@ -117,7 +109,7 @@ plot_volcano <- function(
     )
   }
 
-  # Feature annotation
+  ## --- Feature annotation ---
   if (!is.null(features) && "feature" %in% colnames(df)) {
     p <- p + ggrepel::geom_text_repel(
       data = subset(df, !is.na(annotate)),
@@ -138,12 +130,12 @@ plot_volcano <- function(
     )
   }
 
-  # Final styling
+  ## --- Final styling ---
   p <- p +
     labs(
       title = title,
       x = ifelse(is.null(x_label), x_var, x_label),
-      y = ifelse(is.null(y_label), paste(y_var, "(-log10)"), y_label),
+      y = ifelse(is.null(y_label), y_var, y_label),
       color = color_label,
       shape = shape_label
     ) +

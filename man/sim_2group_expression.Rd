@@ -6,7 +6,10 @@
 \usage{
 sim_2group_expression(
   estimates,
-  ancestry,
+  g_col,
+  g_levels,
+  a_col,
+  a_level,
   n_samples,
   n_degs,
   log2FC,
@@ -19,8 +22,6 @@ sim_2group_expression(
 \item{estimates}{Optional list of pre-computed parameter estimates
 from \code{\link{estimate_params}}. If \code{NULL}, parameters
 are estimated from \code{X}.}
-
-\item{ancestry}{Character scalar giving the ancestry label for this simulation.}
 
 \item{n_samples}{Integer, number of samples to simulate per condition.}
 
@@ -38,6 +39,8 @@ One of \code{"mle"}, \code{"map"}.}
 
 \item{X}{Numeric matrix or data frame of counts from the real data
 (samples in rows, genes in columns).}
+
+\item{ancestry}{Character scalar giving the ancestry label for this simulation.}
 }
 \value{
 A list with the following elements:

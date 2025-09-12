@@ -18,8 +18,6 @@ plot_volcano(
   y_label = NULL,
   color_label = NULL,
   shape_label = NULL,
-  log_cap = 5,
-  epsilon = 1e-15,
   point_size = 1
 )
 }
@@ -49,10 +47,6 @@ plot_volcano(
 \item{color_label}{String. Legend title for color.}
 
 \item{shape_label}{String. Legend title for shape.}
-
-\item{log_cap}{Numeric. Max -log10(p) to cap values. Default is 5.}
-
-\item{epsilon}{Numeric. Small constant to avoid log10(0). Default 1e-15.}
 
 \item{point_size}{Numeric. Size of points. Default is 1.}
 }

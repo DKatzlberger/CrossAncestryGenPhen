@@ -2,13 +2,21 @@
 % Please edit documentation in R/summarize_subsets.R
 \name{summarize_subsets}
 \alias{summarize_subsets}
-\title{Summarize subsets results by feature, with Cauchy-combined p-value}
+\title{Summarize subsets results by feature/coefficient with multiple aggregation methods}
 \usage{
-summarize_subsets(data)
+summarize_subsets(
+  data,
+  method = c("mean", "cct", "fisher", "bonferroni"),
+  by = NULL
+)
 }
 \arguments{
-\item{data}{A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`, `iteration`.}
+\item{data}{A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`.}
+
+\item{method}{Aggregation method to highlight/return separately. Options: "mean", "cct", "fisher", "bonferroni".}
+
+\item{by}{Additional grouping variables besides `feature` (character vector).}
 }
 \description{
-Summarize subsets results by feature, with Cauchy-combined p-value
+Summarize subsets results by feature/coefficient with multiple aggregation methods
 }

@@ -5,10 +5,12 @@
 \title{Simulate RNA-seq Expression Data for Four Groups (Two Ancestries × Two Conditions)}
 \usage{
 sim_4group_expression(
-  estimates_X = NULL,
-  estimates_Y = NULL,
-  ancestry_X,
-  ancestry_Y,
+  estimates_X,
+  estimates_Y,
+  g_col,
+  g_levels,
+  a_col,
+  a_levels,
   n_samples_X,
   n_samples_Y,
   n_degs_X,
@@ -17,7 +19,8 @@ sim_4group_expression(
   log2FC_Y,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
-  seed = NULL
+  seed = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -26,10 +29,6 @@ for ancestry X. If \code{NULL}, parameters are estimated from \code{X}.}
 
 \item{estimates_Y}{Optional list of parameter estimates from \code{\link{estimate_params}}
 for ancestry Y. If \code{NULL}, parameters are estimated from \code{Y}.}
-
-\item{ancestry_X}{Character scalar giving the ancestry label for \code{X}.}
-
-\item{ancestry_Y}{Character scalar giving the ancestry label for \code{Y}.}
 
 \item{n_samples_X}{Integer, number of samples to simulate per condition for ancestry X.}
 
@@ -52,11 +51,17 @@ One of \code{"mle"}, \code{"map"}.}
 \item{seed}{Optional integer random seed for reproducibility. The simulation
 for ancestry Y will use \code{seed + 1000} to ensure different DE gene sets.}
 
+\item{verbose}{Logical; if `TRUE`, print a summary of simulated groups.}
+
 \item{X}{Numeric matrix or data frame of counts for the first ancestry
 (samples in rows, genes in columns).}
 
 \item{Y}{Numeric matrix or data frame of counts for the second ancestry
 (samples in rows, genes in columns).}
+
+\item{ancestry_X}{Character scalar giving the ancestry label for \code{X}.}
+
+\item{ancestry_Y}{Character scalar giving the ancestry label for \code{Y}.}
 }
 \value{
 A list with the following elements:

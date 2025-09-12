@@ -2,69 +2,59 @@
 % Please edit documentation in R/plot_pvalue_concordance.R
 \name{plot_pvalue_concordance}
 \alias{plot_pvalue_concordance}
-\title{Plot concordance of -log10 p-values between two methods}
+\title{Plot concordance of p-values between two methods}
 \usage{
 plot_pvalue_concordance(
-  data,
+  x_data,
+  y_data,
   x_var,
   y_var,
-  x_sig_source = NULL,
-  y_sig_source = NULL,
-  facet_col = NULL,
-  facet_levels = NULL,
+  features = NULL,
+  hex = TRUE,
   title = NULL,
   x_label = NULL,
   y_label = NULL,
-  color_label = NULL,
-  sig_thr = 0.05,
-  log_cap = 5,
-  epsilon = 1e-16,
-  point_size = 0.5,
-  hex = FALSE
+  point_size = 1
 )
 }
 \arguments{
-\item{data}{Data frame containing p-values and optional grouping or significance columns.}
+\item{x_data}{Data frame with a `feature` column and a numeric column given in `x_var`.}
 
-\item{x_var}{Character. Name of the column for x-axis p-values.}
+\item{y_data}{Data frame with a `feature` column and a numeric column given in `y_var`.}
 
-\item{y_var}{Character. Name of the column for y-axis p-values.}
+\item{x_var}{Character, name of the p-value column in `x_data`.}
 
-\item{x_sig_source}{Optional character. Column for significance of x p-values.}
+\item{y_var}{Character, name of the p-value column in `y_data`.}
 
-\item{y_sig_source}{Optional character. Column for significance of y p-values.}
+\item{features}{Optional character vector of feature IDs to label.}
 
-\item{facet_col}{Optional character. Column name to facet the plot by.}
+\item{hex}{Logical; if `TRUE` (default) draw a hexbin plot, otherwise scatter points.}
 
-\item{facet_levels}{Optional character vector. Subset of levels to include from \code{facet_col}.}
+\item{title}{Optional plot title.}
 
-\item{title}{Character. Optional plot title.}
+\item{x_label, y_label}{Axis labels (defaults use `x_var`/`y_var`).}
 
-\item{x_label}{Character. X-axis label. Defaults to \code{-log10(x_var)}.}
-
-\item{y_label}{Character. Y-axis label. Defaults to \code{-log10(y_var)}.}
-
-\item{sig_thr}{Numeric. P-value threshold for calling significance. Default is 0.05.}
-
-\item{log_cap}{Numeric. Maximum value shown for -log10(p). Default is 5.}
-
-\item{epsilon}{Numeric. Small constant added before log10 transform. Default is 1e-16.}
-
-\item{point_size}{Numeric. Size of points in the scatter plot. Default is 0.5.}
-
-\item{hex}{Logical. If TRUE, use hexagonal binning instead of individual points. Default is FALSE.}
+\item{point_size}{Numeric; point size if `hex = FALSE`. Default is 1.}
 }
 \value{
-A ggplot2 object showing the concordance of p-values between two methods.
+A `ggplot2` object.
 }
 \description{
-Creates a scatter or hexbin plot comparing -log10 transformed p-values from two
-statistical methods. Optionally colors points by significance and facets
-by a grouping variable. Correlation coefficients and regression lines are shown
-globally or per facet.
+Merge two result tables by feature and compare their p-values (or other
+numeric columns) on a \eqn{-\log_{10}} scale using a scatter or hexbin plot.
+Adds a 1:1 reference line and a fitted regression line. Optionally label
+selected features.
 }
-\details{
-If \code{hex = TRUE}, a hexbin plot is produced without individual points or significance coloring.
-Otherwise, a scatter plot is shown with optional significance-based coloring and shape encoding for capped values.
-Correlation (Pearson's r) and regression lines are shown globally or per facet if faceting is enabled.
+\examples{
+\dontrun{
+plot_pvalue_concordance(
+  x_data = edgeR_res[edgeR_res$coef_id == "interaction", ],
+  y_data = limma_res[limma_res$coef_id == "interaction", ],
+  x_var = "p_value",
+  y_var = "p_value",
+  title = "Interaction concordance",
+  features = c("TP53", "BRCA1"),
+  hex = FALSE
+)
+}
 }

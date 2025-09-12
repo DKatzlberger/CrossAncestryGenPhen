@@ -54,28 +54,35 @@ estimate_params <- function(
   seed = NULL
 ) {
 
+  ## --- Input data structure check ---
+  assert_input(X = X)
+
+
+  ## --- Seed ---
   if (!is.null(seed)) set.seed(seed)
   
-  # Checks
-  if (!is.matrix(X)) stop("X must be a matrix.")
 
-  # Transpose to genes x samples
+  ## --- Transpose to genes x samples ---
   X <- t(X)
 
-  # Summary info
+
+  ## --- Summary info ---
   mains <- list(
     n_samples = ncol(X),
     n_features = nrow(X),
     features = rownames(X)
   )
 
-  # Intercept-only model
+
+  ## --- Intercept-only model ---
   design <- matrix(1, ncol = 1, nrow = ncol(X))
 
-  # Create DGEList
+
+  ## --- Create DGEList ---
   dge <- edgeR::DGEList(counts = X)
 
-  # Normalize library sizes
+
+  ## --- Estimate library sizes ---
   dge <- edgeR::calcNormFactors(dge)
   eff_libsizes <- dge$samples$lib.size * dge$samples$norm.factors
   mean_eff_libsize <- mean(eff_libsizes)
@@ -88,7 +95,7 @@ estimate_params <- function(
     max = max_eff_libsize
   )
 
-  # Estimate dispersions
+  ## --- Estimate dispersions ---
   dge_disp <- edgeR::estimateGLMCommonDisp(dge, design = design)
   dge_disp <- edgeR::estimateGLMTrendedDisp(dge_disp, design = design)
 
@@ -102,6 +109,7 @@ estimate_params <- function(
   fit_map <- edgeR::glmFit(dge_map, design, dispersion = dge_map$tagwise.dispersion)
   means_map <- rowMeans(fit_map$fitted.values)
 
+  ## --- Estimate means ---
   # Raw and logCPM means
   means_raw <- rowMeans(X)
   means_logcpm <- rowMeans(edgeR::cpm(dge, normalized.lib.sizes = TRUE, log = TRUE))

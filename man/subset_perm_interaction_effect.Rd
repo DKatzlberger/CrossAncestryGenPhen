@@ -14,7 +14,8 @@ subset_perm_interaction_effect(
   B = 1000,
   save_null = FALSE,
   seed = NULL,
-  workers = future::availableCores() - 1
+  workers = future::availableCores() - 1,
+  verbose = TRUE
 )
 }
 \arguments{

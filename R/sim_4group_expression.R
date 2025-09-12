@@ -52,10 +52,12 @@
 #'
 #' @export
 sim_4group_expression <- function(
-  estimates_X = NULL,
-  estimates_Y = NULL,
-  ancestry_X,
-  ancestry_Y,
+  estimates_X,
+  estimates_Y,
+  g_col,
+  g_levels,
+  a_col,
+  a_levels,
   n_samples_X,
   n_samples_Y,
   n_degs_X,
@@ -73,35 +75,48 @@ sim_4group_expression <- function(
   disp_method <- match.arg(disp_method)
 
 
+  ## --- Ancestry levels ----
+  if (length(g_levels) != 2 || length(a_levels) != 2) {
+    stop("[sim_4group_expression] Function currently supports only 2x2 designs (two levels in g_level × two levels in a_level).")
+  }
+
+  a_1 <- a_levels[1]; a_2 <- a_levels[2]
+  a_1_sim <- paste0(a_1, "_sim"); a_2_sim <- paste0(a_2, "_sim")
+
+
   ## --- Simulate two ancestries ----
-  sim_ancestry_X <- paste0(ancestry_X, "_sim")
   sim_X <- sim_2group_expression(
-    estimates = estimates_X,
-    ancestry = ancestry_X,
-    n_samples = n_samples_X,
-    n_degs = n_degs_X,
-    log2FC = log2FC_X,
+    estimates   = estimates_X,
+    g_col       = g_col,
+    g_levels    = g_levels,
+    a_col       = a_col,
+    a_level     = a_1_sim,
+    n_samples   = n_samples_X,
+    n_degs      = n_degs_X,
+    log2FC      = log2FC_X,
     mean_method = mean_method,
     disp_method = disp_method,
-    seed = seed
+    seed        = seed
   )
 
-  sim_ancestry_Y <- paste0(ancestry_Y, "_sim")
   sim_Y <- sim_2group_expression(
-    estimates = estimates_Y,
-    ancestry = ancestry_Y,
-    n_samples = n_samples_Y,
-    n_degs = n_degs_Y,
-    log2FC = log2FC_Y,
+    estimates   = estimates_Y,
+    g_col       = g_col,
+    g_levels    = g_levels,
+    a_col       = a_col,
+    a_level     = a_2_sim,
+    n_samples   = n_samples_Y,
+    n_degs      = n_degs_Y,
+    log2FC      = log2FC_Y,
     mean_method = mean_method,
     disp_method = disp_method,
-    seed = (seed + 1000)
+    seed        = (seed + 1000)
   )
 
 
   ## --- Calculating interaction truth ---
-  fX <- sim_X$feats
-  fY <- sim_Y$feats
+  fX <- sim_X$feat
+  fY <- sim_Y$feat
 
   true_log2FC <- fY$true_log2FC - fX$true_log2FC
   is_DE <- as.numeric(abs(true_log2FC) > 0)
@@ -126,18 +141,18 @@ sim_4group_expression <- function(
   return(
     list(
       X = list(
-        counts = sim_X$counts, 
+        matr   = sim_X$matr, 
         meta   = sim_X$meta, 
-        feats  = sim_X$feats, 
-        plots  = sim_X$in_out_plots
+        feat   = sim_X$feat, 
+        plot   = sim_X$in_out_plots
       ),
       Y = list(
-        counts = sim_Y$counts, 
+        matr   = sim_Y$matr, 
         meta   = sim_Y$meta, 
-        feats  = sim_Y$feats, 
-        plots  = sim_Y$in_out_plots
+        feat   = sim_Y$feat, 
+        plot   = sim_Y$in_out_plots
       ),
-      fI = sim_features
+      feat = sim_features
     )
   )
 }

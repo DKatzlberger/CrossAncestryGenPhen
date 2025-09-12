@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_imbalanced_ancestry.R
 \name{sim_imbalanced_ancestry}
 \alias{sim_imbalanced_ancestry}
-\title{Simulate imbalanced ancestry sampling across two cohorts}
+\title{Simulate ancestry-imbalanced cohorts}
 \usage{
 sim_imbalanced_ancestry(
   X,
@@ -11,96 +11,51 @@ sim_imbalanced_ancestry(
   MY,
   g_col,
   a_col,
-  majority = c("X", "Y"),
-  total_samples = 100,
-  between_ratio = 1,
-  within_major_ratio = 1,
-  within_minor_ratio = 1,
+  total_samples,
+  between_ratio,
+  within_major_ratio,
+  within_minor_ratio,
   seed = NULL,
   replace = FALSE,
-  verbose = FALSE
+  verbose = TRUE
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame of features for cohort X; rows are samples and must align with `MX`.}
+\item{X}{Numeric matrix or data.frame of features for cohort X (majority ancestry).}
 
-\item{Y}{Numeric matrix or data.frame of features for cohort Y; rows are samples and must align with `MY`.}
+\item{Y}{Numeric matrix or data.frame of features for cohort Y (minority ancestry).}
 
-\item{MX}{Data.frame with metadata for `X`.}
+\item{MX}{Data.frame of metadata for X; must align with rows of X.}
 
-\item{MY}{Data.frame with metadata for `Y`.}
+\item{MY}{Data.frame of metadata for Y; must align with rows of Y.}
 
-\item{g_col}{Name of the metadata column with the two-level group split used inside each ancestry (e.g., case/control).}
+\item{g_col}{Column in metadata giving the two-level group split (e.g. case/control).}
 
-\item{a_col}{Name of the metadata column holding the ancestry label.}
+\item{a_col}{Column in metadata giving the ancestry label (one unique value in each of MX, MY).}
 
-\item{majority}{Character, which block is the majority ancestry; one of `c("X","Y")`.}
+\item{total_samples}{Total number of samples drawn across both ancestries.}
 
-\item{total_samples}{Integer, total number of samples drawn across both ancestries.}
+\item{between_ratio}{Ratio of majority:minority ancestry (e.g. 2 = 2:1).}
 
-\item{between_ratio}{Positive number, majority:minority ancestry ratio. For example `2` means 2:1 between ancestries.}
+\item{within_major_ratio}{Ratio of group1:group2 within majority ancestry.}
 
-\item{within_major_ratio}{Positive number, ratio for the two `g_col` levels inside the majority ancestry (`level1:level2 = r:1`).}
+\item{within_minor_ratio}{Ratio of group1:group2 within minority ancestry.}
 
-\item{within_minor_ratio}{Positive number, ratio for the two `g_col` levels inside the minority ancestry (`level1:level2 = r:1`).}
+\item{seed}{Optional random seed.}
 
-\item{seed}{Optional integer; if supplied, sets the RNG seed.}
+\item{replace}{Logical; whether to sample with replacement.}
 
-\item{replace}{Logical; sample with replacement within each block.}
-
-\item{verbose}{Logical; if `TRUE`, print per-block split messages.}
+\item{verbose}{Logical; print summary messages.}
 }
 \value{
-A list with four elements:
-  \describe{
-    \item{X}{Subset of the feature matrix for the first return slot.}
-    \item{Y}{Subset of the feature matrix for the second return slot.}
-    \item{MX}{Subset of metadata aligned to `X`.}
-    \item{MY}{Subset of metadata aligned to `Y`.}
-  }
-  Which ancestry lands in `X` vs `Y` depends on `majority`: the
-  majority ancestry is always returned first.
+A list with two elements:
+\describe{
+  \item{X}{List with `matr` (subsampled features) and `meta` (aligned metadata) for majority ancestry.}
+  \item{Y}{List with `matr` (subsampled features) and `meta` (aligned metadata) for minority ancestry.}
+}
 }
 \description{
-Subsample two data matrices (X, Y) and their metadata (MX, MY) to
-mimic an ancestry-imbalanced cohort with controllable between- and
-within-ancestry group splits.
-}
-\details{
-X and MX must have the same number of rows; Y and MY must match as
-well. The ancestry of each block is read from `a_col` in MX and MY;
-each must contain exactly one non-NA, single label, and the two
-labels must differ.
-
-The within-ancestry split uses `g_col`, which must have exactly two
-non-NA labels in each block. Labels are inferred alphabetically, and
-a ratio `r` means "`level1:level2 = r:1`".
-
-Targets are rounded. If `replace = FALSE` and there are not enough
-rows, the function draws what is available. Per-block split
-messages are printed only when `verbose = TRUE`. A warning is
-emitted on shortfall when sampling without replacement.
-}
-\examples{
-set.seed(1)
-X  <- matrix(rnorm(1000), nrow = 100)
-Y  <- matrix(rnorm( 800), nrow =  80)
-MX <- data.frame(anc = "EUR",
-                 grp = sample(c("A","B"), 100, TRUE))
-MY <- data.frame(anc = "AFR",
-                 grp = sample(c("A","B"),  80, TRUE))
-out <- sim_imbalanced_ancestry(
-  X, Y, MX, MY,
-  g_col = "grp",
-  a_col = "anc",
-  majority = "X",
-  total_samples = 120,
-  between_ratio = 2,
-  within_major_ratio = 3,
-  within_minor_ratio = 1,
-  seed = 123,
-  verbose = TRUE
-)
-lapply(out, nrow)
-
+Draw subsamples from two cohorts (X = majority, Y = minority) to mimic
+imbalanced ancestry designs. Within each ancestry, samples are split
+into two groups (`g_col`) at a specified ratio.
 }
