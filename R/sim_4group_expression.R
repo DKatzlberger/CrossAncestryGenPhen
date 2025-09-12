@@ -58,12 +58,9 @@ sim_4group_expression <- function(
   g_levels,
   a_col,
   a_levels,
-  n_samples_X,
-  n_samples_Y,
-  n_degs_X,
-  n_degs_Y,
-  log2FC_X,
-  log2FC_Y,
+  n_samples,
+  n_degs,
+  log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
   seed = NULL,
@@ -91,9 +88,9 @@ sim_4group_expression <- function(
     g_levels    = g_levels,
     a_col       = a_col,
     a_level     = a_1_sim,
-    n_samples   = n_samples_X,
-    n_degs      = n_degs_X,
-    log2FC      = log2FC_X,
+    n_samples   = n_sample,
+    n_degs      = n_degs,
+    log2fc      = log2fc,
     mean_method = mean_method,
     disp_method = disp_method,
     seed        = seed
@@ -105,9 +102,9 @@ sim_4group_expression <- function(
     g_levels    = g_levels,
     a_col       = a_col,
     a_level     = a_2_sim,
-    n_samples   = n_samples_Y,
-    n_degs      = n_degs_Y,
-    log2FC      = log2FC_Y,
+    n_samples   = n_samples,
+    n_degs      = n_degs,
+    log2fc      = log2fc,
     mean_method = mean_method,
     disp_method = disp_method,
     seed        = (seed + 1000)
@@ -127,13 +124,13 @@ sim_4group_expression <- function(
   ## --- Verbose message ---
   if (verbose) {
     fmt_counts <- function(meta, label) {
-      tab <- table(meta$condition, dnn = NULL)
+      tab <- table(meta[[g_col]], dnn = NULL)
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
     message("\n4-group simulation summary:")
-    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f  %s", sim_ancestry_X, nrow(sim_X$counts), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X)))
-    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f  %s", sim_ancestry_Y, nrow(sim_Y$counts), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y)))
+    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", sim_ancestry_X, nrow(sim_X$matr), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X), ncol(sim_X$matr)))
+    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", sim_ancestry_Y, nrow(sim_Y$matr), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y), ncol(sim_X$matr)))
   }
 
 

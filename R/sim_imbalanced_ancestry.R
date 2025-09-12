@@ -54,8 +54,8 @@ sim_imbalanced_ancestry <- function(
   if (!is.null(seed)) set.seed(seed)
 
   ## --- Helper for sampling within ancestry ---
-  sample_two_way <- function(M, X, g_col, n, ratio, replace = FALSE) {
-    levs <- levels(M[[g_col]])
+  sample_two_way <- function(meta, data, g_col, n, ratio, replace = FALSE) {
+    levs <- levels(meta[[g_col]])
     stopifnot(length(levs) == 2)
 
     r <- as.numeric(ratio)
@@ -63,8 +63,8 @@ sim_imbalanced_ancestry <- function(
     n1_target <- floor(n * p)
     n2_target <- n - n1_target
 
-    i1_all <- which(M[[g_col]] == levs[1])
-    i2_all <- which(M[[g_col]] == levs[2])
+    i1_all <- which(meta[[g_col]] == levs[1])
+    i2_all <- which(meta[[g_col]] == levs[2])
 
     n1 <- if (replace) n1_target else min(n1_target, length(i1_all))
     n2 <- if (replace) n2_target else min(n2_target, length(i2_all))
@@ -74,8 +74,8 @@ sim_imbalanced_ancestry <- function(
     idx <- c(i1, i2)
 
     list(
-      meta = M[idx, , drop = FALSE],
-      matr = X[idx, , drop = FALSE]
+      meta = meta[idx, , drop = FALSE],
+      data = data[idx, , drop = FALSE]
     )
   }
 
@@ -83,9 +83,8 @@ sim_imbalanced_ancestry <- function(
   n_major <- round(total_samples * between_ratio / (between_ratio + 1))
   n_minor <- total_samples - n_major
 
-  X_out <- sample_two_way(MX, X, g_col, n_major, within_major_ratio, replace)
-  Y_out <- sample_two_way(MY, Y, g_col, n_minor, within_minor_ratio, replace)
-
+  maj  <- sample_two_way(MX, X, g_col, n_major, within_major_ratio, replace)
+  minr <- sample_two_way(MY, Y, g_col, n_minor, within_minor_ratio, replace)
 
   ## --- Verbose summary ---
   if (verbose) {
@@ -94,17 +93,17 @@ sim_imbalanced_ancestry <- function(
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
-    X_name <- as.character(MX[[a_col]])
-    Y_name <- as.character(MY[[a_col]])
+    X_name <- as.character(unique(MX[[a_col]]))
+    Y_name <- as.character(unique(MY[[a_col]]))
 
     message("\nImbalanced ancestry summary:")
-    message(sprintf("%s (X): N = %-4d %s features: %-4d", X_name, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
-    message(sprintf("%s (Y): N = %-4d %s features: %-4d", Y_name, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
+    message(sprintf("%s (X): N = %-4d %s features: %-4d", X_name, nrow(maj$meta),  fmt_counts(maj$meta, g_col),  ncol(maj$data)))
+    message(sprintf("%s (Y): N = %-4d %s features: %-4d", Y_name, nrow(minr$meta), fmt_counts(minr$meta, g_col), ncol(minr$data)))
   }
 
   ## --- Return ---
   list(
-    X = list(matr = X_out$data, meta = X_out$meta),
-    Y = list(matr = Y_out$data, meta = Y_out$meta)
+    X = list(matr = maj$data, meta = maj$meta),
+    Y = list(matr = minr$data, meta = minr$meta)
   )
 }

@@ -43,7 +43,7 @@ sim_2group_expression <- function(
   a_level,
   n_samples,
   n_degs,
-  log2FC,
+  log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
   seed = NULL 
@@ -56,6 +56,12 @@ sim_2group_expression <- function(
   ## --- Match method arguments safely ---
   mean_method <- match.arg(mean_method)
   disp_method <- match.arg(disp_method)
+
+  ## --- Phenotype factors ----
+  if (length(g_levels) != 2 || length(a_level) != 1) {
+    stop("[sim_2group_expression] Function currently supports only 2x1 designs (two levels in g_level × one level in a_level).")
+  }
+  g_1 <- g_levels[1]; g_2 <- g_levels[2]
 
 
   ## ---  Estimate parameters ---
@@ -89,7 +95,7 @@ sim_2group_expression <- function(
     dispersions = real_disps,
     n.vars = length(real_means),
     n.diffexp = n_degs,
-    effect.size = if (log2FC == 0) 0 else 2^log2FC,
+    effect.size = if (log2fc == 0) 0 else 2^log2fc,
     fraction.upregulated = 0.5,
     seqdepth = real_estimates$libsize$mean,
     minfact = real_estimates$libsize$min,
@@ -112,7 +118,6 @@ sim_2group_expression <- function(
 
 
   ## --- Meta ---
-  g_1 <- g_levels[1]; g_2 <- g_levels[2]
   sim_meta <- sim@sample.annotations
   sim_meta[[g_col]]  <- factor(sim_meta$condition, levels = c(1, 2), labels = c(g_1, g_2))
   sim_meta[[a_col]]  <- sim_ancestry
