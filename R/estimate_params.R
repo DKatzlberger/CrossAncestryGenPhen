@@ -1,57 +1,37 @@
-#' Estimate RNA-seq Model Parameters from Count Data
+#' Estimate RNA-seq parameters with edgeR
 #'
-#' Estimate gene-level mean expression and dispersion parameters from RNA-seq
-#' count data using \pkg{edgeR}. The function fits an intercept-only GLM model
-#' to compute maximum likelihood estimates (MLE) and maximum a posteriori
-#' (MAP) estimates for means and dispersions, along with raw and logCPM means.
+#' Fits an intercept-only negative binomial GLM to RNA-seq count data using
+#' \pkg{edgeR}. Returns mean expression, dispersion estimates, library sizes,
+#' and optional QC plots.
 #'
-#' @param X Numeric matrix of raw RNA-seq counts with \strong{samples in rows}
-#'          and \strong{genes in columns}.
+#' @param X Numeric matrix of raw counts (samples x genes).
+#' @param plot Logical, default `TRUE`. If `TRUE`, print QC plots of mean
+#'   expression, dispersion distribution, and the mean–dispersion trend.
+#' @param seed Optional integer for reproducibility.
+#' @param verbose Logical, default `TRUE`. Print a brief summary.
 #'
-#' @return A list with the following elements:
+#' @return A list with:
 #' \describe{
-#'   \item{\code{mains}}{List with basic dataset information:
-#'     \code{n_samples} (integer), \code{n_features} (integer), and
-#'     \code{features} (gene IDs).}
-#'   \item{\code{means}}{List of mean expression estimates:
-#'     \code{raw} (raw mean counts),
-#'     \code{logcpm} (mean log2 CPM),
-#'     \code{mle} (fitted values from MLE dispersion),
-#'     \code{map} (fitted values from MAP dispersion),
-#'     \code{libnorm_mle} (MLE fitted means normalized by effective library size),
-#'     \code{libnorm_map} (MAP fitted means normalized by effective library size).}
-#'   \item{\code{disps}}{List of dispersion estimates:
-#'     \code{common} (common dispersion),
-#'     \code{trend} (trended dispersion),
-#'     \code{mle} (tagwise dispersion without prior),
-#'     \code{map} (tagwise dispersion with prior).}
-#'   \item{\code{libsize}}{Numeric scalar giving the mean effective library size.}
+#'   \item{mains}{Dataset info (samples, features, gene IDs).}
+#'   \item{means}{Mean expression estimates (raw, logCPM, MLE, MAP, lib-normalized).}
+#'   \item{disps}{Dispersion estimates (common, trended, MLE, MAP).}
+#'   \item{libsize}{Effective library sizes (mean, min, max).}
+#'   \item{plot}{Patchwork object with QC plots.}
 #' }
 #'
-#' @details
-#' The function uses an intercept-only design matrix to estimate baseline
-#' mean expression and dispersion parameters across all samples. The effective
-#' library size is computed as the product of the raw library size and the
-#' normalization factor estimated by \code{\link[edgeR]{calcNormFactors}}.
-#'
-#' \strong{Important:} The input \code{X} must be a matrix with samples in rows
-#' and genes in columns. Internally, the function transposes \code{X} to match
-#' the gene-by-sample format expected by \pkg{edgeR}.
-#'
-#' @seealso
-#' \code{\link[edgeR]{DGEList}},
-#' \code{\link[edgeR]{estimateGLMCommonDisp}},
-#' \code{\link[edgeR]{estimateGLMTagwiseDisp}},
-#' \code{\link[edgeR]{glmFit}}
-#'
+#' @details Library sizes are normalized with
+#' \code{\link[edgeR]{calcNormFactors}} before dispersion estimation.
 #'
 #' @importFrom edgeR DGEList calcNormFactors estimateGLMCommonDisp
-#'             estimateGLMTrendedDisp estimateGLMTagwiseDisp glmFit cpm
-#'
+#'   estimateGLMTrendedDisp estimateGLMTagwiseDisp glmFit cpm
+#' @import ggplot2
+#' @import patchwork
 #' @export
 estimate_params <- function(
   X,
-  seed = NULL
+  plot = TRUE,
+  seed = NULL,
+  verbose = TRUE
 ) {
 
   ## --- Input data structure check ---
@@ -95,6 +75,7 @@ estimate_params <- function(
     max = max_eff_libsize
   )
 
+
   ## --- Estimate dispersions ---
   dge_disp <- edgeR::estimateGLMCommonDisp(dge, design = design)
   dge_disp <- edgeR::estimateGLMTrendedDisp(dge_disp, design = design)
@@ -108,6 +89,7 @@ estimate_params <- function(
   dge_map <- edgeR::estimateGLMTagwiseDisp(dge_disp, design = design)
   fit_map <- edgeR::glmFit(dge_map, design, dispersion = dge_map$tagwise.dispersion)
   means_map <- rowMeans(fit_map$fitted.values)
+
 
   ## --- Estimate means ---
   # Raw and logCPM means
@@ -134,10 +116,61 @@ estimate_params <- function(
     map = dge_map$tagwise.dispersion
   )
 
-  return(list(
-    mains = mains,
-    means = estimated_means,
-    disps = estimated_disps,
-    libsize = estimated_libsize
-  ))
+
+  ## --- Verbose massage ---
+  if (verbose){
+    message("\nEstimate NB params summary:")
+    message(sprintf("Dataset:        groups:  %-4d  N: %-4d  features: %-4d", ncol(design), ncol(X), nrow(X)))
+    message(sprintf("Means (logCPM): mean:  %-4.1f  median: %-4.1f sd: %-4.1f", mean(means_logcpm), median(means_logcpm), sd(means_logcpm)))
+    message(sprintf("Disps (MLE):    mean:  %-4.1f  median: %-4.1f sd: %-4.1f", mean(dge_mle$tagwise.dispersion), median(dge_mle$tagwise.dispersion), sd(dge_mle$tagwise.dispersion)))
+    message(sprintf("Lib. size:      mean:  %-4.1e  min: %-4.1e  max: %-4.1e", mean_eff_libsize, min_eff_libsize, max_eff_libsize))
+  }
+
+
+  ## --- Plot ---
+  data <- data.frame(
+    means_logcpm = means_logcpm,
+    disp_mle = dge_mle$tagwise.dispersion,
+    bcv = sqrt(dge_mle$tagwise.dispersion)
+  )
+
+  # Mean distribution
+  p_means <- ggplot(data, aes(x = means_logcpm)) +
+    geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
+    geom_vline(aes(xintercept = mean(means_logcpm)), color = "red", linewidth = 0.3) +
+    labs(x = "Log2 CPM", y = "Count")+ theme_nature_fonts() +
+    theme_small_legend() + theme_white_background()
+
+  # Dispersion distribution (MLE)
+  p_disps <- ggplot(data, aes(x = log2(disp_mle))) +
+    geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
+    geom_vline(aes(xintercept = mean(log2(disp_mle))), color = "red", linewidth = 0.3) +
+    labs(x = "Log2 Dispersion", y = "Count") + theme_nature_fonts() +
+    theme_small_legend() + theme_white_background()
+
+
+  # Mean–dispersion relationship
+  p_trend <- ggplot(data, aes(x = means_logcpm, y = log2(disp_mle))) +
+    geom_point(size = 0.5) + geom_smooth(se = FALSE, color = "red", linewidth = 0.3) +
+    labs(x = "Log2 CPM", y = "Log2 Dispersion") + theme_nature_fonts() +
+    theme_small_legend() + theme_white_background()
+
+  # Patchwork
+  p <- patchwork::wrap_plots(p_means, p_disps, p_trend, ncol = 3, nrow = 1)
+  if (plot){
+    print(p)
+  }
+
+
+
+  ## --- Return ---
+  return(
+      list(
+      mains = mains,
+      means = estimated_means,
+      disps = estimated_disps,
+      libsize = estimated_libsize,
+      plot = p
+    )
+  )
 }

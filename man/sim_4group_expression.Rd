@@ -11,12 +11,9 @@ sim_4group_expression(
   g_levels,
   a_col,
   a_levels,
-  n_samples_X,
-  n_samples_Y,
-  n_degs_X,
-  n_degs_Y,
-  log2FC_X,
-  log2FC_Y,
+  n_samples,
+  n_degs,
+  log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
   seed = NULL,
@@ -29,18 +26,6 @@ for ancestry X. If \code{NULL}, parameters are estimated from \code{X}.}
 
 \item{estimates_Y}{Optional list of parameter estimates from \code{\link{estimate_params}}
 for ancestry Y. If \code{NULL}, parameters are estimated from \code{Y}.}
-
-\item{n_samples_X}{Integer, number of samples to simulate per condition for ancestry X.}
-
-\item{n_samples_Y}{Integer, number of samples to simulate per condition for ancestry Y.}
-
-\item{n_degs_X}{Integer, number of differentially expressed genes to simulate in ancestry X.}
-
-\item{n_degs_Y}{Integer, number of differentially expressed genes to simulate in ancestry Y.}
-
-\item{log2FC_X}{Numeric, log2 fold-change magnitude for DEGs in ancestry X.}
-
-\item{log2FC_Y}{Numeric, log2 fold-change magnitude for DEGs in ancestry Y.}
 
 \item{mean_method}{Character string, method to use for mean estimates in both ancestries.
 One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.}
@@ -62,6 +47,18 @@ for ancestry Y will use \code{seed + 1000} to ensure different DE gene sets.}
 \item{ancestry_X}{Character scalar giving the ancestry label for \code{X}.}
 
 \item{ancestry_Y}{Character scalar giving the ancestry label for \code{Y}.}
+
+\item{n_samples_X}{Integer, number of samples to simulate per condition for ancestry X.}
+
+\item{n_samples_Y}{Integer, number of samples to simulate per condition for ancestry Y.}
+
+\item{n_degs_X}{Integer, number of differentially expressed genes to simulate in ancestry X.}
+
+\item{n_degs_Y}{Integer, number of differentially expressed genes to simulate in ancestry Y.}
+
+\item{log2FC_X}{Numeric, log2 fold-change magnitude for DEGs in ancestry X.}
+
+\item{log2FC_Y}{Numeric, log2 fold-change magnitude for DEGs in ancestry Y.}
 }
 \value{
 A list with the following elements:

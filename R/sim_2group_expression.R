@@ -87,9 +87,8 @@ sim_2group_expression <- function(
 
 
   ## --- Use generateSyntheticData from compcodeR ---
-  sim_ancestry <- paste0(a_level, "_sim")
   sim <- compcodeR::generateSyntheticData(
-    dataset = sim_ancestry,
+    dataset = a_level,
     samples.per.cond = n_samples,
     relmeans = real_means,
     dispersions = real_disps,
@@ -113,14 +112,14 @@ sim_2group_expression <- function(
 
   ## --- Extract counts (sample x features) ---
   sim_counts <- sim@count.matrix
-  colnames(sim_counts) <- paste0(sim_ancestry, "_", seq_len(ncol(sim_counts)))
+  colnames(sim_counts) <- paste0(a_level, "_", seq_len(ncol(sim_counts)))
   sim_counts <- t(sim_counts) # rownames are samples (matrix)
 
 
   ## --- Meta ---
   sim_meta <- sim@sample.annotations
   sim_meta[[g_col]]  <- factor(sim_meta$condition, levels = c(1, 2), labels = c(g_1, g_2))
-  sim_meta[[a_col]]  <- sim_ancestry
+  sim_meta[[a_col]]  <- a_level
   rownames(sim_meta) <- rownames(sim_counts) # rownames are samples (matrix)
 
 
@@ -131,47 +130,47 @@ sim_2group_expression <- function(
   rownames(sim_features) <- colnames(sim_counts) # rownames are feature names (matrix)
 
 
-  ## --- Comparison real vs. sim ---
-  sim_estimates <- estimate_params(sim_counts)
+  # ## --- Comparison real vs. sim ---
+  # sim_estimates <- estimate_params(sim_counts, verbose = FALSE)
 
 
-  ## --- Gene means ---
-  real_sim_means <- plot_estimated_means(
-    estimates_X = real_estimates,
-    estimates_Y = sim_estimates,
-    method = "mle",
-    ancestry_X = ancestry, 
-    ancestry_Y = sim_ancestry,
-    title = "Simulated vs real gene-wise means"
-  )
+  # ## --- Gene means ---
+  # real_sim_means <- plot_estimated_means(
+  #   estimates_X = real_estimates,
+  #   estimates_Y = sim_estimates,
+  #   method = "mle",
+  #   ancestry_X = a_level, 
+  #   ancestry_Y = sim_ancestry,
+  #   title = "Simulated vs real gene-wise means"
+  # )
 
-  ## --- Gene dispersions ---
-  real_sim_disps <- plot_estimated_dispersions(
-    estimates_X = real_estimates,
-    estimates_Y = sim_estimates,
-    method = "mle",
-    ancestry_X = ancestry, 
-    ancestry_Y = sim_ancestry,
-     title = "Simulated vs real gene-wise dispersions"
-  )
+  # ## --- Gene dispersions ---
+  # real_sim_disps <- plot_estimated_dispersions(
+  #   estimates_X = real_estimates,
+  #   estimates_Y = sim_estimates,
+  #   method = "mle",
+  #   ancestry_X = a_level, 
+  #   ancestry_Y = sim_ancestry,
+  #    title = "Simulated vs real gene-wise dispersions"
+  # )
 
 
-  ## --- Plots ---
-  plots <- list(
-    means = real_sim_means,
-    disps = real_sim_disps
-  )
+  # ## --- Plots ---
+  # plots <- list(
+  #   means = real_sim_means,
+  #   disps = real_sim_disps
+  # )
 
 
   ## --- Return ---
   return(
     list(
-      matr          = sim_counts,
-      meta          = sim_meta,
-      feat          = sim_features,
-      input_params  = real_estimates,
-      output_params = sim_estimates,
-      in_out_plots  = plots
+      matr = sim_counts,
+      meta = sim_meta,
+      feat = sim_features
+      # input_params  = real_estimates,
+      # output_params = sim_estimates,
+      # in_out_plots  = plots
     )
   )
 }

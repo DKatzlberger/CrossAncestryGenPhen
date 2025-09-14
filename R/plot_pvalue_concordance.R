@@ -100,7 +100,7 @@ plot_pvalue_concordance <- function(
   ## --- Axis scale ---
   neglog10_trans <- scales::trans_new(
     name      = "neglog10",
-    transform = function(x) -log10(x),
+    transform = function(x) -log10(x + 1e-12),
     inverse   = function(x) 10^(-x),
     domain    = c(1e-300, 1),
     breaks    = scales::trans_breaks(function(x) -log10(x), function(x) 10^(-x)),

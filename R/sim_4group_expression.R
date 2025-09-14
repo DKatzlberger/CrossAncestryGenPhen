@@ -88,7 +88,7 @@ sim_4group_expression <- function(
     g_levels    = g_levels,
     a_col       = a_col,
     a_level     = a_1_sim,
-    n_samples   = n_sample,
+    n_samples   = n_samples,
     n_degs      = n_degs,
     log2fc      = log2fc,
     mean_method = mean_method,
@@ -129,8 +129,8 @@ sim_4group_expression <- function(
     }
 
     message("\n4-group simulation summary:")
-    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", sim_ancestry_X, nrow(sim_X$matr), n_degs_X, log2FC_X, fmt_counts(sim_X$meta, ancestry_X), ncol(sim_X$matr)))
-    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", sim_ancestry_Y, nrow(sim_Y$matr), n_degs_Y, log2FC_Y, fmt_counts(sim_Y$meta, ancestry_Y), ncol(sim_X$matr)))
+    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_1_sim, nrow(sim_X$matr), n_degs, log2fc, fmt_counts(sim_X$meta, a_1_sim), ncol(sim_X$matr)))
+    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_2_sim, nrow(sim_Y$matr), n_degs, log2fc, fmt_counts(sim_Y$meta, a_2_sim), ncol(sim_X$matr)))
   }
 
 
@@ -138,16 +138,16 @@ sim_4group_expression <- function(
   return(
     list(
       X = list(
-        matr   = sim_X$matr, 
-        meta   = sim_X$meta, 
-        feat   = sim_X$feat, 
-        plot   = sim_X$in_out_plots
+        matr = sim_X$matr, 
+        meta = sim_X$meta, 
+        feat = sim_X$feat
+        # plot = sim_X$in_out_plots
       ),
       Y = list(
-        matr   = sim_Y$matr, 
-        meta   = sim_Y$meta, 
-        feat   = sim_Y$feat, 
-        plot   = sim_Y$in_out_plots
+        matr = sim_Y$matr, 
+        meta = sim_Y$meta, 
+        feat = sim_Y$feat
+        # plot  = sim_Y$in_out_plots
       ),
       feat = sim_features
     )

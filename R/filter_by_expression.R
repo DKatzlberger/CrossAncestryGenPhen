@@ -70,7 +70,7 @@ filter_by_expression <- function(
 
   ## --- edgeR filterByExpr ---
   dge <- edgeR::DGEList(counts = t(counts))
-  grp <- interaction(meta[[a_col]], meta[[g_col]], drop = TRUE)
+  grp <- interaction(meta[[g_col]], meta[[a_col]], drop = TRUE)
 
   if (length(grp) != ncol(dge)) {
     stop("[filter_by_expression] Length of group != number of samples in DGEList.")
@@ -84,7 +84,8 @@ filter_by_expression <- function(
 
   ## --- MV-trend plot ---
   p <- plot_mean_variance_trend(
-    X = counts_filt
+    X = counts_filt,
+    point_size = 0.5
   )
 
   if (plot){

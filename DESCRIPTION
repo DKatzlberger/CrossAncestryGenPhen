@@ -19,7 +19,8 @@ Imports:
     edgeR,
     ggrepel,
     compcodeR,
-    fields
+    fields,
+    patchwork
 LinkingTo: 
     Rcpp,
     RcppArmadillo

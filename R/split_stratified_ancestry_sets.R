@@ -45,11 +45,11 @@ split_stratified_ancestry_sets <- function(
 
 
   ## --- Factor setup ---
-  ancestry_X <- unique(MX[[a_col]])
-  ancestry_Y <- unique(MY[[a_col]])
+  a_1 <- unique(MX[[a_col]])
+  a_2 <- unique(MY[[a_col]])
 
   g_levels <- levels(MX[[g_col]])
-  a_levels <- c(ancestry_X, ancestry_Y)
+  a_levels <- c(a_1, a_2)
 
   if (length(g_levels) != 2 || length(a_levels) != 2) {
     stop("[split_stratified_ancestry_sets] Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
@@ -103,15 +103,15 @@ split_stratified_ancestry_sets <- function(
   mask_ref    <- !mask_subset
 
   ## --- Reference set (R = remaining X) ---
-  R_counts <- X_sub[mask_ref, , drop = FALSE]
+  R_matr <- X_sub[mask_ref, , drop = FALSE]
   R_meta   <- MX_sub[mask_ref, , drop = FALSE]
 
   ## --- Subset set (X = sampled X) ---
-  X_counts <- X_sub[mask_subset, , drop = FALSE]
+  X_matr <- X_sub[mask_subset, , drop = FALSE]
   X_meta   <- MX_sub[mask_subset, , drop = FALSE]
 
   ## --- Inference set (Y = full Y) ---
-  Y_counts <- Y
+  Y_matr <- Y
   Y_meta   <- MY
 
   ## --- Verbose summary ---
@@ -123,17 +123,17 @@ split_stratified_ancestry_sets <- function(
     }
 
     message("\nStratified split summary:")
-    message(sprintf("%s (Reference, R):    N: %-4d %s", ancestry_X, nrow(R_counts), fmt_counts(rownames(R_counts), R_meta, g_col)))
-    message(sprintf("%s (Subset,    X):    N: %-4d %s", ancestry_X, nrow(X_counts), fmt_counts(rownames(X_counts), X_meta, g_col)))
-    message(sprintf("%s (Inference, Y):    N: %-4d %s", ancestry_Y, nrow(Y_counts), fmt_counts(rownames(Y_counts), Y_meta, g_col)))
+    message(sprintf("%s (Reference, R):    N: %-4d %s features: %-4d", a_1, nrow(R_matr), fmt_counts(rownames(R_matr), R_meta, g_col), ncol(R_matr)))
+    message(sprintf("%s (Subset,    X):    N: %-4d %s features: %-4d", a_1, nrow(X_matr), fmt_counts(rownames(X_matr), X_meta, g_col), ncol(X_matr)))
+    message(sprintf("%s (Inference, Y):    N: %-4d %s features: %-4d", a_2, nrow(Y_matr), fmt_counts(rownames(Y_matr), Y_meta, g_col), ncol(Y_matr)))
   }
 
   ## --- Return ---
   return(
     list(
-      R = list(counts = R_counts, meta = R_meta, ids = rownames(R_counts)),
-      X = list(counts = X_counts, meta = X_meta, ids = rownames(X_counts)),
-      Y = list(counts = Y_counts, meta = Y_meta, ids = rownames(Y_counts)),
+      R = list(matr = R_matr, meta = R_meta, ids = rownames(R_matr)),
+      X = list(matr = X_matr, meta = X_meta, ids = rownames(X_matr)),
+      Y = list(matr = Y_matr, meta = Y_meta, ids = rownames(Y_matr)),
       strata_info = strata_info
     )
   )

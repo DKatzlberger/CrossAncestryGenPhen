@@ -83,6 +83,7 @@ subset_limma_interaction_effect <- function(
     # Seed 
     if (!is.null(seed_iter)) set.seed(seed_iter)
 
+
     # Stratified splits
     split <- split_stratified_ancestry_sets(
       X = X,
@@ -100,8 +101,8 @@ subset_limma_interaction_effect <- function(
 
     # Run limma on subset
     res <- limma_interaction_effect(
-      X = split$X$counts,
-      Y = split$Y$counts,
+      X = split$X$matr,
+      Y = split$Y$matr,
       MX = split$X$meta,
       MY = split$Y$meta,
       g_col = g_col,

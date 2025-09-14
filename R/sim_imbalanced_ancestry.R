@@ -51,10 +51,28 @@ sim_imbalanced_ancestry <- function(
     .fun = "sim_imbalanced_ancestry"
   )
 
+  ## --- Seed ---
   if (!is.null(seed)) set.seed(seed)
 
+  ## --- Global sample check ---
+  if (!replace) {
+    available_total <- nrow(MX) + nrow(MY)
+    if (available_total < total_samples) {
+      stop(sprintf(
+        "[sim_imbalance_ancestry] Not enough samples overall: requested %d, available %d",
+        total_samples, available_total
+      ))
+    }
+  }
+
+
+  ## --- Ancestry levels ---
+  a_1 <- unique(MX[[a_col]])
+  a_2 <- unique(MY[[a_col]])
+
+
   ## --- Helper for sampling within ancestry ---
-  sample_two_way <- function(meta, data, g_col, n, ratio, replace = FALSE) {
+  sample_two_way <- function(meta, matr, g_col, n, ratio, replace = FALSE) {
     levs <- levels(meta[[g_col]])
     stopifnot(length(levs) == 2)
 
@@ -65,6 +83,17 @@ sim_imbalanced_ancestry <- function(
 
     i1_all <- which(meta[[g_col]] == levs[1])
     i2_all <- which(meta[[g_col]] == levs[2])
+    ## strict check if replace = FALSE
+    if (!replace) {
+      if (length(i1_all) < n1_target) {
+        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d",
+                    levs[1], n1_target, length(i1_all)))
+      }
+      if (length(i2_all) < n2_target) {
+        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d",
+                    levs[2], n2_target, length(i2_all)))
+      }
+    }
 
     n1 <- if (replace) n1_target else min(n1_target, length(i1_all))
     n2 <- if (replace) n2_target else min(n2_target, length(i2_all))
@@ -75,7 +104,7 @@ sim_imbalanced_ancestry <- function(
 
     list(
       meta = meta[idx, , drop = FALSE],
-      data = data[idx, , drop = FALSE]
+      matr = matr[idx, , drop = FALSE]
     )
   }
 
@@ -83,8 +112,8 @@ sim_imbalanced_ancestry <- function(
   n_major <- round(total_samples * between_ratio / (between_ratio + 1))
   n_minor <- total_samples - n_major
 
-  maj  <- sample_two_way(MX, X, g_col, n_major, within_major_ratio, replace)
-  minr <- sample_two_way(MY, Y, g_col, n_minor, within_minor_ratio, replace)
+  X_out <- sample_two_way(MX, X, g_col, n_major, within_major_ratio, replace)
+  Y_out <- sample_two_way(MY, Y, g_col, n_minor, within_minor_ratio, replace)
 
   ## --- Verbose summary ---
   if (verbose) {
@@ -93,17 +122,14 @@ sim_imbalanced_ancestry <- function(
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
-    X_name <- as.character(unique(MX[[a_col]]))
-    Y_name <- as.character(unique(MY[[a_col]]))
-
     message("\nImbalanced ancestry summary:")
-    message(sprintf("%s (X): N = %-4d %s features: %-4d", X_name, nrow(maj$meta),  fmt_counts(maj$meta, g_col),  ncol(maj$data)))
-    message(sprintf("%s (Y): N = %-4d %s features: %-4d", Y_name, nrow(minr$meta), fmt_counts(minr$meta, g_col), ncol(minr$data)))
+    message(sprintf("%s (X):    N = %-4d %s features: %-4d", a_1, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
+    message(sprintf("%s (Y):    N = %-4d %s features: %-4d", a_2, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
   }
 
   ## --- Return ---
   list(
-    X = list(matr = maj$data, meta = maj$meta),
-    Y = list(matr = minr$data, meta = minr$meta)
+    X = list(matr = X_out$matr, meta = X_out$meta),
+    Y = list(matr = Y_out$matr, meta = Y_out$meta)
   )
 }

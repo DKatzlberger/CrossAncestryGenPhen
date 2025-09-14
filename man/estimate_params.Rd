@@ -4,7 +4,7 @@
 \alias{estimate_params}
 \title{Estimate RNA-seq Model Parameters from Count Data}
 \usage{
-estimate_params(X, seed = NULL)
+estimate_params(X, seed = NULL, verbose = TRUE)
 }
 \arguments{
 \item{X}{Numeric matrix of raw RNA-seq counts with \strong{samples in rows}

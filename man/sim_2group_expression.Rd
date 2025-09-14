@@ -12,7 +12,7 @@ sim_2group_expression(
   a_level,
   n_samples,
   n_degs,
-  log2FC,
+  log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
   seed = NULL
@@ -27,8 +27,6 @@ are estimated from \code{X}.}
 
 \item{n_degs}{Integer, number of differentially expressed genes to simulate.}
 
-\item{log2FC}{Numeric, log2 fold-change magnitude for DEGs.}
-
 \item{mean_method}{Character string, method to use for mean estimates.
 One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.}
 
@@ -41,6 +39,8 @@ One of \code{"mle"}, \code{"map"}.}
 (samples in rows, genes in columns).}
 
 \item{ancestry}{Character scalar giving the ancestry label for this simulation.}
+
+\item{log2FC}{Numeric, log2 fold-change magnitude for DEGs.}
 }
 \value{
 A list with the following elements:
