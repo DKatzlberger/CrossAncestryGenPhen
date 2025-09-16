@@ -8,6 +8,7 @@
 #' @param MY Metadata for Y.
 #' @param color_var Name of the metadata variable for color (optional).
 #' @param shape_var Name of the metadata variable for shape (optional).
+#' @param cpm Logical; if TRUE, apply log2 CPM transformation before t-SNE.
 #' @param perplexity t-SNE perplexity parameter.
 #' @param title Plot title.
 #' @param x_label X-axis label.
@@ -18,6 +19,7 @@
 #' @return A ggplot object.
 #' @export
 #'
+#' @importFrom edgeR cpm
 #' @importFrom Rtsne Rtsne
 #' @importFrom ggplot2 ggplot aes geom_point labs
 plot_tsne_cluster <- function(
@@ -27,6 +29,7 @@ plot_tsne_cluster <- function(
   MY,
   color_var = NULL,
   shape_var = NULL,
+  cpm = FALSE,
   perplexity = 50,
   title = NULL,
   x_label = NULL,
@@ -34,11 +37,29 @@ plot_tsne_cluster <- function(
   point_size = 1,
   seed = NULL
 ) {
+
+  ## --- Input data structure check ---
+  assert_input(
+    X = X,
+    Y = Y,
+    MX = MX, 
+    MY = MY,
+    g_col = shape_var, 
+    a_col = color_var,
+    .fun = "plot_tsne_cluster"
+  )
+
+  ## --- Set seed ---
   if (!is.null(seed)) set.seed(seed)
 
-  # Combine expression matrices
+  ## --- Combine expression matrices ---
   X_comb <- rbind(X, Y) 
   M_comb <- rbind(MX, MY)
+
+  if (cpm) {
+    X_cpm <- edgeR::cpm(t(X_comb), log = TRUE)
+    X_comb <- t(X_cpm)
+  }
 
   # Run t-SNE
   tsne_results <- Rtsne::Rtsne(X_comb, dims = 2, perplexity = perplexity)

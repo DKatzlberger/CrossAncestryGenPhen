@@ -11,6 +11,7 @@ filter_phenotype_ancestry(
   a_col,
   g_levels,
   a_levels,
+  plot = TRUE,
   verbose = TRUE
 )
 }

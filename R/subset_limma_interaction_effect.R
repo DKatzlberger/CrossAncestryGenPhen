@@ -127,7 +127,7 @@ subset_limma_interaction_effect <- function(
     args,
     run_one, 
     .options = furrr::furrr_options(seed = seed),
-    .progress = TRUE
+    .progress = FALSE
   )
 
 

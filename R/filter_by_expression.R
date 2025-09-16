@@ -101,6 +101,7 @@ filter_by_expression <- function(
     a_col = a_col,
     g_levels = g_levels,
     a_levels = a_levels,
+    plot = FALSE,
     verbose = FALSE
   )
 

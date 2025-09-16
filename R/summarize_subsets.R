@@ -20,7 +20,9 @@ summarize_subsets <- function(
   ## --- Check input ---
   required <- c(
     "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", 
-    "feature", "T_obs", "p_value", "p_adj", "ave_expr")
+    "feature", "T_obs", "p_value", "p_adj", "ave_expr"
+  )
+  
   missing  <- setdiff(required, colnames(data))
   if (length(missing) > 0) {
     stop("[summarize_subsets] Missing required column(s): ", paste(missing, collapse = " "))

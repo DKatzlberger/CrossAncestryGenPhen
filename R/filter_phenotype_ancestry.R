@@ -34,6 +34,7 @@ filter_phenotype_ancestry <- function(
   a_col,
   g_levels,
   a_levels,
+  plot = TRUE,
   verbose = TRUE
 ){
 
@@ -87,6 +88,7 @@ filter_phenotype_ancestry <- function(
       a_col = a_col,
       .fun  = "subset_phenotype_ancestry"
     )
+
     
     list(
       meta = m_sub, 
@@ -98,6 +100,22 @@ filter_phenotype_ancestry <- function(
   ## --- Apply function ---
   X_out <- split_by_ancestry(a_levels[1])
   Y_out <- split_by_ancestry(a_levels[2])
+
+
+  ## --- Imbalace plot ---
+  p <- plot_imbalanced_groups(
+    MX = X_out$meta,
+    MY = Y_out$meta,
+    x_var = a_col,
+    fill_var = g_col,
+    title = NULL,
+    x_label = NULL,
+    y_label = NULL
+  )
+
+  if (plot){
+    print(p)
+  }
 
 
   ## --- Verbose message ----
@@ -116,10 +134,13 @@ filter_phenotype_ancestry <- function(
 
 
   ## --- Return ---
-  return(
-    list(
-      X = X_out,
-      Y = Y_out
-    )
+  out <- list(
+    X = X_out,
+    Y = Y_out
   )
+
+  # Add the plot
+  out$plot <- p
+
+  return(out)
 }

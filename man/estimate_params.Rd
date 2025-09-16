@@ -2,54 +2,36 @@
 % Please edit documentation in R/estimate_params.R
 \name{estimate_params}
 \alias{estimate_params}
-\title{Estimate RNA-seq Model Parameters from Count Data}
+\title{Estimate RNA-seq parameters with edgeR}
 \usage{
-estimate_params(X, seed = NULL, verbose = TRUE)
+estimate_params(X, plot = TRUE, seed = NULL, verbose = TRUE)
 }
 \arguments{
-\item{X}{Numeric matrix of raw RNA-seq counts with \strong{samples in rows}
-and \strong{genes in columns}.}
+\item{X}{Numeric matrix of raw counts (samples x genes).}
+
+\item{plot}{Logical, default `TRUE`. If `TRUE`, print QC plots of mean
+expression, dispersion distribution, and the mean–dispersion trend.}
+
+\item{seed}{Optional integer for reproducibility.}
+
+\item{verbose}{Logical, default `TRUE`. Print a brief summary.}
 }
 \value{
-A list with the following elements:
+A list with:
 \describe{
-  \item{\code{mains}}{List with basic dataset information:
-    \code{n_samples} (integer), \code{n_features} (integer), and
-    \code{features} (gene IDs).}
-  \item{\code{means}}{List of mean expression estimates:
-    \code{raw} (raw mean counts),
-    \code{logcpm} (mean log2 CPM),
-    \code{mle} (fitted values from MLE dispersion),
-    \code{map} (fitted values from MAP dispersion),
-    \code{libnorm_mle} (MLE fitted means normalized by effective library size),
-    \code{libnorm_map} (MAP fitted means normalized by effective library size).}
-  \item{\code{disps}}{List of dispersion estimates:
-    \code{common} (common dispersion),
-    \code{trend} (trended dispersion),
-    \code{mle} (tagwise dispersion without prior),
-    \code{map} (tagwise dispersion with prior).}
-  \item{\code{libsize}}{Numeric scalar giving the mean effective library size.}
+  \item{mains}{Dataset info (samples, features, gene IDs).}
+  \item{means}{Mean expression estimates (raw, logCPM, MLE, MAP, lib-normalized).}
+  \item{disps}{Dispersion estimates (common, trended, MLE, MAP).}
+  \item{libsize}{Effective library sizes (mean, min, max).}
+  \item{plot}{Patchwork object with QC plots.}
 }
 }
 \description{
-Estimate gene-level mean expression and dispersion parameters from RNA-seq
-count data using \pkg{edgeR}. The function fits an intercept-only GLM model
-to compute maximum likelihood estimates (MLE) and maximum a posteriori
-(MAP) estimates for means and dispersions, along with raw and logCPM means.
+Fits an intercept-only negative binomial GLM to RNA-seq count data using
+\pkg{edgeR}. Returns mean expression, dispersion estimates, library sizes,
+and optional QC plots.
 }
 \details{
-The function uses an intercept-only design matrix to estimate baseline
-mean expression and dispersion parameters across all samples. The effective
-library size is computed as the product of the raw library size and the
-normalization factor estimated by \code{\link[edgeR]{calcNormFactors}}.
-
-\strong{Important:} The input \code{X} must be a matrix with samples in rows
-and genes in columns. Internally, the function transposes \code{X} to match
-the gene-by-sample format expected by \pkg{edgeR}.
-}
-\seealso{
-\code{\link[edgeR]{DGEList}},
-\code{\link[edgeR]{estimateGLMCommonDisp}},
-\code{\link[edgeR]{estimateGLMTagwiseDisp}},
-\code{\link[edgeR]{glmFit}}
+Library sizes are normalized with
+\code{\link[edgeR]{calcNormFactors}} before dispersion estimation.
 }
