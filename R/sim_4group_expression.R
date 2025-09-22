@@ -77,8 +77,8 @@ sim_4group_expression <- function(
     stop("[sim_4group_expression] Function currently supports only 2x2 designs (two levels in g_level × two levels in a_level).")
   }
 
-  a_1 <- a_levels[1]; a_2 <- a_levels[2]
-  a_1_sim <- paste0(a_1, "_sim"); a_2_sim <- paste0(a_2, "_sim")
+  a_1 <- a_levels[1]
+  a_2 <- a_levels[2]
 
 
   ## --- Simulate two ancestries ----
@@ -87,7 +87,7 @@ sim_4group_expression <- function(
     g_col       = g_col,
     g_levels    = g_levels,
     a_col       = a_col,
-    a_level     = a_1_sim,
+    a_level     = a_1,
     n_samples   = n_samples,
     n_degs      = n_degs,
     log2fc      = log2fc,
@@ -101,7 +101,7 @@ sim_4group_expression <- function(
     g_col       = g_col,
     g_levels    = g_levels,
     a_col       = a_col,
-    a_level     = a_2_sim,
+    a_level     = a_2,
     n_samples   = n_samples,
     n_degs      = n_degs,
     log2fc      = log2fc,
@@ -129,8 +129,8 @@ sim_4group_expression <- function(
     }
 
     message("\n4-group simulation summary:")
-    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_1_sim, nrow(sim_X$matr), n_degs, log2fc, fmt_counts(sim_X$meta, a_1_sim), ncol(sim_X$matr)))
-    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_2_sim, nrow(sim_Y$matr), n_degs, log2fc, fmt_counts(sim_Y$meta, a_2_sim), ncol(sim_X$matr)))
+    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_1, nrow(sim_X$matr), n_degs, log2fc, fmt_counts(sim_X$meta, a_1), ncol(sim_X$matr)))
+    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_2, nrow(sim_Y$matr), n_degs, log2fc, fmt_counts(sim_Y$meta, a_2), ncol(sim_X$matr)))
   }
 
 
