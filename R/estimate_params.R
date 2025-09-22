@@ -118,13 +118,12 @@ estimate_params <- function(
 
 
   ## --- Verbose massage ---
-  if (verbose){
+  if (verbose) {
     message("\nEstimate NB params summary:")
-    message(sprintf("Dataset:        groups:  %-4d  N: %-4d  features: %-4d", ncol(design), ncol(X), nrow(X)))
-    message(sprintf("Lib. size:      mean:  %-4.1e  min: %-4.1e  max: %-4.1e", mean_eff_libsize, min_eff_libsize, max_eff_libsize))
-    message(sprintf("Means (logCPM): mean:  %-4.1f  median: %-4.1f sd: %-4.1f", mean(means_logcpm), median(means_logcpm), sd(means_logcpm)))
-    message(sprintf("Disps (MLE):    mean:  %-4.1f  median: %-4.1f sd: %-4.1f", mean(dge_mle$tagwise.dispersion), median(dge_mle$tagwise.dispersion), sd(dge_mle$tagwise.dispersion)))
-    message(sprintf("Lib. size:      mean:  %-4.1e  min: %-4.1e  max: %-4.1e", mean_eff_libsize, min_eff_libsize, max_eff_libsize))
+    message(sprintf("Dataset:        groups: %6d   N: %6d   features: %6d", ncol(design), ncol(X), nrow(X)))
+    message(sprintf("Means (logCPM): mean: %10.2f   median: %10.2f   sd: %10.2f", mean(means_logcpm), median(means_logcpm), sd(means_logcpm)))
+    message(sprintf("Disps (MLE):    mean: %10.2f   median: %10.2f   sd: %10.2f", mean(dge_mle$tagwise.dispersion), median(dge_mle$tagwise.dispersion), sd(dge_mle$tagwise.dispersion)))
+    message(sprintf("Lib. size:      mean: %10.2e   min: %10.2e   max: %10.2e", mean_eff_libsize, min_eff_libsize, max_eff_libsize))
   }
 
 
