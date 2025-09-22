@@ -34,7 +34,7 @@ summarize_subsets <- function(
     stop("[summarize_subsets] Grouping column(s) not found: ",
          paste(setdiff(by, colnames(data)), collapse = " "))
   }
-  group_vars <- unique(c("feature", by))
+  per_feature_grouping <- unique(c("feature", by))
 
 
   ## --- Helper functions ---
@@ -77,41 +77,44 @@ summarize_subsets <- function(
 
   ## --- Data.table prep ---
   dt <- as.data.table(data)
-  keep_cols <- setdiff(colnames(dt), c("iteration","T_obs","p_value","p_adj","ave_expr", group_vars))
+  keep_cols <- setdiff(colnames(dt), c("iteration","T_obs","p_value","p_adj","ave_expr", per_feature_grouping))
 
 
   ## --- Run each aggregation method ---
-  all_results <- lapply(names(aggregators), function(m) {
-    agg_dt <- dt[, {
-      T_obs    <- mean(T_obs, na.rm = TRUE)
-      ave_expr <- mean(ave_expr, na.rm = TRUE)
-      frac_sig <- mean(p_adj < 0.05, na.rm = TRUE)
+  all_results <- lapply(
+    names(aggregators), function(m) {
+      agg_dt <- dt[, {
+        T_obs    <- mean(T_obs, na.rm = TRUE)
+        ave_expr <- mean(ave_expr, na.rm = TRUE)
 
-      res <- list(
-        T_obs = T_obs,
-        ave_expr = ave_expr,
-        frac_sig = frac_sig,
-        p_value = aggregators[[m]](p_value)
+        res <- list(
+          T_obs    = T_obs,
+          ave_expr = ave_expr,
+          p_value  = aggregators[[m]](p_value)
+        )
+
+        for (col in keep_cols) res[[col]] <- .SD[[col]][1]
+        res
+      }, by = per_feature_grouping]
+
+      ## Adjust p-values across features per contrast (loop over agg methods)
+      per_contrast_grouping <- setdiff(per_feature_grouping, "feature")
+      agg_dt[, p_adj := p.adjust(p_value, method = "BH"), by = per_contrast_grouping]
+
+      ## Explicit forced order (same as limma_interaction_effect)
+      out_cols <- c(
+        "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2",
+        "feature", "T_obs", "p_value", "p_adj", "ave_expr"
       )
 
-      for (col in keep_cols) res[[col]] <- .SD[[col]][1]
-      res
-    }, by = group_vars]
+      ## Keep only those columns that actually exist
+      out_cols <- out_cols[out_cols %in% colnames(agg_dt)]
 
-    ## Adjust p-values
-    agg_dt[, p_adj := p.adjust(p_value, method = "BH")]
+      as.data.frame(agg_dt[, ..out_cols])
+    }
+  )
 
-    ## Explicit forced order (same as limma_interaction_effect)
-    out_cols <- c(
-      "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2",
-      "feature", "T_obs", "p_value", "p_adj", "ave_expr", "frac_sig"
-    )
-
-    ## Keep only those columns that actually exist
-    out_cols <- out_cols[out_cols %in% colnames(agg_dt)]
-
-    as.data.frame(agg_dt[, ..out_cols])
-  })
+  ## --- Add method name ---
   names(all_results) <- names(aggregators)
 
 
