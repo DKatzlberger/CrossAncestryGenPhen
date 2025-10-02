@@ -5,32 +5,19 @@
 #' Simulated data retain similar mean–variance characteristics as the input,
 #' with a specified number of differentially expressed genes (DEGs).
 #'
-#' @param X Numeric matrix or data frame of counts from the real data
-#'        (samples in rows, genes in columns).
-#' @param estimates Optional list of pre-computed parameter estimates
-#'        from \code{\link{estimate_params}}. If \code{NULL}, parameters
-#'        are estimated from \code{X}.
-#' @param ancestry Character scalar giving the ancestry label for this simulation.
+#' 
+#' @param estimates Optional list of pre-computed NB parameter estimates.
+#' @param g_col Character scalar giving the name of the group column in the sample metadata.
+#' @param g_levels Character vector of length 2 giving the group labels.
+#' @param a_col Character scalar giving the name of the ancestry column in the sample metadata.
+#' @param a_level Character scalar giving the ancestry label for this simulation.
 #' @param n_samples Integer, number of samples to simulate per condition.
 #' @param n_degs Integer, number of differentially expressed genes to simulate.
-#' @param log2FC Numeric, log2 fold-change magnitude for DEGs.
+#' @param log2fc Numeric, log2 fold-change magnitude for DEGs.
 #' @param mean_method Character string, method to use for mean estimates.
-#'        One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.
 #' @param disp_method Character string, method to use for dispersion estimates.
-#'        One of \code{"mle"}, \code{"map"}.
 #' @param seed Optional integer random seed for reproducibility.
 #'
-#' @return A list with the following elements:
-#' \describe{
-#'   \item{\code{X}}{Simulated count matrix (samples x genes).}
-#'   \item{\code{M}}{Data frame of sample metadata.}
-#'   \item{\code{f}}{Data frame of gene-level features:
-#'        DE status (\code{is_DE}) and true log2FC (\code{true_log2FC}).}
-#'   \item{\code{input_params}}{Parameter estimates from the real data.}
-#'   \item{\code{output_params}}{Parameter estimates from the simulated data.}
-#'   \item{\code{in_out_plots}}{List of ggplot objects comparing means and dispersions
-#'        between real and simulated data.}
-#' }
 #' @export
 #'
 #' @importFrom compcodeR generateSyntheticData
@@ -122,12 +109,30 @@ sim_2group_expression <- function(
   sim_meta[[a_col]]  <- a_level
   rownames(sim_meta) <- rownames(sim_counts) # rownames are samples (matrix)
 
+  
+  ## --- Group means ---
+  sim_mean <- data.frame(
+    g_1       = g_1,
+    g_2       = g_2,
+    mean_g_1  = sim@variable.annotations$truemeans.S1,
+    mean_g_2  = sim@variable.annotations$truemeans.S2,
+    feature   = colnames(sim_counts),
+    row.names = NULL
+  )
 
-  ## --- Features ---
-  is_DE <- sim@variable.annotations$differential.expression
-  true_log2FC <- sim@variable.annotations$truelog2foldchanges
-  sim_features <- data.frame(is_DE = is_DE, true_log2FC = true_log2FC)
-  rownames(sim_features) <- colnames(sim_counts) # rownames are feature names (matrix)
+
+  ## --- Relationship ---
+  sim_degs <- data.frame(
+    contrast  = paste0(g_2, ".", a_level, " - ", g_1, ".", a_level),
+    g_1       = g_1,
+    g_2       = g_2,
+    feature   = colnames(sim_counts),
+    T_obs     = sim@variable.annotations$truelog2foldchanges,
+    ave_expr  = rowMeans(log2(cbind(sim_mean$mean_g_1, sim_mean$mean_g_2) + 1)),
+    is_DE     = sim@variable.annotations$differential.expression, 
+    row.names = NULL
+  )
+  # rownames(sim_features) <- colnames(sim_counts) # rownames are feature names (matrix)
 
 
   # ## --- Comparison real vs. sim ---
@@ -167,7 +172,8 @@ sim_2group_expression <- function(
     list(
       matr = sim_counts,
       meta = sim_meta,
-      feat = sim_features
+      feat = sim_mean,
+      degs = sim_degs
       # input_params  = real_estimates,
       # output_params = sim_estimates,
       # in_out_plots  = plots

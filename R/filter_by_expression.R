@@ -15,16 +15,6 @@
 #' @param verbose Print summary (default TRUE).
 #' @param plot Return mean–variance trend plot if available (default TRUE).
 #'
-#' @return A list with:
-#' \itemize{
-#'   \item `X`, `Y`: lists with `counts`, `meta`, and `ancestry`
-#'   \item `mrna`, `meta`: combined filtered data
-#'   \item `keep`: logical vector of kept genes
-#'   \item `n_features`: number of retained genes
-#'   \item `dge`: filtered `edgeR::DGEList`
-#'   \item `g_levels`, `a_levels`: factor levels used
-#'   \item `plot`: MV-trend plot (or `NULL`)
-#' }
 #' @export
 filter_by_expression <- function(
   X,
@@ -47,6 +37,7 @@ filter_by_expression <- function(
     a_col = a_col
   )
 
+
   ## --- Factor levels ----
   a_1 <- unique(MX[[a_col]])
   a_2 <- unique(MY[[a_col]])
@@ -60,16 +51,16 @@ filter_by_expression <- function(
 
 
   ## --- Bind data ----
-  counts <- rbind(X, Y)
-  meta   <- rbind(MX, MY)
+  matr <- rbind(X, Y)
+  meta <- rbind(MX, MY)
 
-  if (!identical(rownames(counts), rownames(meta))) {
+  if (!identical(rownames(matr), rownames(meta))) {
     stop("[filter_by_expression] Combined counts/meta rownames must match exactly.")
   }
 
 
   ## --- edgeR filterByExpr ---
-  dge <- edgeR::DGEList(counts = t(counts))
+  dge <- edgeR::DGEList(counts = t(matr))
   grp <- interaction(meta[[g_col]], meta[[a_col]], drop = TRUE)
 
   if (length(grp) != ncol(dge)) {
@@ -78,13 +69,13 @@ filter_by_expression <- function(
 
   keep <- edgeR::filterByExpr(dge, group = grp)
   dge  <- dge[keep, , keep.lib.sizes = FALSE]
-  counts_filt <- t(dge$counts)
+  matr_filt <- t(dge$counts)
   n_features  <- sum(keep)
 
 
   ## --- MV-trend plot ---
   p <- plot_mean_variance_trend(
-    X = counts_filt,
+    X = matr_filt,
     point_size = 0.5
   )
 
@@ -95,7 +86,7 @@ filter_by_expression <- function(
 
   ## --- Resplit into two ancestries ---
   out <- filter_phenotype_ancestry(
-    X = counts_filt,
+    X = matr_filt,
     M = meta,
     g_col = g_col,
     a_col = a_col,

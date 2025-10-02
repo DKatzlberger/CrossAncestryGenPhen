@@ -12,6 +12,7 @@ plot_tsne_cluster(
   color_var = NULL,
   shape_var = NULL,
   cpm = FALSE,
+  mval = FALSE,
   perplexity = 50,
   title = NULL,
   x_label = NULL,
@@ -34,6 +35,8 @@ plot_tsne_cluster(
 \item{shape_var}{Name of the metadata variable for shape (optional).}
 
 \item{cpm}{Logical; if TRUE, apply log2 CPM transformation before t-SNE.}
+
+\item{mval}{Logical; if TRUE, apply m-value transformation before t-SNE.}
 
 \item{perplexity}{t-SNE perplexity parameter.}
 

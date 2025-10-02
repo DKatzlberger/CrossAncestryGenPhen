@@ -11,7 +11,8 @@ plot_imbalanced_groups(
   fill_var,
   title = NULL,
   x_label = NULL,
-  y_label = NULL
+  y_label = NULL,
+  fill_label = NULL
 )
 }
 \arguments{
@@ -27,7 +28,7 @@ plot_imbalanced_groups(
 
 \item{x_label}{Label for the x-axis (optional).}
 
-\item{y_label}{Label for the y-axis (optional).}
+\item{y_label}{Label for the fill (optional).}
 }
 \value{
 A ggplot object.

@@ -27,7 +27,7 @@
 #' @import ggplot2
 #' @import patchwork
 #' @export
-estimate_params <- function(
+estimate_nbinom_params <- function(
   X,
   plot = TRUE,
   seed = NULL,
@@ -116,47 +116,77 @@ estimate_params <- function(
     map = dge_map$tagwise.dispersion
   )
 
+  ## --- Zero fraction ---
+  # Means
+  n_zero_means <- sum(means_mle == 0)
+  frac_zero_means <- n_zero_means / length(means_mle)
+
+  # Dispersons
+  n_zero_disps <- sum(dge_mle$tagwise.dispersion == 0)
+  frac_zero_disps <- n_zero_disps / length(dge_mle$tagwise.dispersion)
+
 
   ## --- Verbose massage ---
-  if (verbose) {
+  if (verbose){
     message("\nEstimate NB params summary:")
-    message(sprintf("Dataset:        groups: %6d   N: %6d   features: %6d", ncol(design), ncol(X), nrow(X)))
-    message(sprintf("Means (logCPM): mean: %10.2f   median: %10.2f   sd: %10.2f", mean(means_logcpm), median(means_logcpm), sd(means_logcpm)))
-    message(sprintf("Disps (MLE):    mean: %10.2f   median: %10.2f   sd: %10.2f", mean(dge_mle$tagwise.dispersion), median(dge_mle$tagwise.dispersion), sd(dge_mle$tagwise.dispersion)))
-    message(sprintf("Lib. size:      mean: %10.2e   min: %10.2e   max: %10.2e", mean_eff_libsize, min_eff_libsize, max_eff_libsize))
+
+    message(sprintf(
+      "Dataset:      %-18s %-18s %-18s %-18s",
+      sprintf("groups: %d",   ncol(design)),
+      sprintf("N: %d",        ncol(X)),
+      sprintf("features: %d", nrow(X)),
+      ""
+    ))
+
+    message(sprintf(
+      "Means (log2): %-18s %-18s %-18s %-18s",
+      sprintf("mean: %.2f",    mean(log2(means_mle + 1))),
+      sprintf("median: %.2f",  median(log2(means_mle + 1))),
+      sprintf("sd: %.2f",      sd(log2(means_mle + 1))),
+      sprintf("dropout: %.2f", frac_zero_means)
+    ))
+
+    message(sprintf(
+      "Disps (log2): %-18s %-18s %-18s %-18s",
+      sprintf("mean: %.2f",    mean(log2(dge_mle$tagwise.dispersion + 1))),
+      sprintf("median: %.2f",  median(log2(dge_mle$tagwise.dispersion + 1))),
+      sprintf("sd: %.2f",      sd(log2(dge_mle$tagwise.dispersion + 1))),
+      sprintf("dropout: %.2f", frac_zero_disps)
+    ))
+
+    message(sprintf(
+      "Lib. size:    %-18s %-18s %-18s %-18s",
+      sprintf("mean: %.2e", mean_eff_libsize),
+      sprintf("min: %.2e",  min_eff_libsize),
+      sprintf("max: %.2e",  max_eff_libsize),
+      ""
+    ))
   }
+
 
 
   ## --- Plot ---
   data <- data.frame(
-    means_logcpm = means_logcpm,
-    disp_mle = dge_mle$tagwise.dispersion,
-    bcv = sqrt(dge_mle$tagwise.dispersion)
+    means_mle = means_mle,
+    disp_mle = dge_mle$tagwise.dispersion
   )
 
   # Mean distribution
-  p_means <- ggplot(data, aes(x = means_logcpm)) +
+  p_means <- ggplot(data, aes(x = log2(means_mle + 1))) +
     geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
-    geom_vline(aes(xintercept = mean(means_logcpm)), color = "red", linewidth = 0.3) +
-    labs(x = "Log2 CPM", y = "Count")+ theme_nature_fonts() +
+    geom_vline(aes(xintercept = mean(log2(means_mle + 1))), color = "red", linewidth = 0.3) +
+    labs(x = "Log2 Expression", y = "Count")+ theme_nature_fonts() +
     theme_small_legend() + theme_white_background()
 
   # Dispersion distribution (MLE)
-  p_disps <- ggplot(data, aes(x = log2(disp_mle))) +
+  p_disps <- ggplot(data, aes(x = log2(disp_mle + 1))) +
     geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
-    geom_vline(aes(xintercept = mean(log2(disp_mle))), color = "red", linewidth = 0.3) +
+    geom_vline(aes(xintercept = mean(log2(disp_mle + 1))), color = "red", linewidth = 0.3) +
     labs(x = "Log2 Dispersion", y = "Count") + theme_nature_fonts() +
     theme_small_legend() + theme_white_background()
 
-
-  # Mean–dispersion relationship
-  p_trend <- ggplot(data, aes(x = means_logcpm, y = log2(disp_mle))) +
-    geom_point(size = 0.5) + geom_smooth(se = FALSE, color = "red", linewidth = 0.3) +
-    labs(x = "Log2 CPM", y = "Log2 Dispersion") + theme_nature_fonts() +
-    theme_small_legend() + theme_white_background()
-
   # Patchwork
-  p <- patchwork::wrap_plots(p_means, p_disps, p_trend, ncol = 3, nrow = 1)
+  p <- patchwork::wrap_plots(p_means, p_disps, ncol = 2, nrow = 1)
   if (plot){
     print(p)
   }

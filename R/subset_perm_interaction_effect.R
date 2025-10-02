@@ -107,7 +107,7 @@ subset_perm_interaction_effect <- function(
   t_null_log <- if (save_null) lapply(res, `[[`, "t_null") else NULL
 
   aggregated_perm <- summarize_subsets(
-    data = perm_log
+    stats = perm_log
   )
 
   list(

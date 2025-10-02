@@ -138,9 +138,9 @@ subset_limma_interaction_effect <- function(
 
   ## --- Aggregation of iterations ---
   agg_log <- summarize_subsets(
-    data = res_log,
+    stats  = res_log,
     method = agg_method,
-    by = c("coef_id")
+    by     = c("coef_id")
   )
 
   # Function should return both

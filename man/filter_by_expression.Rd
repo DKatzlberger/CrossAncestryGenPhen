@@ -23,18 +23,6 @@ filter_by_expression(X, Y, MX, MY, g_col, a_col, verbose = TRUE, plot = TRUE)
 
 \item{plot}{Return mean–variance trend plot if available (default TRUE).}
 }
-\value{
-A list with:
-\itemize{
-  \item `X`, `Y`: lists with `counts`, `meta`, and `ancestry`
-  \item `mrna`, `meta`: combined filtered data
-  \item `keep`: logical vector of kept genes
-  \item `n_features`: number of retained genes
-  \item `dge`: filtered `edgeR::DGEList`
-  \item `g_levels`, `a_levels`: factor levels used
-  \item `plot`: MV-trend plot (or `NULL`)
-}
-}
 \description{
 Combines two ancestry-specific matrices (`X`, `Y`) with their metadata (`MX`, `MY`),
 filters genes using `edgeR::filterByExpr` with groups defined by

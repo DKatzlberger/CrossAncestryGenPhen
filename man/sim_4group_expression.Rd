@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_4group_expression.R
 \name{sim_4group_expression}
 \alias{sim_4group_expression}
-\title{Simulate RNA-seq Expression Data for Four Groups (Two Ancestries × Two Conditions)}
+\title{Simulate RNA-seq Expression Data for a 2×2 Design}
 \usage{
 sim_4group_expression(
   estimates_X,
@@ -21,71 +21,35 @@ sim_4group_expression(
 )
 }
 \arguments{
-\item{estimates_X}{Optional list of parameter estimates from \code{\link{estimate_params}}
-for ancestry X. If \code{NULL}, parameters are estimated from \code{X}.}
+\item{estimates_X}{Parameter estimates (means, dispersions, library sizes) for ancestry 1.}
 
-\item{estimates_Y}{Optional list of parameter estimates from \code{\link{estimate_params}}
-for ancestry Y. If \code{NULL}, parameters are estimated from \code{Y}.}
+\item{estimates_Y}{Parameter estimates for ancestry 2.}
 
-\item{mean_method}{Character string, method to use for mean estimates in both ancestries.
-One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.}
+\item{g_col}{Character scalar; name of the group column in metadata.}
 
-\item{disp_method}{Character string, method to use for dispersion estimates in both ancestries.
-One of \code{"mle"}, \code{"map"}.}
+\item{g_levels}{Character vector of length 2; group labels.}
 
-\item{seed}{Optional integer random seed for reproducibility. The simulation
-for ancestry Y will use \code{seed + 1000} to ensure different DE gene sets.}
+\item{a_col}{Character scalar; name of the ancestry column in metadata.}
 
-\item{verbose}{Logical; if `TRUE`, print a summary of simulated groups.}
+\item{a_levels}{Character vector of length 2; ancestry labels.}
 
-\item{X}{Numeric matrix or data frame of counts for the first ancestry
-(samples in rows, genes in columns).}
+\item{n_samples}{Integer; number of samples to simulate per condition.}
 
-\item{Y}{Numeric matrix or data frame of counts for the second ancestry
-(samples in rows, genes in columns).}
+\item{n_degs}{Integer; number of DEGs per ancestry simulation.}
 
-\item{ancestry_X}{Character scalar giving the ancestry label for \code{X}.}
+\item{log2fc}{Numeric; log2 fold-change magnitude for DEGs.}
 
-\item{ancestry_Y}{Character scalar giving the ancestry label for \code{Y}.}
+\item{mean_method}{Method for extracting mean parameters.}
 
-\item{n_samples_X}{Integer, number of samples to simulate per condition for ancestry X.}
+\item{disp_method}{Method for extracting dispersions.}
 
-\item{n_samples_Y}{Integer, number of samples to simulate per condition for ancestry Y.}
+\item{seed}{Optional integer seed for reproducibility.}
 
-\item{n_degs_X}{Integer, number of differentially expressed genes to simulate in ancestry X.}
-
-\item{n_degs_Y}{Integer, number of differentially expressed genes to simulate in ancestry Y.}
-
-\item{log2FC_X}{Numeric, log2 fold-change magnitude for DEGs in ancestry X.}
-
-\item{log2FC_Y}{Numeric, log2 fold-change magnitude for DEGs in ancestry Y.}
-}
-\value{
-A list with the following elements:
-\describe{
-  \item{\code{X}}{Simulated count matrix (samples x genes) for ancestry X.}
-  \item{\code{Y}}{Simulated count matrix (samples x genes) for ancestry Y.}
-  \item{\code{MX}}{Sample metadata for ancestry X.}
-  \item{\code{MY}}{Sample metadata for ancestry Y.}
-  \item{\code{fX}}{Gene-level features (DE status, true log2FC) for ancestry X.}
-  \item{\code{fY}}{Gene-level features (DE status, true log2FC) for ancestry Y.}
-  \item{\code{pX}}{List of ggplot objects comparing means and dispersions for ancestry X.}
-  \item{\code{pY}}{List of ggplot objects comparing means and dispersions for ancestry Y.}
-  \item{\code{fI}}{Data frame of interaction effects, with DE status and true interaction log2FC.}
-}
+\item{verbose}{Logical; print a simulation summary.}
 }
 \description{
-Generate simulated RNA-seq count matrices for two ancestries, each with two
-conditions, based on parameters estimated from real data. This function calls
-\code{\link{sim_2group_expression}} twice (once per ancestry) and then calculates
-the true interaction effects between ancestries for each gene.
-}
-\details{
-The interaction effect for each gene is defined as:
-\deqn{\mathrm{Interaction\ log2FC} = \mathrm{log2FC}_Y - \mathrm{log2FC}_X}
-where \eqn{\mathrm{log2FC}_X} and \eqn{\mathrm{log2FC}_Y} are the true log2
-fold-changes from the simulated data for ancestry X and Y respectively.
-}
-\seealso{
-\code{\link{sim_2group_expression}}
+Generate simulated RNA-seq count data for two ancestries, each with two
+experimental groups. The function calls \code{\link{sim_2group_expression}}
+for each ancestry and derives true baseline, relationship, and interaction
+contrasts at the gene level.
 }

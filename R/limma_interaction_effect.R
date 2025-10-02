@@ -167,6 +167,9 @@ limma_interaction_effect <- function(
       seq_along(colnames(contrast_matrix)), function(i) {
       cn <- colnames(contrast_matrix)[i]
       tt <- limma::topTable(fit2, coef = cn, number = Inf, sort.by = "none")
+      # Compute SE from logFC and t-stat
+      tt$SE <- abs(tt$logFC / tt$t)
+
       data.frame(
         coef_id   = names(contrast_calculations)[i],
         coef_type = sub("_[0-9]+$", "", names(contrast_calculations)[i]),
@@ -177,6 +180,7 @@ limma_interaction_effect <- function(
         a_2       = a_2,
         feature   = rownames(tt),
         T_obs     = tt$logFC,
+        SE        = tt$SE,
         p_value   = tt$P.Value,
         p_adj     = tt$adj.P.Val,
         ave_expr  = tt$AveExpr,

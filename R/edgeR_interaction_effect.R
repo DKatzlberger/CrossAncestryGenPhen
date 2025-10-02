@@ -150,6 +150,7 @@ edgeR_interaction_effect <- function(
     cn <- colnames(contrast_matrix)[i]
     test <- edgeR::glmQLFTest(fit, contrast = contrast_matrix[, i])
     tt <- edgeR::topTags(test, n = Inf, sort.by = "none")$table
+
     data.frame(
       coef_id   = names(contrast_calculations)[i],
       coef_type = sub("_[0-9]+$", "", names(contrast_calculations)[i]),
@@ -160,6 +161,7 @@ edgeR_interaction_effect <- function(
       a_2       = a_2,
       feature   = rownames(tt),
       T_obs     = tt$logFC,
+      SE        = NA,
       p_value   = tt$PValue,
       p_adj     = tt$FDR,
       ave_expr  = tt$logCPM,

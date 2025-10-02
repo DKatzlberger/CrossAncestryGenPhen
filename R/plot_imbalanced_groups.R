@@ -9,6 +9,7 @@
 #' @param title Plot title (optional).
 #' @param x_label Label for the x-axis (optional).
 #' @param y_label Label for the y-axis (optional).
+#' @param y_label Label for the fill (optional).
 #'
 #' @return A ggplot object.
 #' @export
@@ -19,7 +20,8 @@ plot_imbalanced_groups <- function(
   fill_var,
   title = NULL,
   x_label = NULL,
-  y_label = NULL
+  y_label = NULL,
+  fill_label = NULL
 ){
 
   ## --- Input data structure check ---
@@ -55,7 +57,7 @@ plot_imbalanced_groups <- function(
     title = title,
     x = ifelse(is.null(x_label), x_var, x_label),
     y = ifelse(is.null(y_label), "Count", y_label),
-    fill = fill_var
+    fill = ifelse(is.null(fill_label), fill_var, fill_label),
   ) +
   theme_nature_fonts() +
   theme_white_background() +

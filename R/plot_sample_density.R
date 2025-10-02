@@ -6,6 +6,7 @@
 #' @param Y Numeric matrix or data frame for the second group (same orientation as X).
 #' @param samples Vector of sample indices or row names to plot. If NULL, the first 9 samples are used.
 #' @param cpm Logical; if TRUE, transform counts to log2 CPM before plotting.
+#' @param mval Logical; if TRUE, apply m-value transformation before t-SNE.
 #' @param title Plot title.
 #' @param x_label X-axis label.
 #' @param y_label Y-axis label.
@@ -20,6 +21,7 @@ plot_sample_density <- function(
   Y,
   samples = NULL,
   cpm = FALSE,
+  mval = FALSE,
   title = NULL,
   x_label = NULL,
   y_label = NULL 
@@ -39,9 +41,13 @@ plot_sample_density <- function(
 
   ## --- CPM transform if requested ---
   if (cpm) {
-    X_for_cpm <- t(X_comb)  # edgeR expects genes in rows
-    X_cpm <- edgeR::cpm(X_for_cpm, log = TRUE)
-    X_comb <- t(X_cpm)      # back to samples x genes
+    X_cpm <- edgeR::cpm(t(X_comb), log = TRUE)
+    X_comb <- t(X_cpm)  
+  }
+
+  if (mval){
+    X_mval <- beta_to_mval(t(X_comb))
+    X_comb <- t(X_mval)
   }
 
 
@@ -75,7 +81,7 @@ plot_sample_density <- function(
     geom_density() +
     labs(
       title = title,
-      x = ifelse(is.null(x_label), ifelse(cpm, "Log2 CPM", "Raw counts"), x_label),
+       x = ifelse(!is.null(x_label), x_label,if (cpm) {"Log2 CPM"} else if (mval) {"M-values"} else {"Raw values"}),
       y = ifelse(is.null(y_label), "Density", y_label),
       color = "Sample"
     ) +

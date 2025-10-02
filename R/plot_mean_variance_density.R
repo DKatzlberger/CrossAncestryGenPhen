@@ -86,8 +86,8 @@ plot_mean_variance_density <- function(
     # Final styling
     p <- p + labs(
       title = title,
-      x = ifelse(is.null(x_label), "Log2 mean expression", x_label),
-      y = ifelse(is.null(y_label), " Log2 variance", y_label)
+      x = ifelse(is.null(x_label), "Log2 Mean expression", x_label),
+      y = ifelse(is.null(y_label), " Log2 Variance", y_label)
     ) +
     theme_nature_fonts() +
     theme_white_background() +

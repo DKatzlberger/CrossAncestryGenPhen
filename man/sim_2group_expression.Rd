@@ -19,41 +19,27 @@ sim_2group_expression(
 )
 }
 \arguments{
-\item{estimates}{Optional list of pre-computed parameter estimates
-from \code{\link{estimate_params}}. If \code{NULL}, parameters
-are estimated from \code{X}.}
+\item{estimates}{Optional list of pre-computed NB parameter estimates.}
+
+\item{g_col}{Character scalar giving the name of the group column in the sample metadata.}
+
+\item{g_levels}{Character vector of length 2 giving the group labels.}
+
+\item{a_col}{Character scalar giving the name of the ancestry column in the sample metadata.}
+
+\item{a_level}{Character scalar giving the ancestry label for this simulation.}
 
 \item{n_samples}{Integer, number of samples to simulate per condition.}
 
 \item{n_degs}{Integer, number of differentially expressed genes to simulate.}
 
-\item{mean_method}{Character string, method to use for mean estimates.
-One of \code{"mle"}, \code{"map"}, \code{"libnorm_mle"}, \code{"libnorm_map"}.}
+\item{log2fc}{Numeric, log2 fold-change magnitude for DEGs.}
 
-\item{disp_method}{Character string, method to use for dispersion estimates.
-One of \code{"mle"}, \code{"map"}.}
+\item{mean_method}{Character string, method to use for mean estimates.}
+
+\item{disp_method}{Character string, method to use for dispersion estimates.}
 
 \item{seed}{Optional integer random seed for reproducibility.}
-
-\item{X}{Numeric matrix or data frame of counts from the real data
-(samples in rows, genes in columns).}
-
-\item{ancestry}{Character scalar giving the ancestry label for this simulation.}
-
-\item{log2FC}{Numeric, log2 fold-change magnitude for DEGs.}
-}
-\value{
-A list with the following elements:
-\describe{
-  \item{\code{X}}{Simulated count matrix (samples x genes).}
-  \item{\code{M}}{Data frame of sample metadata.}
-  \item{\code{f}}{Data frame of gene-level features:
-       DE status (\code{is_DE}) and true log2FC (\code{true_log2FC}).}
-  \item{\code{input_params}}{Parameter estimates from the real data.}
-  \item{\code{output_params}}{Parameter estimates from the simulated data.}
-  \item{\code{in_out_plots}}{List of ggplot objects comparing means and dispersions
-       between real and simulated data.}
-}
 }
 \description{
 Generate a simulated RNA-seq count matrix for two groups using parameters

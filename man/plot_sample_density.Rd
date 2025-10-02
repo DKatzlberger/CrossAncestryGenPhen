@@ -9,6 +9,7 @@ plot_sample_density(
   Y,
   samples = NULL,
   cpm = FALSE,
+  mval = FALSE,
   title = NULL,
   x_label = NULL,
   y_label = NULL
@@ -22,6 +23,8 @@ plot_sample_density(
 \item{samples}{Vector of sample indices or row names to plot. If NULL, the first 9 samples are used.}
 
 \item{cpm}{Logical; if TRUE, transform counts to log2 CPM before plotting.}
+
+\item{mval}{Logical; if TRUE, apply m-value transformation before t-SNE.}
 
 \item{title}{Plot title.}
 

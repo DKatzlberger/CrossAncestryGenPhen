@@ -1,6 +1,6 @@
 #' Summarize subsets results by feature/coefficient with multiple aggregation methods
 #'
-#' @param data A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`.
+#' @param stats A data frame with columns: `feature`, `T_obs`, `p_value`, `p_adj`, `ave_expr`.
 #' @param method Aggregation method to highlight/return separately. Options: "mean", "cct", "fisher", "bonferroni".
 #' @param by Additional grouping variables besides `feature` (character vector).
 #'
@@ -10,7 +10,7 @@
 #'
 #' @export
 summarize_subsets <- function(
-  data,
+  stats,
   method = c("mean", "cct", "fisher", "bonferroni"),
   by = NULL
 ) {
@@ -20,19 +20,19 @@ summarize_subsets <- function(
   ## --- Check input ---
   required <- c(
     "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", 
-    "feature", "T_obs", "p_value", "p_adj", "ave_expr"
+    "feature", "T_obs", "SE", "p_value", "p_adj", "ave_expr"
   )
   
-  missing  <- setdiff(required, colnames(data))
+  missing  <- setdiff(required, colnames(stats))
   if (length(missing) > 0) {
     stop("[summarize_subsets] Missing required column(s): ", paste(missing, collapse = " "))
   }
 
 
   ## --- Check grouping vars ---
-  if (!is.null(by) && !all(by %in% colnames(data))) {
+  if (!is.null(by) && !all(by %in% colnames(stats))) {
     stop("[summarize_subsets] Grouping column(s) not found: ",
-         paste(setdiff(by, colnames(data)), collapse = " "))
+         paste(setdiff(by, colnames(stats)), collapse = " "))
   }
   per_feature_grouping <- unique(c("feature", by))
 
@@ -76,8 +76,8 @@ summarize_subsets <- function(
 
 
   ## --- Data.table prep ---
-  dt <- as.data.table(data)
-  keep_cols <- setdiff(colnames(dt), c("iteration","T_obs","p_value","p_adj","ave_expr", per_feature_grouping))
+  dt <- as.data.table(stats)
+  keep_cols <- setdiff(colnames(dt), c("iteration","T_obs", "SE", "p_value","p_adj","ave_expr", per_feature_grouping))
 
 
   ## --- Run each aggregation method ---
@@ -85,10 +85,12 @@ summarize_subsets <- function(
     names(aggregators), function(m) {
       agg_dt <- dt[, {
         T_obs    <- mean(T_obs, na.rm = TRUE)
+        SE       <- mean (SE, na.rm = TRUE)
         ave_expr <- mean(ave_expr, na.rm = TRUE)
 
         res <- list(
           T_obs    = T_obs,
+          SE       = SE,
           ave_expr = ave_expr,
           p_value  = aggregators[[m]](p_value)
         )
@@ -104,7 +106,7 @@ summarize_subsets <- function(
       ## Explicit forced order (same as limma_interaction_effect)
       out_cols <- c(
         "coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2",
-        "feature", "T_obs", "p_value", "p_adj", "ave_expr"
+        "feature", "T_obs", "SE", "p_value", "p_adj", "ave_expr"
       )
 
       ## Keep only those columns that actually exist

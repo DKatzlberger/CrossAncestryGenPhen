@@ -9,6 +9,7 @@
 #' @param color_var Name of the metadata variable for color (optional).
 #' @param shape_var Name of the metadata variable for shape (optional).
 #' @param cpm Logical; if TRUE, apply log2 CPM transformation before t-SNE.
+#' @param mval Logical; if TRUE, apply m-value transformation before t-SNE.
 #' @param perplexity t-SNE perplexity parameter.
 #' @param title Plot title.
 #' @param x_label X-axis label.
@@ -30,6 +31,7 @@ plot_tsne_cluster <- function(
   color_var = NULL,
   shape_var = NULL,
   cpm = FALSE,
+  mval = FALSE,
   perplexity = 50,
   title = NULL,
   x_label = NULL,
@@ -59,6 +61,11 @@ plot_tsne_cluster <- function(
   if (cpm) {
     X_cpm <- edgeR::cpm(t(X_comb), log = TRUE)
     X_comb <- t(X_cpm)
+  }
+
+  if (mval){
+    X_mval <- beta_to_mval(t(X_comb))
+    X_comb <- t(X_mval)
   }
 
   # Run t-SNE
