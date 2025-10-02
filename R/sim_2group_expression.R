@@ -73,6 +73,19 @@ sim_2group_expression <- function(
   )
 
 
+  ## --- Check for zero means ---
+  n_zero_means <- sum(real_means == 0 | is.na(real_means))
+  if (n_zero_means > 0) {
+    warning(sprintf("\n[sim_2group_expression] %d feature(s) with zero mean detected; these may cause NaN/NA logFC or is_DE values in truth table.", n_zero_means))
+  }
+
+  ## --- Check for zero dispersions ---
+  n_zero_disps <- sum(real_disps == 0 | is.na(real_disps))
+  if (n_zero_disps > 0) {
+    warning(sprintf("\n[sim_2group_expression] %d feature(s) with zero dispersion detected; simulation may generate degenerate counts.", n_zero_disps))
+  }
+
+
   ## --- Use generateSyntheticData from compcodeR ---
   sim <- compcodeR::generateSyntheticData(
     dataset = a_level,

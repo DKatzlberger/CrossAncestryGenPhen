@@ -5,25 +5,12 @@
 #' and optional QC plots.
 #'
 #' @param X Numeric matrix of raw counts (samples x genes).
-#' @param plot Logical, default `TRUE`. If `TRUE`, print QC plots of mean
-#'   expression, dispersion distribution, and the mean–dispersion trend.
+#' @param plot Logical, default `TRUE`. If `TRUE`, print QC plots of mean expression, dispersion distribution.
 #' @param seed Optional integer for reproducibility.
 #' @param verbose Logical, default `TRUE`. Print a brief summary.
 #'
-#' @return A list with:
-#' \describe{
-#'   \item{mains}{Dataset info (samples, features, gene IDs).}
-#'   \item{means}{Mean expression estimates (raw, logCPM, MLE, MAP, lib-normalized).}
-#'   \item{disps}{Dispersion estimates (common, trended, MLE, MAP).}
-#'   \item{libsize}{Effective library sizes (mean, min, max).}
-#'   \item{plot}{Patchwork object with QC plots.}
-#' }
 #'
-#' @details Library sizes are normalized with
-#' \code{\link[edgeR]{calcNormFactors}} before dispersion estimation.
-#'
-#' @importFrom edgeR DGEList calcNormFactors estimateGLMCommonDisp
-#'   estimateGLMTrendedDisp estimateGLMTagwiseDisp glmFit cpm
+#' @importFrom edgeR DGEList calcNormFactors estimateGLMCommonDisp estimateGLMTrendedDisp estimateGLMTagwiseDisp glmFit cpm
 #' @import ggplot2
 #' @import patchwork
 #' @export
@@ -143,7 +130,7 @@ estimate_nbinom_params <- function(
       sprintf("mean: %.2f",    mean(log2(means_mle + 1))),
       sprintf("median: %.2f",  median(log2(means_mle + 1))),
       sprintf("sd: %.2f",      sd(log2(means_mle + 1))),
-      sprintf("dropout: %.2f", frac_zero_means)
+      sprintf("dropout: %.2e", frac_zero_means)
     ))
 
     message(sprintf(
@@ -151,7 +138,7 @@ estimate_nbinom_params <- function(
       sprintf("mean: %.2f",    mean(log2(dge_mle$tagwise.dispersion + 1))),
       sprintf("median: %.2f",  median(log2(dge_mle$tagwise.dispersion + 1))),
       sprintf("sd: %.2f",      sd(log2(dge_mle$tagwise.dispersion + 1))),
-      sprintf("dropout: %.2f", frac_zero_disps)
+      sprintf("dropout: %.2e", frac_zero_disps)
     ))
 
     message(sprintf(

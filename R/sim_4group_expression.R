@@ -33,6 +33,7 @@ sim_4group_expression <- function(
   log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
+  drop_zeros = FALSE,
   seed = NULL,
   verbose = TRUE
 ){
@@ -49,6 +50,31 @@ sim_4group_expression <- function(
 
   a_1 <- a_levels[1]; a_2 <- a_levels[2]
   g_1 <- g_levels[1]; g_2 <- g_levels[2]
+
+
+  ## --- Drop problematic features ---
+  if (drop_zeros){
+    # Pick means & dispersions consistently
+    means_X <- estimates_X$means[[mean_method]]
+    means_Y <- estimates_Y$means[[mean_method]]
+    disps_X <- estimates_X$disps[[disp_method]]
+    disps_Y <- estimates_Y$disps[[disp_method]]
+
+    bad_idx <- which(means_X == 0 | means_Y == 0 | disps_X == 0 | disps_Y == 0)
+
+    if (length(bad_idx) > 0) {
+      message(sprintf("\n[sim_4group_expression] Dropping %d feature(s) with zero mean/disp before simulation.", length(bad_idx)))
+
+      keep <- setdiff(seq_along(means_X), bad_idx)
+
+      # Subset both estimate objects
+      estimates_X$means <- lapply(estimates_X$means, `[`, keep)
+      estimates_X$disps <- lapply(estimates_X$disps, `[`, keep)
+
+      estimates_Y$means <- lapply(estimates_Y$means, `[`, keep)
+      estimates_Y$disps <- lapply(estimates_Y$disps, `[`, keep)
+    }
+  }
 
 
   ## --- Simulate two ancestries ----
@@ -164,6 +190,13 @@ sim_4group_expression <- function(
 
   ## --- Combine DEGs truths ---
   sim_degs <- rbind(base_1, base_2, rel_1, rel_2, int)
+
+
+  ## --- Sanity check: look for NA in truth table ---
+  if (anyNA(sim_degs)) {
+    bad_rows <- which(!complete.cases(sim_degs))
+    warning(sprintf("\n[sim_4group_expression] %d row(s) in truth table contain NA values.", length(bad_rows)))
+  }
 
 
   ## --- Verbose message ---
