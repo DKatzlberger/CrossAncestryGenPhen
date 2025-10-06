@@ -10,17 +10,20 @@ Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 Imports:
-    Rcpp,
-    RcppArmadillo,
+    limma,
+    edgeR,
+    DESeq2,
+    compcodeR,
+    ComplexHeatmap,
     ggplot2,
+    ggrepel,
+    patchwork,
     Rtsne,
     tidymodels,
-    ComplexHeatmap,
-    edgeR,
-    ggrepel,
-    compcodeR,
+    Rcpp,
+    RcppArmadillo,
     fields,
-    patchwork
+    data.table
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -29,8 +32,7 @@ Suggests:
     knitr,
     rmarkdown,
     BiocManager,
-    doParallel,
-    data.table
+    doParallel
 URL: https://DKatzlberger.github.io/CrossAncestryGenPhen
 BugReports: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
 RoxygenNote: 7.3.2

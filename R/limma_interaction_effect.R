@@ -14,7 +14,6 @@
 #' @export
 #' @importFrom edgeR DGEList calcNormFactors
 #' @importFrom limma voom lmFit eBayes topTable makeContrasts contrasts.fit
-
 limma_interaction_effect <- function(
   X,
   Y,

@@ -9,29 +9,14 @@ estimate_nbinom_params(X, plot = TRUE, seed = NULL, verbose = TRUE)
 \arguments{
 \item{X}{Numeric matrix of raw counts (samples x genes).}
 
-\item{plot}{Logical, default `TRUE`. If `TRUE`, print QC plots of mean
-expression, dispersion distribution, and the mean–dispersion trend.}
+\item{plot}{Logical, default `TRUE`. If `TRUE`, print QC plots of mean expression, dispersion distribution.}
 
 \item{seed}{Optional integer for reproducibility.}
 
 \item{verbose}{Logical, default `TRUE`. Print a brief summary.}
 }
-\value{
-A list with:
-\describe{
-  \item{mains}{Dataset info (samples, features, gene IDs).}
-  \item{means}{Mean expression estimates (raw, logCPM, MLE, MAP, lib-normalized).}
-  \item{disps}{Dispersion estimates (common, trended, MLE, MAP).}
-  \item{libsize}{Effective library sizes (mean, min, max).}
-  \item{plot}{Patchwork object with QC plots.}
-}
-}
 \description{
 Fits an intercept-only negative binomial GLM to RNA-seq count data using
 \pkg{edgeR}. Returns mean expression, dispersion estimates, library sizes,
 and optional QC plots.
-}
-\details{
-Library sizes are normalized with
-\code{\link[edgeR]{calcNormFactors}} before dispersion estimation.
 }

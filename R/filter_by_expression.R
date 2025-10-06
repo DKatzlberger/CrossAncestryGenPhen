@@ -34,7 +34,8 @@ filter_by_expression <- function(
     MX = MX, 
     MY = MY, 
     g_col = g_col, 
-    a_col = a_col
+    a_col = a_col,
+    .fun = "filter_by_expression"
   )
 
 

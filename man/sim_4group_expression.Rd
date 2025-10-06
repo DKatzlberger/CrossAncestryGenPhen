@@ -16,6 +16,7 @@ sim_4group_expression(
   log2fc,
   mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
   disp_method = c("mle", "map"),
+  drop_zeros = FALSE,
   seed = NULL,
   verbose = TRUE
 )
