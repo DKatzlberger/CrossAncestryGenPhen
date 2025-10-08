@@ -12,6 +12,7 @@
 #' @param MY Metadata for Y (data.frame, rownames = sample IDs).
 #' @param g_col Name of phenotype column in metadata (factor with 2 levels).
 #' @param a_col Name of ancestry column in metadata (1 level per block).
+#' @param any_group Logical; if TRUE (default), filter by expression within groups. If FALSE, filter without grouping.
 #' @param verbose Print summary (default TRUE).
 #' @param plot Return mean–variance trend plot if available (default TRUE).
 #'
@@ -23,6 +24,7 @@ filter_by_expression <- function(
   MY,
   g_col,
   a_col,
+  any_group = TRUE,
   verbose = TRUE,
   plot = TRUE
 ){
@@ -62,13 +64,21 @@ filter_by_expression <- function(
 
   ## --- edgeR filterByExpr ---
   dge <- edgeR::DGEList(counts = t(matr))
-  grp <- interaction(meta[[g_col]], meta[[a_col]], drop = TRUE)
 
-  if (length(grp) != ncol(dge)) {
-    stop("[filter_by_expression] Length of group != number of samples in DGEList.")
+  if (any_group) {
+    grp <- interaction(meta[[g_col]], meta[[a_col]], drop = TRUE)
+
+    if (length(grp) != ncol(dge)) {
+      stop("[filter_by_expression] Length of group != number of samples in DGEList.")
+    }
+
+    keep <- edgeR::filterByExpr(dge, group = grp)
+
+  } else {
+    # No grouping — treat all samples as one population
+    keep <- edgeR::filterByExpr(dge)
   }
 
-  keep <- edgeR::filterByExpr(dge, group = grp)
   dge  <- dge[keep, , keep.lib.sizes = FALSE]
   matr_filt <- t(dge$counts)
   n_features  <- sum(keep)
@@ -116,6 +126,9 @@ filter_by_expression <- function(
 
 
     message("\nFilter by expression summary:")
+    if (any_group){
+      message(sprintf("Groups:     %s", paste(unique(grp), collapse = "  ")))
+    }
     message(sprintf("%s (X):    N: %-4d %s features: %-4d", out$X$ancestry, nrow(out$X$meta), fmt_counts(out$X$meta, g_col), n_features))
     message(sprintf("%s (Y):    N: %-4d %s features: %-4d", out$Y$ancestry, nrow(out$Y$meta), fmt_counts(out$Y$meta, g_col), n_features))
   }

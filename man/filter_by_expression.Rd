@@ -4,7 +4,17 @@
 \alias{filter_by_expression}
 \title{Filter expression data by ancestry and phenotype}
 \usage{
-filter_by_expression(X, Y, MX, MY, g_col, a_col, verbose = TRUE, plot = TRUE)
+filter_by_expression(
+  X,
+  Y,
+  MX,
+  MY,
+  g_col,
+  a_col,
+  any_group = TRUE,
+  verbose = TRUE,
+  plot = TRUE
+)
 }
 \arguments{
 \item{X}{Matrix of counts (rows = samples, cols = features) for ancestry X.}
@@ -18,6 +28,8 @@ filter_by_expression(X, Y, MX, MY, g_col, a_col, verbose = TRUE, plot = TRUE)
 \item{g_col}{Name of phenotype column in metadata (factor with 2 levels).}
 
 \item{a_col}{Name of ancestry column in metadata (1 level per block).}
+
+\item{any_group}{Logical; if TRUE (default), filter by expression within groups. If FALSE, filter without grouping.}
 
 \item{verbose}{Print summary (default TRUE).}
 
