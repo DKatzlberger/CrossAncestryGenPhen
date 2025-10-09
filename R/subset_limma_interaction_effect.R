@@ -16,7 +16,6 @@
 #' @param agg_method Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni", "all".
 #' @param seed Optional integer for random seed to ensure reproducibility.
 #' @param verbose Logical; whether to print progress messages.
-#' @param workers Number of parallel workers to use. Defaults to `future::availableCores() - 1` (reserving one core).
 #'
 #' @return A list with the following elements:
 #' \describe{
@@ -38,8 +37,7 @@ subset_limma_interaction_effect <- function(
   n_iter = 1000,
   agg_method = c("mean", "cct", "fisher", "bonferroni", "all"),
   seed = NULL,
-  verbose = TRUE,
-  workers = future::availableCores() - 1
+  verbose = TRUE
 ) {
 
   ## --- Match the method ---
@@ -57,10 +55,11 @@ subset_limma_interaction_effect <- function(
     .fun = "subset_limma_interaction_effect"
   )
 
+
   ## --- Parallelization steps ---
-  orig_plan <- future::plan()
-  future::plan(multisession, workers = workers)
-  on.exit(future::plan(orig_plan), add = TRUE)
+  # orig_plan <- future::plan()
+  # future::plan(multisession, workers = workers)
+  # on.exit(future::plan(orig_plan), add = TRUE)
 
 
   ## --- Seeds for reproducibility ---

@@ -30,7 +30,7 @@ theme_nature_fonts <- function(base_size = 8) {
 #' @return A ggplot2 theme object.
 #' @export
 theme_small_legend <- function(base_size = 8, ...) {
-  key_size_pt <- base_size * 1.3  # visually balances with text height
+  key_size_pt <- base_size * 1.1  # visually balances with text height
 
   ggplot2::theme(
     legend.key.spacing = ggplot2::unit(0.2, "pt"),
