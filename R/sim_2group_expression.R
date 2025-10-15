@@ -97,8 +97,6 @@ sim_2group_expression <- function(
     effect.size = if (log2fc == 0) 0 else 2^log2fc,
     fraction.upregulated = 0.5,
     seqdepth = real_estimates$libsize$mean,
-    minfact  = real_estimates$libsize$min / real_estimates$libsize$mean,
-    maxfact  = real_estimates$libsize$max / real_estimates$libsize$mean,
     fraction.non.overdispersed = 0,
     random.outlier.high.prob = 0,
     random.outlier.low.prob = 0,
@@ -141,11 +139,44 @@ sim_2group_expression <- function(
     g_2       = g_2,
     feature   = colnames(sim_counts),
     T_obs     = sim@variable.annotations$truelog2foldchanges,
-    ave_expr  = rowMeans(log2(cbind(sim_mean$mean_g_1, sim_mean$mean_g_2) + 1)),
-    is_DE     = sim@variable.annotations$differential.expression, 
     row.names = NULL
   )
-  # rownames(sim_features) <- colnames(sim_counts) # rownames are feature names (matrix)
+
+
+  ## --- Sanity checks ----
+  # Extract the original conditions from compcodeR
+  orig_cond <- sim@sample.annotations$condition
+  new_cond  <- as.integer(sim_meta[[g_col]])
+
+  # Check mapping integrity
+  if (!identical(length(orig_cond), length(new_cond))) {
+    stop("[sim_2group_expression] Sample count mismatch between compcodeR annotations and simulated meta")
+  }
+
+  # Check that condition mapping (1→g_1, 2→g_2) was preserved
+  cond_map <- table(orig_cond, new_cond)
+  if (!all(diag(cond_map) == table(orig_cond)) || nrow(cond_map) != 2L) {
+    stop("[sim_2group_expression] Group assignment mismatch: sim_meta$g_col does not reflect compcodeR conditions (1 = g_1, 2 = g_2).")
+  }
+
+  # Verify that feature rows match compcodeR variable annotations
+  if (!identical(sim_degs$feature, rownames(sim@variable.annotations))) {
+    stop("[sim_2group_expression] Feature rows in truth table do NOT match compcodeR variable.annotations — simulation output misaligned.")
+  } 
+
+  # Check sample alignment
+  if (!identical(rownames(sim_counts), rownames(sim_meta))) {
+    stop("[sim_2group_expression] Sample IDs in 'meta' and 'matrix' are not aligned.")
+  }
+
+  # Check gene alignment
+  genes_matr <- colnames(sim_counts)
+  genes_feat <- sim_mean$feature
+  genes_degs <- sim_degs$feature
+
+  if (!identical(genes_matr, genes_feat) || !identical(genes_matr, genes_degs)) {
+    stop("[sim_2group_expression] Gene feature names are misaligned between 'matrics', 'feature means', and 'DEGs'.")
+  }
 
 
   # ## --- Comparison real vs. sim ---

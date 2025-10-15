@@ -4,7 +4,7 @@
 \alias{theme_nature_fonts}
 \title{Nature-Inspired Font Sizes Theme (Internal)}
 \usage{
-theme_nature_fonts(base_size = 8)
+theme_nature_fonts(base_size = 8, ...)
 }
 \arguments{
 \item{base_size}{Base font size for all text elements (default: 5).}

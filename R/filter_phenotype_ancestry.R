@@ -34,11 +34,13 @@ filter_phenotype_ancestry <- function(
   a_col,
   g_levels,
   a_levels,
+  covariates = NULL,
   plot = TRUE,
   verbose = TRUE
 ){
 
   ## --- Input data structure check ---
+  ## Different from how normal checked becuase at the beginning of the pipeline
   if (length(g_levels) != 2 || length(a_levels) != 2) {
     stop("[filter_phenotype_ancestry] Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
   }
@@ -52,7 +54,18 @@ filter_phenotype_ancestry <- function(
   }
 
 
-  ## --- Filter meta (M) ---
+  ## --- Filter meta by columns ---
+  meta_cols <- unique(c(g_col, a_col, covariates))
+  meta_cols <- meta_cols[meta_cols %in% colnames(M)]
+
+  if (length(meta_cols) == 0) {
+    stop("[filter_phenotype_ancestry] No valid metadata columns found (check g_col, a_col, and covariates).")
+  }
+
+  M <- M[, meta_cols, drop = FALSE]
+
+
+  ## --- Filter meta rows (M) ---
   keep   <- M[[a_col]] %in% a_levels & M[[g_col]] %in% g_levels
   M_filt <- M[keep, , drop = FALSE]
 
@@ -102,6 +115,25 @@ filter_phenotype_ancestry <- function(
   Y_out <- split_by_ancestry(a_levels[2])
 
 
+  ## --- NA check for each ancestry ---
+  na_X <- colSums(is.na(X_out$meta))
+  na_Y <- colSums(is.na(Y_out$meta))
+
+  total_na_X <- sum(na_X)
+  total_na_Y <- sum(na_Y)
+
+  if (total_na_X > 0 || total_na_Y > 0) {
+    msg_X <- paste(sprintf("%s: %-4d", names(na_X), na_X), collapse = " ")
+    msg_Y <- paste(sprintf("%s: %-4d", names(na_Y), na_Y), collapse = " ")
+
+    message("\nNAs detected:")
+    message(sprintf("%s (X)    N: %-4d %s  | Total NAs: %d", X_out$ancestry, nrow(X_out$meta), msg_X, total_na_X))
+    message(sprintf("%s (Y)    N: %-4d %s  | Total NAs: %d", Y_out$ancestry, nrow(Y_out$meta), msg_Y, total_na_Y))
+
+    stop()
+  }
+
+
   ## --- Imbalace plot ---
   p <- plot_imbalanced_groups(
     MX = X_out$meta,
@@ -120,17 +152,56 @@ filter_phenotype_ancestry <- function(
 
   ## --- Verbose message ----
   if (verbose) {
+
     fmt_counts <- function(M, g_col) {
       if (is.null(M) || !nrow(M)) return("")
       tab <- table(M[[g_col]], dnn = NULL)
-      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = "  ")
     }
 
+    # Defined groups
+    grp_X <- interaction(X_out$meta[[g_col]], X_out$meta[[a_col]], drop = TRUE)
+    grp_Y <- interaction(Y_out$meta[[g_col]], Y_out$meta[[a_col]], drop = TRUE)
+    grp   <- c(grp_X, grp_Y)
 
     message("\nSubset phenotype ancestry summary:")
-    message(sprintf("%s (X):    N: %-4d %s features: %-4d", X_out$ancestry, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
-    message(sprintf("%s (Y):    N: %-4d %s features: %-4d", Y_out$ancestry, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
+    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+
+    message(sprintf(
+      "%-18s N: %-18d  %-18s  features: %-18d",
+      paste0(X_out$ancestry, " (X):"),
+      nrow(X_out$meta),
+      fmt_counts(X_out$meta, g_col),
+      ncol(X_out$matr)
+    ))
+
+    message(sprintf(
+      "%-18s N: %-18d  %-18s  features: %-18d",
+      paste0(Y_out$ancestry, " (Y):"),
+      nrow(Y_out$meta),
+      fmt_counts(Y_out$meta, g_col),
+      ncol(Y_out$matr)
+    ))
   }
+
+  # if (verbose) {
+  #   fmt_counts <- function(M, g_col) {
+  #     if (is.null(M) || !nrow(M)) return("")
+  #     tab <- table(M[[g_col]], dnn = NULL)
+  #     paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+  #   }
+
+
+  #   # Defined groups
+  #   grp_X <- interaction(X_out$meta[[g_col]], X_out$meta[[a_col]], drop = TRUE)
+  #   grp_Y <- interaction(Y_out$meta[[g_col]], Y_out$meta[[a_col]], drop = TRUE)
+  #   grp   <- c(grp_X, grp_Y)
+
+  #   message("\nSubset phenotype ancestry summary:")
+  #   message(sprintf("Groups:     %s", paste(unique(grp), collapse = "  ")))
+  #   message(sprintf("%s (X):    N: %-4d %s features: %-4d", X_out$ancestry, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
+  #   message(sprintf("%s (Y):    N: %-4d %s features: %-4d", Y_out$ancestry, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
+  # }
 
 
   ## --- Return ---

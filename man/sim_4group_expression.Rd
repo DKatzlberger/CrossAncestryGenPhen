@@ -14,8 +14,8 @@ sim_4group_expression(
   n_samples,
   n_degs,
   log2fc,
-  mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
-  disp_method = c("mle", "map"),
+  mean_method = c("mle", "libnorm_mle"),
+  disp_method = c("mle"),
   drop_zeros = FALSE,
   seed = NULL,
   verbose = TRUE

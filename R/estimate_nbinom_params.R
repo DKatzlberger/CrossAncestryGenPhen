@@ -73,9 +73,9 @@ estimate_nbinom_params <- function(
   means_mle <- rowMeans(fit_mle$fitted.values)
 
   # MAP dispersion (with prior)
-  dge_map <- edgeR::estimateGLMTagwiseDisp(dge_disp, design = design)
-  fit_map <- edgeR::glmFit(dge_map, design, dispersion = dge_map$tagwise.dispersion)
-  means_map <- rowMeans(fit_map$fitted.values)
+  # dge_map <- edgeR::estimateGLMTagwiseDisp(dge_disp, design = design)
+  # fit_map <- edgeR::glmFit(dge_map, design, dispersion = dge_map$tagwise.dispersion)
+  # means_map <- rowMeans(fit_map$fitted.values)
 
 
   ## --- Estimate means ---
@@ -85,22 +85,22 @@ estimate_nbinom_params <- function(
 
   # Lambda estimates (normalized by effective lib size)
   lambda_mle <- rowMeans(sweep(fit_mle$fitted.values, 2, eff_libsizes, FUN = "/"))
-  lambda_map <- rowMeans(sweep(fit_map$fitted.values, 2, eff_libsizes, FUN = "/"))
+  # lambda_map <- rowMeans(sweep(fit_map$fitted.values, 2, eff_libsizes, FUN = "/"))
 
   estimated_means <- list(
     raw = as.numeric(means_raw),
     logcpm = as.numeric(means_logcpm),
     mle = as.numeric(means_mle),
-    map = as.numeric(means_map),
-    libnorm_mle = as.numeric(lambda_mle),
-    libnorm_map = as.numeric(lambda_map)
+    # map = as.numeric(means_map),
+    libnorm_mle = as.numeric(lambda_mle)
+    # libnorm_map = as.numeric(lambda_map)
   )
 
   estimated_disps <- list(
     common = dge_disp$common.dispersion,
     trend = dge_disp$trended.dispersion,
-    mle = dge_mle$tagwise.dispersion,
-    map = dge_map$tagwise.dispersion
+    mle = dge_mle$tagwise.dispersion
+    # map = dge_map$tagwise.dispersion
   )
 
   ## --- Zero fraction ---
@@ -113,6 +113,52 @@ estimate_nbinom_params <- function(
   frac_zero_disps <- n_zero_disps / length(dge_mle$tagwise.dispersion)
 
 
+  ## --- QC goodness of fit ---
+  n_qua <- 100
+  probs <- seq(0.1, 0.99, length.out = n_qua)
+
+  # Empirical and theoretical quantiles
+  emp_qua <- apply(X, 1, quantile, probs = probs)
+  the_qua <- estimate_nbinom_quantiles(mu = estimated_means$mle, phi = estimated_disps$mle, probs = probs)
+
+  # QQ-correlation
+  bins <- 50
+  qc_quantiles <- compute_qq_correlation(
+    empirical   = emp_qua,
+    theoretical = the_qua,
+    method = "pearson",
+    bins = bins,
+    x_label = "Pearson QQ-correlation"
+  )
+
+
+  ## --- Plot ---
+  data <- data.frame(
+    means_mle = means_mle,
+    disp_mle = dge_mle$tagwise.dispersion
+  )
+
+  # Mean distribution
+  p_means <- ggplot(data, aes(x = log2(means_mle + 1))) +
+    geom_histogram(bins = bins, fill = "grey80", color = "black", linewidth = 0.1) +
+    geom_vline(aes(xintercept = mean(log2(means_mle + 1))), color = "red", linewidth = 0.3) +
+    labs(x = "Log2 Expression", y = "Count")+ theme_nature_fonts() +
+    theme_small_legend() + theme_white_background()
+
+  # Dispersion distribution (MLE)
+  p_disps <- ggplot(data, aes(x = log2(disp_mle + 1))) +
+    geom_histogram(bins = bins, fill = "grey80", color = "black", linewidth = 0.1) +
+    geom_vline(aes(xintercept = mean(log2(disp_mle + 1))), color = "red", linewidth = 0.3) +
+    labs(x = "Log2 Dispersion", y = "Count") + theme_nature_fonts() +
+    theme_small_legend() + theme_white_background()
+
+  # Patchwork
+  p <- patchwork::wrap_plots(p_means, p_disps, qc_quantiles$plot, ncol = 3, nrow = 1)
+  if (plot){
+    print(p)
+  }
+
+
   ## --- Verbose massage ---
   if (verbose){
     message("\nEstimate NB params summary:")
@@ -122,6 +168,14 @@ estimate_nbinom_params <- function(
       sprintf("groups: %d",   ncol(design)),
       sprintf("N: %d",        ncol(X)),
       sprintf("features: %d", nrow(X)),
+      ""
+    ))
+
+    message(sprintf(
+      "Lib. size:    %-18s %-18s %-18s %-18s",
+      sprintf("mean: %.2e", mean_eff_libsize),
+      sprintf("min: %.2e",  min_eff_libsize),
+      sprintf("max: %.2e",  max_eff_libsize),
       ""
     ))
 
@@ -142,43 +196,13 @@ estimate_nbinom_params <- function(
     ))
 
     message(sprintf(
-      "Lib. size:    %-18s %-18s %-18s %-18s",
-      sprintf("mean: %.2e", mean_eff_libsize),
-      sprintf("min: %.2e",  min_eff_libsize),
-      sprintf("max: %.2e",  max_eff_libsize),
+      "QQ-pearson:   %-18s %-18s %-18s %-18s",
+      sprintf("mean: %.2f",   mean(qc_quantiles$corrs)),
+      sprintf("median: %.2f", median(qc_quantiles$corrs)),
+      sprintf("sd: %.2f",     sd(qc_quantiles$corrs)),
       ""
     ))
   }
-
-
-
-  ## --- Plot ---
-  data <- data.frame(
-    means_mle = means_mle,
-    disp_mle = dge_mle$tagwise.dispersion
-  )
-
-  # Mean distribution
-  p_means <- ggplot(data, aes(x = log2(means_mle + 1))) +
-    geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
-    geom_vline(aes(xintercept = mean(log2(means_mle + 1))), color = "red", linewidth = 0.3) +
-    labs(x = "Log2 Expression", y = "Count")+ theme_nature_fonts() +
-    theme_small_legend() + theme_white_background()
-
-  # Dispersion distribution (MLE)
-  p_disps <- ggplot(data, aes(x = log2(disp_mle + 1))) +
-    geom_histogram(bins = 30, fill = "grey80", color = "black", linewidth = 0.1) +
-    geom_vline(aes(xintercept = mean(log2(disp_mle + 1))), color = "red", linewidth = 0.3) +
-    labs(x = "Log2 Dispersion", y = "Count") + theme_nature_fonts() +
-    theme_small_legend() + theme_white_background()
-
-  # Patchwork
-  p <- patchwork::wrap_plots(p_means, p_disps, ncol = 2, nrow = 1)
-  if (plot){
-    print(p)
-  }
-
-
 
   ## --- Return ---
   return(

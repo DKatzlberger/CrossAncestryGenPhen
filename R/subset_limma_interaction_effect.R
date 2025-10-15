@@ -56,10 +56,9 @@ subset_limma_interaction_effect <- function(
   )
 
 
-  ## --- Parallelization steps ---
-  # orig_plan <- future::plan()
-  # future::plan(multisession, workers = workers)
-  # on.exit(future::plan(orig_plan), add = TRUE)
+  ## --- Parallelization setup ---
+  n_workers  <- future::nbrOfWorkers()
+  message(sprintf("\n[subset_limma_interaction_effect] Workers available: %d", n_workers))
 
 
   ## --- Seeds for reproducibility ---

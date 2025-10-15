@@ -31,8 +31,8 @@ sim_4group_expression <- function(
   n_samples,
   n_degs,
   log2fc,
-  mean_method = c("mle", "map", "libnorm_mle", "libnorm_map"),
-  disp_method = c("mle", "map"),
+  mean_method = c("mle", "libnorm_mle"),
+  disp_method = c("mle"),
   drop_zeros = FALSE,
   seed = NULL,
   verbose = TRUE
@@ -111,9 +111,21 @@ sim_4group_expression <- function(
   # Per-condition means
   mean_X <- sim_X$feat
   mean_Y <- sim_Y$feat
+
+  # Feature alignment
+  if (!identical(mean_X$feature, mean_Y$feature)) {
+    stop("[sim_4group_expression] Feature means are not identical for X and Y.")
+  }
+
   # Relationship (DEGs)
   rel_X <- sim_X$degs
   rel_Y <- sim_Y$degs
+
+  # Feature alignment
+  if (!identical(rel_X$feature, rel_Y$feature)) {
+    stop("[sim_4group_expression] DEGs are not identical for X and Y.")
+  }
+
   # Features
   features <- mean_X$feature
 
@@ -129,8 +141,6 @@ sim_4group_expression <- function(
     a_2       = a_2,
     feature   = features,
     T_obs     = log2(mean_Y$mean_g_1) - log2(mean_X$mean_g_1),
-    ave_expr  = rowMeans(log2(cbind(mean_X$mean_g_1, mean_Y$mean_g_1) + 1)),
-    is_DE     = as.numeric((log2(mean_Y$mean_g_1) - log2(mean_X$mean_g_1)) != 0),
     row.names = NULL
   )
 
@@ -146,29 +156,25 @@ sim_4group_expression <- function(
     a_2       = a_2,
     feature   = features,
     T_obs     = log2(mean_Y$mean_g_2) - log2(mean_X$mean_g_2),
-    ave_expr  = rowMeans(log2(cbind(mean_X$mean_g_2, mean_Y$mean_g_2) + 1)),
-    is_DE     = as.numeric((log2(mean_Y$mean_g_2) - log2(mean_X$mean_g_2)) != 0),
     row.names = NULL
   )
 
 
   # Relationship_1: g2.a1 - g1.a1
-  rel_1 <- rel_X
-  rel_1$coef_id  <- "relationship_1"
-  rel_1$coef_type <- "relationship"
-  rel_1$a_1 <- a_1
-  rel_1$a_2 <- a_1
+  rel_X$coef_id   <- "relationship_1"
+  rel_X$coef_type <- "relationship"
+  rel_X$a_1       <- a_1
+  rel_X$a_2       <- a_1
   # Column order
-  rel_1 <- rel_1[, c("coef_id","coef_type","contrast","g_1","g_2","a_1","a_2", "feature","T_obs","ave_expr","is_DE")]
+  rel_X <- rel_X[, c("coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", "feature", "T_obs")]
 
   # Relationship_2: g2.a2 - g1.a2
-  rel_2 <- rel_Y
-  rel_2$coef_id  <- "relationship_2"
-  rel_2$coef_type <- "relationship"
-  rel_2$a_1 <- a_2
-  rel_2$a_2 <- a_2
+  rel_Y$coef_id   <- "relationship_2"
+  rel_Y$coef_type <- "relationship"
+  rel_Y$a_1       <- a_2
+  rel_Y$a_2       <- a_2
   # Column order
-  rel_2 <- rel_2[, c("coef_id","coef_type","contrast","g_1","g_2","a_1","a_2", "feature","T_obs","ave_expr","is_DE")]
+  rel_Y <- rel_Y[, c("coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", "feature", "T_obs")]
 
 
   # Interaction: (rel2 - rel1)
@@ -181,15 +187,13 @@ sim_4group_expression <- function(
     a_1       = a_1, 
     a_2       = a_2,
     feature   = features,
-    T_obs     = rel_2$T_obs - rel_1$T_obs,
-    ave_expr  = rowMeans(log2(cbind(mean_X$mean_g_1, mean_X$mean_g_2, mean_Y$mean_g_1, mean_Y$mean_g_2) + 1)),
-    is_DE     = as.numeric((rel_2$T_obs - rel_1$T_obs) != 0),
+    T_obs     = rel_Y$T_obs - rel_X$T_obs,
     row.names = NULL
   )
 
 
   ## --- Combine DEGs truths ---
-  sim_degs <- rbind(base_1, base_2, rel_1, rel_2, int)
+  sim_degs <- rbind(base_1, base_2, rel_X, rel_Y, int)
 
 
   ## --- Sanity check: look for NA in truth table ---
@@ -199,17 +203,123 @@ sim_4group_expression <- function(
   }
 
 
-  ## --- Verbose message ---
-  if (verbose) {
-    fmt_counts <- function(meta, label) {
-      tab <- table(meta[[g_col]], dnn = NULL)
-      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+  ## --- Align to DEG contrasts ---
+  {
+    # Build "true" group means table
+    M <- data.frame(
+      g1.a1 = mean_X$mean_g_1,
+      g2.a1 = mean_X$mean_g_2,
+      g1.a2 = mean_Y$mean_g_1,
+      g2.a2 = mean_Y$mean_g_2
+    )
+
+    # Compute DGE contrasts directly from means
+    dge_truth <- data.frame(
+      baseline_1     = log2(M$g1.a2) - log2(M$g1.a1),
+      baseline_2     = log2(M$g2.a2) - log2(M$g2.a1),
+      relationship_1 = log2(M$g2.a1) - log2(M$g1.a1),
+      relationship_2 = log2(M$g2.a2) - log2(M$g1.a2),
+      interaction    = (log2(M$g2.a2) - log2(M$g1.a2)) - (log2(M$g2.a1) - log2(M$g1.a1))
+    )
+
+    # Corresponding simulation truth
+    sim_truth <- data.frame(
+      baseline_1     = log2(mean_Y$mean_g_1) - log2(mean_X$mean_g_1),
+      baseline_2     = log2(mean_Y$mean_g_2) - log2(mean_X$mean_g_2),
+      relationship_1 = rel_X$T_obs,
+      relationship_2 = rel_Y$T_obs,
+      interaction    = rel_Y$T_obs - rel_X$T_obs
+    )
+
+    # Check numeric alignment
+    diffs <- dge_truth - sim_truth
+    max_diff <- sapply(diffs, function(x) max(abs(x), na.rm = TRUE))
+    corrs <- mapply(function(x, y) suppressWarnings(cor(x, y, use = "pairwise.complete.obs")), dge_truth, sim_truth)
+
+    bad <- which(max_diff > 1e-10 | corrs < 0.999)
+    if (length(bad) > 0) {
+      stop(sprintf("[sim_4group_expression] Contrast alignment failed for: %s", paste(names(bad), collapse = ", ")))
+    }
+  }
+
+
+  ## --- Final consistency checks ----
+  {
+    # Check sample alignment
+    if (!identical(rownames(sim_X$matr), rownames(sim_X$meta)) ||
+        !identical(rownames(sim_Y$matr), rownames(sim_Y$meta))) {
+      stop("[sim_4group_expression] Sample IDs in 'matrix' and 'meta' not aligned.")
     }
 
-    message("\n4-group simulation summary:")
-    message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_1, nrow(sim_X$matr), n_degs, log2fc, fmt_counts(sim_X$meta, a_1), ncol(sim_X$matr)))
-    message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_2, nrow(sim_Y$matr), n_degs, log2fc, fmt_counts(sim_Y$meta, a_2), ncol(sim_X$matr)))
+    # Check feature alignment
+    feat_matr_X <- colnames(sim_X$matr)
+    feat_matr_Y <- colnames(sim_Y$matr)
+    feat_truth  <- unique(sim_degs$feature)
+
+    if (!identical(feat_matr_X, feat_matr_Y) || !identical(feat_matr_X, feat_truth)) {
+      stop("[sim_4group_expression] Feature names misaligned between 'matrix' and truth tables.")
+    }
   }
+
+
+  ## --- Plot ---
+
+
+
+  ## --- Verbose message ---
+  if (verbose) {
+
+    fmt_counts <- function(meta, g_col) {
+      tab <- table(meta[[g_col]], dnn = NULL)
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = "  ")
+    }
+
+    # Define combined groups
+    grp_X <- interaction(sim_X$meta[[g_col]], sim_X$meta[[a_col]], drop = TRUE)
+    grp_Y <- interaction(sim_Y$meta[[g_col]], sim_Y$meta[[a_col]], drop = TRUE)
+    grp   <- c(grp_X, grp_Y)
+
+    message("\n4-group simulation summary:")
+    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+
+    message(sprintf(
+      "%-18s N: %-5d  n_DEGs: %-18d  log2FC: %-18.1f  %-18s  features: %-18d",
+      paste0(a_1, " (X):"),
+      nrow(sim_X$matr),
+      n_degs,
+      log2fc,
+      fmt_counts(sim_X$meta, g_col),
+      ncol(sim_X$matr)
+    ))
+
+    message(sprintf(
+      "%-18s N: %-18d  n_DEGs: %-18d  log2FC: %-18.1f  %-18s  features: %-18d",
+      paste0(a_2, " (Y):"),
+      nrow(sim_Y$matr),
+      n_degs,
+      log2fc,
+      fmt_counts(sim_Y$meta, g_col),
+      ncol(sim_Y$matr)
+    ))
+  }
+
+
+  # if (verbose) {
+  #   fmt_counts <- function(meta, label) {
+  #     tab <- table(meta[[g_col]], dnn = NULL)
+  #     paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+  #   }
+
+  #   # Define group labels for clarity
+  #   grp_X <- interaction(sim_X$meta[[g_col]], sim_X$meta[[a_col]], drop = TRUE)
+  #   grp_Y <- interaction(sim_Y$meta[[g_col]], sim_Y$meta[[a_col]], drop = TRUE)
+  #   grp   <- c(grp_X, grp_Y)
+
+  #   message("\n4-group simulation summary:")
+  #   message(sprintf("Groups:    %s", paste(unique(grp), collapse = "  ")))
+  #   message(sprintf("%s (X):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_1, nrow(sim_X$matr), n_degs, log2fc, fmt_counts(sim_X$meta, a_1), ncol(sim_X$matr)))
+  #   message(sprintf("%s (Y):    N: %-4d  n_DEGs: %-4d  log2FC: %-4.1f %s features: %-4d", a_2, nrow(sim_Y$matr), n_degs, log2fc, fmt_counts(sim_Y$meta, a_2), ncol(sim_X$matr)))
+  # }
 
 
   ## --- Return ---
@@ -224,7 +334,7 @@ sim_4group_expression <- function(
       Y = list(
         matr = sim_Y$matr, 
         meta = sim_Y$meta
-        # feat = sim_Y$feat
+        # feat  = sim_Y$feat
         # plot  = sim_Y$in_out_plots
       ),
       degs = sim_degs

@@ -30,20 +30,25 @@ compute_qq_correlation <- function(
   y_label = NULL,
   bins = 50
 ){
-
-  # Input checks
-  stopifnot(dim(empirical) == dim(theoretical))
+  ## --- Match method ---
   method <- match.arg(method)
 
-  cors <- sapply(seq_len(ncol(empirical)), function(j) {
+  ## --- Input checks ---
+  stopifnot(dim(empirical) == dim(theoretical))
+
+
+  ## --- Correlations ---
+  corrs <- sapply(seq_len(ncol(empirical)), function(j) {
     e <- empirical[, j]
     t <- theoretical[, j]
     cor(e, t, method = method)
   })
-  cors <- setNames(cors, colnames(empirical))
+  corrs <- setNames(corrs, colnames(empirical))
 
+
+  ## --- Plot ---
   p <- ggplot(
-    data = data.frame(correlation = cors),
+    data = data.frame(correlation = corrs),
     mapping = aes(
       x = correlation
     )
@@ -53,6 +58,13 @@ compute_qq_correlation <- function(
     fill = "gray80",
     color = "black",
     linewidth = 0.1
+  ) +
+  geom_vline(
+    aes(
+      xintercept = mean(correlation)
+    ), 
+      color = "red", 
+      linewidth = 0.3
   )
 
   # Final styling
@@ -65,10 +77,10 @@ compute_qq_correlation <- function(
   theme_white_background() +
   theme_small_legend()
 
+  ## --- Return ---
   return(
     list(
-      cors = cors,
-      method = method,
+      corrs = corrs,
       plot = p
     )
   )

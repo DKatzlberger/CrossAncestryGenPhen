@@ -16,8 +16,7 @@ subset_limma_interaction_effect(
   n_iter = 1000,
   agg_method = c("mean", "cct", "fisher", "bonferroni", "all"),
   seed = NULL,
-  verbose = TRUE,
-  workers = future::availableCores() - 1
+  verbose = TRUE
 )
 }
 \arguments{
@@ -44,8 +43,6 @@ subset_limma_interaction_effect(
 \item{seed}{Optional integer for random seed to ensure reproducibility.}
 
 \item{verbose}{Logical; whether to print progress messages.}
-
-\item{workers}{Number of parallel workers to use. Defaults to `future::availableCores() - 1` (reserving one core).}
 }
 \value{
 A list with the following elements:

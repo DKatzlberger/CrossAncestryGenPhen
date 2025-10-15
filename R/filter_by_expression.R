@@ -76,7 +76,8 @@ filter_by_expression <- function(
 
   } else {
     # No grouping — treat all samples as one population
-    keep <- edgeR::filterByExpr(dge)
+    grp <- factor(rep("All", ncol(dge)))
+    keep <- edgeR::filterByExpr(dge, group = grp)
   }
 
   dge  <- dge[keep, , keep.lib.sizes = FALSE]
@@ -118,20 +119,54 @@ filter_by_expression <- function(
 
   ## --- Verbose message ----
   if (verbose) {
+
     fmt_counts <- function(M, g_col) {
       if (is.null(M) || !nrow(M)) return("")
       tab <- table(M[[g_col]], dnn = NULL)
-      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = "  ")
     }
-
 
     message("\nFilter by expression summary:")
-    if (any_group){
-      message(sprintf("Groups:     %s", paste(unique(grp), collapse = "  ")))
+    if (any_group) {
+      message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+    } else {
+      message(sprintf("%-18s %s", "Groups:", "1"))
     }
-    message(sprintf("%s (X):    N: %-4d %s features: %-4d", out$X$ancestry, nrow(out$X$meta), fmt_counts(out$X$meta, g_col), n_features))
-    message(sprintf("%s (Y):    N: %-4d %s features: %-4d", out$Y$ancestry, nrow(out$Y$meta), fmt_counts(out$Y$meta, g_col), n_features))
+
+    message(sprintf(
+      "%-18s N: %-18d  %-18s  features: %-18d",
+      paste0(out$X$ancestry, " (X):"),
+      nrow(out$X$meta),
+      fmt_counts(out$X$meta, g_col),
+      n_features
+    ))
+
+    message(sprintf(
+      "%-18s N: %-5d  %-18s  features: %-18d",
+      paste0(out$Y$ancestry, " (Y):"),
+      nrow(out$Y$meta),
+      fmt_counts(out$Y$meta, g_col),
+      n_features
+    ))
   }
+
+  # if (verbose) {
+  #   fmt_counts <- function(M, g_col) {
+  #     if (is.null(M) || !nrow(M)) return("")
+  #     tab <- table(M[[g_col]], dnn = NULL)
+  #     paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+  #   }
+
+
+  #   message("\nFilter by expression summary:")
+  #   if (any_group){
+  #     message(sprintf("Groups:     %s", paste(unique(grp), collapse = "  ")))
+  #   } else{
+  #      message(sprintf("Groups:     %s", "1"))
+  #   }
+  #   message(sprintf("%s (X):    N: %-4d %s features: %-4d", out$X$ancestry, nrow(out$X$meta), fmt_counts(out$X$meta, g_col), n_features))
+  #   message(sprintf("%s (Y):    N: %-4d %s features: %-4d", out$Y$ancestry, nrow(out$Y$meta), fmt_counts(out$Y$meta, g_col), n_features))
+  # }
 
 
   ## --- Return ---

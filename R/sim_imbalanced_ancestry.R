@@ -115,21 +115,67 @@ sim_imbalanced_ancestry <- function(
   X_out <- sample_two_way(MX, X, g_col, n_major, within_major_ratio, replace)
   Y_out <- sample_two_way(MY, Y, g_col, n_minor, within_minor_ratio, replace)
 
-  ## --- Verbose summary ---
+  ## --- Verbose message ---
   if (verbose) {
+
     fmt_counts <- function(M, g_col) {
+      if (is.null(M) || !nrow(M)) return("")
       tab <- table(M[[g_col]], dnn = NULL)
-      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+      paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = "  ")
     }
 
+    # Define group labels for clarity
+    grp_X <- interaction(X_out$meta[[g_col]], X_out$meta[[a_col]], drop = TRUE)
+    grp_Y <- interaction(Y_out$meta[[g_col]], Y_out$meta[[a_col]], drop = TRUE)
+    grp   <- c(grp_X, grp_Y)
+
     message("\nImbalanced ancestry summary:")
-    message(sprintf("%s (X):    N = %-4d %s features: %-4d", a_1, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
-    message(sprintf("%s (Y):    N = %-4d %s features: %-4d", a_2, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
+    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+
+    message(sprintf(
+      "%-18s N: %-18d  %-18s  features: %-18d",
+      paste0(a_1, " (X):"),
+      nrow(X_out$meta),
+      fmt_counts(X_out$meta, g_col),
+      ncol(X_out$matr)
+    ))
+
+    message(sprintf(
+      "%-18s N: %-18d  %-18s  features: %-18d",
+      paste0(a_2, " (Y):"),
+      nrow(Y_out$meta),
+      fmt_counts(Y_out$meta, g_col),
+      ncol(Y_out$matr)
+    ))
   }
+
+  # if (verbose) {
+  #   fmt_counts <- function(M, g_col) {
+  #     tab <- table(M[[g_col]], dnn = NULL)
+  #     paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
+  #   }
+
+  #   # Define group labels for clarity
+  #   grp_X <- interaction(X_out$meta[[g_col]], X_out$meta[[a_col]], drop = TRUE)
+  #   grp_Y <- interaction(Y_out$meta[[g_col]], Y_out$meta[[a_col]], drop = TRUE)
+  #   grp   <- c(grp_X, grp_Y)
+
+  #   message("\nImbalanced ancestry summary:")
+  #   message(sprintf("Groups:    %s", paste(unique(grp), collapse = "  ")))
+  #   message(sprintf("%s (X):    N = %-4d %s features: %-4d", a_1, nrow(X_out$meta), fmt_counts(X_out$meta, g_col), ncol(X_out$matr)))
+  #   message(sprintf("%s (Y):    N = %-4d %s features: %-4d", a_2, nrow(Y_out$meta), fmt_counts(Y_out$meta, g_col), ncol(Y_out$matr)))
+  # }
+
 
   ## --- Return ---
   list(
-    X = list(matr = X_out$matr, meta = X_out$meta),
-    Y = list(matr = Y_out$matr, meta = Y_out$meta)
+    X = list(
+      matr = X_out$matr,
+      meta = X_out$meta
+    ),
+    Y = list(
+      matr = Y_out$matr, 
+      meta = Y_out$meta
+    )
   )
 }

@@ -6,7 +6,7 @@
 #' @param base_size Base font size for all text elements (default: 5).
 #' @return A ggplot2 theme object.
 #' @export
-theme_nature_fonts <- function(base_size = 8) {
+theme_nature_fonts <- function(base_size = 8, ...) {
   ggplot2::theme(
     axis.text = ggplot2::element_text(size = base_size),
     axis.title = ggplot2::element_text(size = base_size),
@@ -16,7 +16,8 @@ theme_nature_fonts <- function(base_size = 8) {
     legend.text = ggplot2::element_text(size = base_size),
     strip.text = ggplot2::element_text(size = base_size),
     plot.caption = ggplot2::element_text(size = base_size, hjust = 0),
-    plot.caption.position = "plot"
+    plot.caption.position = "plot",
+    ...
   )
 }
 
@@ -38,6 +39,7 @@ theme_small_legend <- function(base_size = 8, ...) {
     legend.key.width = ggplot2::unit(key_size_pt, "pt"),
     legend.margin = ggplot2::margin(0.5, 0.5, 0.5, 0.5),
     legend.title = ggplot2::element_text(margin = ggplot2::margin(b = 5)),
+    legend.spacing.x  = ggplot2::unit(6, "pt"),
     ...
   )
 }
