@@ -7,8 +7,7 @@
 #' @param Y A numeric matrix or data frame for the inference split
 #' @param MX Metadata for X, containing IDs and group information
 #' @param MY Metadata for Y, containing IDs and group information
-#' @param features Character vector of feature names to plot.
-#'   Defaults to first 9 common features if NULL.
+#' @param features Character vector of feature names to plot. Defaults to first 9 common features if NULL.
 #' @param g_col Column name in metadata indicating the group 
 #' @param a_col Column name in metadata indicating the ancestry 
 #' @param id_col Column name in metadata for sample identifiers (assumes rownames of matrix are IDs)
@@ -26,7 +25,8 @@ plot_feature <- function(
   features = NULL,
   title = NULL,
   x_label = NULL,
-  y_label = NULL
+  y_label = NULL,
+  fill_label = NULL
 ) {
 
    ## --- Input data structure check ---
@@ -44,11 +44,6 @@ plot_feature <- function(
     features <- colnames(X)[1:9]
   }
 
-  # Subset matrices to selected features
-  X <- X[, features, drop = FALSE]
-  Y <- Y[, features, drop = FALSE]
-
-
   ## --- Ancetsry levels ----
   a_1 <- unique(MX[[x_var]]); a_2 <- unique(MY[[x_var]])
   a_levels <- c(a_1, a_2)
@@ -58,8 +53,10 @@ plot_feature <- function(
   M <- rbind(MX, MY)
   M[[x_var]] <- factor(M[[x_var]], levels = a_levels)
 
+
   ## --- Scale counts ---
   XY <- rbind(X, Y)
+  XY <- XY[, features, drop = FALSE]
   XY_scaled <- scale(XY)
   stopifnot(identical(rownames(XY), rownames(M)))
 
@@ -99,7 +96,7 @@ plot_feature <- function(
       title = title,
       x = ifelse(is.null(x_label), x_var, x_label),
       y = ifelse(is.null(y_label), "Z-score", y_label),
-      fill = fill_var
+      fill = ifelse(is.null(fill_label), fill_var, fill_label)
     ) +
     theme_nature_fonts() +
     theme_white_background() +

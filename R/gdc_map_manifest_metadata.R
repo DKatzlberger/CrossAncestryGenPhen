@@ -11,6 +11,7 @@
 #' @param verbose Print progress messages
 #'
 #' @return Data frame with file_name and sample_id
+#' 
 #' @export
 gdc_map_manifest_metadata <- function(
 	manifest_file, 

@@ -280,11 +280,11 @@ sim_4group_expression <- function(
     grp   <- c(grp_X, grp_Y)
 
     message("\n4-group simulation summary:")
-    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+    message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
 
     message(sprintf(
-      "%-18s N: %-5d  n_DEGs: %-18d  log2FC: %-18.1f  %-18s  features: %-18d",
-      paste0(a_1, " (X):"),
+      "Ancestry (X): %-10s N: %-5d  n_DEGs: %-5d  log2FC: %-5.1f  %-18s  features: %-18d",
+      a_1,
       nrow(sim_X$matr),
       n_degs,
       log2fc,
@@ -293,8 +293,8 @@ sim_4group_expression <- function(
     ))
 
     message(sprintf(
-      "%-18s N: %-18d  n_DEGs: %-18d  log2FC: %-18.1f  %-18s  features: %-18d",
-      paste0(a_2, " (Y):"),
+      "Ancestry (Y): %-10s N: %-5d  n_DEGs: %-5d  log2FC: %-5.1f  %-18s  features: %-18d",
+      a_2,
       nrow(sim_Y$matr),
       n_degs,
       log2fc,

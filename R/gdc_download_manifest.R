@@ -12,6 +12,7 @@
 #' @param verbose Print progress messages
 #'
 #' @return Invisibly returns system status
+#' 
 #' @export
 gdc_download_manifest <- function(
   manifest_file,

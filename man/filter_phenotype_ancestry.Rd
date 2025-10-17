@@ -31,24 +31,7 @@ filter_phenotype_ancestry(
 
 \item{verbose}{Logical, print summary (default TRUE).}
 }
-\value{
-List with elements `X` and `Y`, each a list of:
-  \itemize{
-    \item \code{meta}: filtered metadata
-    \item \code{counts}: filtered matrix
-  }
-}
 \description{
 Filters metadata (`M`) and matching matrix (`X`) to two given ancestry
 levels and two phenotype levels, then splits into X/Y groups.
-}
-\examples{
-\dontrun{
-subset_phenotype_ancestry(
-  X = study$mrna, M = study$meta,
-  g_col = "subtype", a_col = "ancestry",
-  g_levels = c("Basal", "LumA"),
-  a_levels = c("EUR", "AFR")
-)
-}
 }

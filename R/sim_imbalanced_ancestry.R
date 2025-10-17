@@ -130,19 +130,19 @@ sim_imbalanced_ancestry <- function(
     grp   <- c(grp_X, grp_Y)
 
     message("\nImbalanced ancestry summary:")
-    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+    message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
 
     message(sprintf(
-      "%-18s N: %-18d  %-18s  features: %-18d",
-      paste0(a_1, " (X):"),
+      "Ancestry (X): %-10s N: %-5d  %-18s  features: %-18d",
+      a_1,
       nrow(X_out$meta),
       fmt_counts(X_out$meta, g_col),
       ncol(X_out$matr)
     ))
 
     message(sprintf(
-      "%-18s N: %-18d  %-18s  features: %-18d",
-      paste0(a_2, " (Y):"),
+      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-18d",
+      a_2,
       nrow(Y_out$meta),
       fmt_counts(Y_out$meta, g_col),
       ncol(Y_out$matr)

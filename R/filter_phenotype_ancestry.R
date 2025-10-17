@@ -62,8 +62,6 @@ filter_phenotype_ancestry <- function(
     stop("[filter_phenotype_ancestry] No valid metadata columns found (check g_col, a_col, and covariates).")
   }
 
-  M <- M[, meta_cols, drop = FALSE]
-
 
   ## --- Filter meta rows (M) ---
   keep   <- M[[a_col]] %in% a_levels & M[[g_col]] %in% g_levels
@@ -116,19 +114,39 @@ filter_phenotype_ancestry <- function(
 
 
   ## --- NA check for each ancestry ---
-  na_X <- colSums(is.na(X_out$meta))
-  na_Y <- colSums(is.na(Y_out$meta))
+  na_X <- colSums(is.na(X_out$meta[, meta_cols, drop = FALSE]))
+  na_Y <- colSums(is.na(Y_out$meta[, meta_cols, drop = FALSE]))
 
   total_na_X <- sum(na_X)
   total_na_Y <- sum(na_Y)
 
   if (total_na_X > 0 || total_na_Y > 0) {
-    msg_X <- paste(sprintf("%s: %-4d", names(na_X), na_X), collapse = " ")
-    msg_Y <- paste(sprintf("%s: %-4d", names(na_Y), na_Y), collapse = " ")
+
+    fmt_na <- function(na_vec) {
+      if (is.null(na_vec) || !length(na_vec)) return("")
+      paste(sprintf("%s: %-4d", names(na_vec), as.integer(na_vec)), collapse = "  ")
+    }
+
+    msg_X <- fmt_na(na_X)
+    msg_Y <- fmt_na(na_Y)
 
     message("\nNAs detected:")
-    message(sprintf("%s (X)    N: %-4d %s  | Total NAs: %d", X_out$ancestry, nrow(X_out$meta), msg_X, total_na_X))
-    message(sprintf("%s (Y)    N: %-4d %s  | Total NAs: %d", Y_out$ancestry, nrow(Y_out$meta), msg_Y, total_na_Y))
+
+    message(sprintf(
+      "Ancestry (X): %-10s  N: %-5d  %-40s  | Total NAs: %-6d",
+      X_out$ancestry,
+      nrow(X_out$meta),
+      msg_X,
+      total_na_X
+    ))
+    
+    message(sprintf(
+      "Ancestry (Y): %-10s  N: %-5d  %-40s  | Total NAs: %-6d",
+      Y_out$ancestry,
+      nrow(Y_out$meta),
+      msg_Y,
+      total_na_Y
+    ))
 
     stop()
   }
@@ -165,19 +183,19 @@ filter_phenotype_ancestry <- function(
     grp   <- c(grp_X, grp_Y)
 
     message("\nSubset phenotype ancestry summary:")
-    message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+    message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
 
     message(sprintf(
-      "%-18s N: %-18d  %-18s  features: %-18d",
-      paste0(X_out$ancestry, " (X):"),
+      "Ancestry (X): %-10s N: %-5d  %-18s  features: %-18d",
+      X_out$ancestry,
       nrow(X_out$meta),
       fmt_counts(X_out$meta, g_col),
       ncol(X_out$matr)
     ))
 
     message(sprintf(
-      "%-18s N: %-18d  %-18s  features: %-18d",
-      paste0(Y_out$ancestry, " (Y):"),
+      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-18d",
+      Y_out$ancestry,
       nrow(Y_out$meta),
       fmt_counts(Y_out$meta, g_col),
       ncol(Y_out$matr)

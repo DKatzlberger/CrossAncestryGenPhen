@@ -8,28 +8,16 @@
 #' @param data A data frame containing at least the columns specified in \code{x_var} and \code{fill_var}.
 #' @param x_var String. Name of the column to use for the x-axis (e.g., "p_value").
 #' @param fill_var String. Name of the column used for fill coloring (e.g., "T_obs").
-#' @param facet_col Optional. String. Name of a column to use for faceting the plot (e.g., "feature", "cluster"). If NULL, no faceting is applied.
-#' @param facet_levels Optional. A character vector of levels to include in faceting. If NULL and \code{facet_col} is provided, the first 9 unique values are used.
-#' @param title Optional. Character string to set the plot title.
-#' @param x_label Label for the x-axis. Defaults to the value of \code{x_var}.
-#' @param y_label Label for the y-axis. Defaults to \code{"Count"}.
-#' @param bins Integer. Number of bins to use for the x-axis histogram (default is 50).
-#' @param fill_bins Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.
+#' @param facet_col Optional. String. Name of a column to use for faceting the plot (e.g., "feature", "cluster").
+#' @param facet_levels Optional. A character vector of levels to include in faceting.
+#' @param title Optional Plot title.
+#' @param x_label Optional x-axis label.
+#' @param y_label Optional y-axis label.
+#' @param bins Number of bins for the x-axis histogram (default 50).
+#' @param fill_bins Number of bins for the fill variable (must be odd; default 9).
+#' @param fill_limits Optional numeric vector of length 2 giving the global limits for the fill variable.
 #'
-#' @return A \code{ggplot2} object showing a histogram of \code{x_var}, with bars stacked and colored by binned values of \code{fill_var}. Faceting is applied if specified.
-#'
-#' @examples
-#' # Basic histogram
-#' plot_pvalue_distribution(data = agg_perm, x_var = "p_value", fill_var = "T_obs")
-#'
-#' # Faceted by cluster
-#' plot_pvalue_distribution(
-#'   data = agg_perm,
-#'   x_var = "p_value",
-#'   fill_var = "T_obs",
-#'   facet_col = "cluster"
-#' )
-#'
+#' @return A ggplot2 object.
 #' @import ggplot2
 #' @export
 plot_pvalue_distribution <- function(
@@ -43,18 +31,17 @@ plot_pvalue_distribution <- function(
   y_label = NULL,
   fill_label = NULL,
   bins = 50,
-  fill_bins = 9
+  fill_bins = 9,
+  fill_limits = NULL   
 ) {
 
   ## --- Convert to dataframe ---
   df <- as.data.frame(data)
 
-
   ## --- Validate x_var ---
   if (!(x_var %in% names(df))) {
     stop("Data must contain column: ", x_var)
   }
-
 
   ## --- Faceting ---
   do_facet <- !is.null(facet_col)
@@ -75,38 +62,31 @@ plot_pvalue_distribution <- function(
       stop("Data must contain column: ", fill_var)
     }
 
-    # Fill values
     t_vals <- df[[fill_var]]
-    max_abs <- max(abs(t_vals), na.rm = TRUE)
 
-    # Fallbacks if we are at 0
-    if (max_abs < 1e-6) {
-      max_abs <- 1
-    }
-    
-    # Define uper lower limit
-    pos_limit <- floor(max_abs)
-    neg_limit <- ceiling(-max_abs)
-
-    # Fallback if the same
-    if (pos_limit == neg_limit) {
-      pos_limit <- pos_limit + 1
-      neg_limit <- neg_limit - 1
+    # --- Determine range for fill scaling ---
+    if (is.null(fill_limits)) {
+      max_abs <- max(abs(t_vals), na.rm = TRUE)
+      if (max_abs < 1e-6) max_abs <- 1
+      neg_limit <- -max_abs
+      pos_limit <- max_abs
+    } else {
+      neg_limit <- fill_limits[1]
+      pos_limit <- fill_limits[2]
     }
 
-    # Check that fill bins have a center
+    # Ensure fill_bins is odd
     if (fill_bins %% 2 == 0) {
       stop("fill_bins must be odd to ensure a center bin at 0.")
     }
 
-    # Bin fill values
+    # Define bin centers & breaks
     bin_centers <- seq(neg_limit, pos_limit, length.out = fill_bins)
     bin_width <- diff(bin_centers)[1]
-
     bin_breaks <- c(-Inf, head(bin_centers, -1) + bin_width / 2, Inf)
     bin_labels <- format(round(bin_centers, 1), nsmall = 1)
-    bin_labels[1] <- paste0("<= ", abs(neg_limit))
-    bin_labels[length(bin_labels)] <- paste0(">= ", pos_limit)
+    bin_labels[1] <- paste0("<= ", round(neg_limit, 1))
+    bin_labels[length(bin_labels)] <- paste0(">= ", round(pos_limit, 1))
 
     df$fill_bin <- cut(
       t_vals,
@@ -115,6 +95,7 @@ plot_pvalue_distribution <- function(
       include.lowest = TRUE
     )
 
+    # Number of bins below/above zero for color gradients
     zero_idx <- which.min(abs(bin_centers))
     n_below <- zero_idx - 1
     n_above <- length(bin_centers) - zero_idx
@@ -132,34 +113,33 @@ plot_pvalue_distribution <- function(
 
   ## --- Plot ---
   p <- ggplot(
-    data = df, 
-    aes(
-      x = .data[[x_var]]
+      data = df, 
+      mapping = aes(
+        x = .data[[x_var]]
       )
     ) +
     (
-    if (!is.null(fill_aes)) 
-      geom_histogram(
-        fill_aes, 
-        bins = bins, 
-        position = "stack", 
-        color = "black", 
-        linewidth = 0.1
-      )
-     else 
-      geom_histogram(
-        bins = bins, 
-        fill = "grey80", 
-        color = "black", 
-        linewidth = 0.1
-      )
-    ) 
-
-  # Fill
-  if (!is.null(fill_var)) {
-    p <- p + scale_fill_manual(
-      values = colors
+      if (!is.null(fill_aes)) {
+        geom_histogram(
+          fill_aes,
+          bins = bins,
+          position = "stack",
+          color = "black",
+          linewidth = 0.1
+        )
+      } else {
+        geom_histogram(
+          bins = bins,
+          fill = "grey80",
+          color = "black",
+          linewidth = 0.1
+        )
+      }
     )
+
+  # Fill scale
+  if (!is.null(fill_var)) {
+    p <- p + scale_fill_manual(values = colors)
   }
 
   # Facets
@@ -167,7 +147,7 @@ plot_pvalue_distribution <- function(
     p <- p + facet_wrap(as.formula(paste("~", facet_col)))
   }
 
-  # Final styling
+  # Labels and theme
   p <- p +
     labs(
       title = title,

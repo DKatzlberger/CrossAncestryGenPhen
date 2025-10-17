@@ -39,7 +39,6 @@ theme_small_legend <- function(base_size = 8, ...) {
     legend.key.width = ggplot2::unit(key_size_pt, "pt"),
     legend.margin = ggplot2::margin(0.5, 0.5, 0.5, 0.5),
     legend.title = ggplot2::element_text(margin = ggplot2::margin(b = 5)),
-    legend.spacing.x  = ggplot2::unit(6, "pt"),
     ...
   )
 }

@@ -128,22 +128,22 @@ filter_by_expression <- function(
 
     message("\nFilter by expression summary:")
     if (any_group) {
-      message(sprintf("%-18s %s", "Groups:", paste(unique(grp), collapse = "  ")))
+      message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
     } else {
-      message(sprintf("%-18s %s", "Groups:", "1"))
+      message(sprintf("%-13s %s", "Groups:", "1"))
     }
 
     message(sprintf(
-      "%-18s N: %-18d  %-18s  features: %-18d",
-      paste0(out$X$ancestry, " (X):"),
+     "Ancestry (X): %-10s N: %-5d  %-18s  features: %-18d",
+      out$X$ancestry,
       nrow(out$X$meta),
       fmt_counts(out$X$meta, g_col),
       n_features
     ))
 
     message(sprintf(
-      "%-18s N: %-5d  %-18s  features: %-18d",
-      paste0(out$Y$ancestry, " (Y):"),
+      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-18d",
+      out$Y$ancestry,
       nrow(out$Y$meta),
       fmt_counts(out$Y$meta, g_col),
       n_features
