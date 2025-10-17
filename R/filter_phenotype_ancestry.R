@@ -186,7 +186,7 @@ filter_phenotype_ancestry <- function(
     message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
 
     message(sprintf(
-      "Ancestry (X): %-10s N: %-5d  %-18s  features: %-18d",
+      "Ancestry (X): %-10s N: %-5d  %-18s  features: %-5d",
       X_out$ancestry,
       nrow(X_out$meta),
       fmt_counts(X_out$meta, g_col),
@@ -194,7 +194,7 @@ filter_phenotype_ancestry <- function(
     ))
 
     message(sprintf(
-      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-18d",
+      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-5d",
       Y_out$ancestry,
       nrow(Y_out$meta),
       fmt_counts(Y_out$meta, g_col),

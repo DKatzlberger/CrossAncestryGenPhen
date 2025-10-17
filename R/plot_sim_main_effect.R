@@ -29,8 +29,8 @@ plot_sim_main_effect <- function(
   stopifnot(dim(fX) == dim(fY))
 
   df <- data.frame(
-    x = fX$true_log2FC, 
-    y = fY$true_log2FC
+    x = fX$T_obs, 
+    y = fY$T_obs
   )
 
   p <- ggplot(

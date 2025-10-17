@@ -53,7 +53,9 @@ plot_sample_density <- function(
 
   ## --- Select samples ---
   if (is.null(samples)) {
-    samples <- seq_len(min(9, nrow(X_comb)))
+    sample_X <- head(rownames(X), 5)
+    sample_Y <- head(rownames(Y), 5)
+    samples  <- c(sample_X, sample_Y)
   } else {
     if (is.character(samples)) {
       samples <- match(samples, rownames(X_comb))

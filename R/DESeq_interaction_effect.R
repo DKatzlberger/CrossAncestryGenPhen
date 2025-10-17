@@ -161,7 +161,7 @@ DESeq_interaction_effect <- function(
   results_list <- lapply(names(contrast_calculations), function(cn) {
     contrast <- contrast_calculations[[cn]]
 
-    res <- results(fit, contrast = contrast)
+    res <- results(fit, contrast = contrast, independentFiltering = FALSE)
     tt  <- as.data.frame(res)
 
 

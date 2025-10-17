@@ -86,11 +86,18 @@ filter_by_expression <- function(
 
 
   ## --- MV-trend plot ---
-  p <- plot_mean_variance_trend(
+  p_trend <- plot_mean_variance_trend(
     X = matr_filt,
     point_size = 0.5
   )
 
+  p_density <- plot_mean_variance_density(
+    X = matr_filt,
+    point_size = 0.5
+  ) 
+
+  # Patchwork
+  p <- p_trend + p_density
   if (plot){
     print(p)
   }
@@ -134,7 +141,7 @@ filter_by_expression <- function(
     }
 
     message(sprintf(
-     "Ancestry (X): %-10s N: %-5d  %-18s  features: %-18d",
+     "Ancestry (X): %-10s N: %-5d  %-18s  features: %-5d",
       out$X$ancestry,
       nrow(out$X$meta),
       fmt_counts(out$X$meta, g_col),
@@ -142,7 +149,7 @@ filter_by_expression <- function(
     ))
 
     message(sprintf(
-      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-18d",
+      "Ancestry (Y): %-10s N: %-5d  %-18s  features: %-5d",
       out$Y$ancestry,
       nrow(out$Y$meta),
       fmt_counts(out$Y$meta, g_col),

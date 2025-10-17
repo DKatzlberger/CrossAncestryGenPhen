@@ -23,7 +23,7 @@ plot_sim_interaction_effect <- function(
   bins = 50
 ){
 
-  vals <- fI$true_log2FC
+  vals <- fI$T_obs
   if (exclude_zeros) {
     vals <- vals[vals != 0]
   }

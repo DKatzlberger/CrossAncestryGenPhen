@@ -16,6 +16,7 @@
 #' @param log2fc Numeric; log2 fold-change magnitude for DEGs.
 #' @param mean_method Method for extracting mean parameters.
 #' @param disp_method Method for extracting dispersions.
+#' @param plot Logical, default `TRUE`. If `TRUE`, print QC plots.
 #' @param seed Optional integer seed for reproducibility.
 #' @param verbose Logical; print a simulation summary.
 #'
@@ -34,6 +35,7 @@ sim_4group_expression <- function(
   mean_method = c("mle", "libnorm_mle"),
   disp_method = c("mle"),
   drop_zeros = FALSE,
+  plot = TRUE,
   seed = NULL,
   verbose = TRUE
 ){
@@ -164,14 +166,14 @@ sim_4group_expression <- function(
   rel_X$coef_id   <- "relationship_1"
   rel_X$coef_type <- "relationship"
   rel_X$a_1       <- a_1
-  rel_X$a_2       <- a_1
+  rel_X$a_2       <- a_2
   # Column order
   rel_X <- rel_X[, c("coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", "feature", "T_obs")]
 
   # Relationship_2: g2.a2 - g1.a2
   rel_Y$coef_id   <- "relationship_2"
   rel_Y$coef_type <- "relationship"
-  rel_Y$a_1       <- a_2
+  rel_Y$a_1       <- a_1
   rel_Y$a_2       <- a_2
   # Column order
   rel_Y <- rel_Y[, c("coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", "feature", "T_obs")]
@@ -263,7 +265,25 @@ sim_4group_expression <- function(
 
 
   ## --- Plot ---
+  p_main_effect <- plot_sim_main_effect(
+    fX = rel_X,
+    fY = rel_Y,
+    ancestry_X = a_1, 
+    ancestry_Y = a_2,
+    point_size = 0.5
+  )
 
+  p_interaction_effect <- plot_sim_interaction_effect(
+    fI = int,
+    exclude_zeros = TRUE,
+    bins = 50
+  )
+
+  # Patchwork
+  p <- patchwork::wrap_plots(p_main_effect, p_interaction_effect, ncol = 2, nrow = 1)
+  if (plot){
+    print(p)
+  }
 
 
   ## --- Verbose message ---
@@ -283,7 +303,7 @@ sim_4group_expression <- function(
     message(sprintf("%-13s %s", "Groups:", paste(unique(grp), collapse = "  ")))
 
     message(sprintf(
-      "Ancestry (X): %-10s N: %-5d  n_DEGs: %-5d  log2FC: %-5.1f  %-18s  features: %-18d",
+      "Ancestry (X): %-10s N: %-5d n_DEGs: %-5d log2FC: %-5.1f  %-18s  features: %-5d",
       a_1,
       nrow(sim_X$matr),
       n_degs,
@@ -293,7 +313,7 @@ sim_4group_expression <- function(
     ))
 
     message(sprintf(
-      "Ancestry (Y): %-10s N: %-5d  n_DEGs: %-5d  log2FC: %-5.1f  %-18s  features: %-18d",
+      "Ancestry (Y): %-10s N: %-5d n_DEGs: %-5d log2FC: %-5.1f  %-18s  features: %-5d",
       a_2,
       nrow(sim_Y$matr),
       n_degs,
@@ -337,7 +357,8 @@ sim_4group_expression <- function(
         # feat  = sim_Y$feat
         # plot  = sim_Y$in_out_plots
       ),
-      degs = sim_degs
+      degs = sim_degs,
+      plot = p
     )
   )
 }
