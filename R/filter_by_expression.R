@@ -13,8 +13,8 @@
 #' @param g_col Name of phenotype column in metadata (factor with 2 levels).
 #' @param a_col Name of ancestry column in metadata (1 level per block).
 #' @param any_group Logical; if TRUE (default), filter by expression within groups. If FALSE, filter without grouping.
-#' @param verbose Print summary (default TRUE).
 #' @param plot Return mean–variance trend plot if available (default TRUE).
+#' @param verbose Print summary (default TRUE).
 #'
 #' @export
 filter_by_expression <- function(
@@ -25,8 +25,8 @@ filter_by_expression <- function(
   g_col,
   a_col,
   any_group = TRUE,
-  verbose = TRUE,
-  plot = TRUE
+  plot = TRUE,
+  verbose = TRUE
 ){
 
   ## --- Input data structure check ---

@@ -114,9 +114,8 @@ plot_stratified_feature <- function(
       y = ifelse(is.null(y_label), "Z-score", y_label),
       fill = fill_var
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend()
+    theme_CrossAncestryGenPhen()
+
 
   ## --- Return ----
   return(p)

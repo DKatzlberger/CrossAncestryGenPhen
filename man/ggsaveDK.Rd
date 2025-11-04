@@ -4,22 +4,36 @@
 \alias{ggsaveDK}
 \title{Save ggplot with optional legend removal and sensible defaults}
 \usage{
-ggsaveDK(filename, plot, legend = TRUE, width = 7, height = 7, dpi = 300, ...)
+ggsaveDK(
+  file,
+  plot,
+  guides = TRUE,
+  trimmed = TRUE,
+  units = "cm",
+  width = 8,
+  height = 8,
+  bg = "transparent",
+  ...
+)
 }
 \arguments{
-\item{filename}{File path to save to.}
+\item{file}{File path to save to.}
 
 \item{plot}{A ggplot object.}
 
-\item{legend}{Logical. If FALSE, removes the legend before saving.}
+\item{guides}{Logical. If FALSE, removes the legend before saving.}
 
-\item{width}{Width in inches. Default is 7.}
+\item{trimmed}{Logical. If TRUE, removes plot margins before saving (for tight SVG export).}
 
-\item{height}{Height in inches. Default is 7.}
+\item{units}{Units for width/height. Default 'cm'.}
 
-\item{dpi}{Dots per inch. Default is 300.}
+\item{width}{Width of saved plot. Default 8.}
 
-\item{...}{Additional arguments passed to ggsave().}
+\item{height}{Height of saved plot. Default 8.}
+
+\item{bg}{Background color for saving (e.g. "white" or "transparent").}
+
+\item{...}{Additional arguments passed to [ggplot2::ggsave()].}
 }
 \value{
 Invisibly returns the saved plot.

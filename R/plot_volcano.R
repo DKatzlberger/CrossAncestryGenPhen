@@ -139,9 +139,7 @@ plot_volcano <- function(
       color = color_label,
       shape = shape_label
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend() 
+    theme_CrossAncestryGenPhen()
 
   return(p)
 }

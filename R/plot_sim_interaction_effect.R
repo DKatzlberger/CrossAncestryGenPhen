@@ -49,9 +49,7 @@ plot_sim_interaction_effect <- function(
     x = ifelse(is.null(x_label), "Interaction effect (log2FC)", x_label),
     y = ifelse(is.null(y_label), "Count", y_label)
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
   
   return(p)
 }

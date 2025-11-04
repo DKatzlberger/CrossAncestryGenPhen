@@ -17,6 +17,7 @@ sim_4group_expression(
   mean_method = c("mle", "libnorm_mle"),
   disp_method = c("mle"),
   drop_zeros = FALSE,
+  plot = TRUE,
   seed = NULL,
   verbose = TRUE
 )
@@ -43,6 +44,8 @@ sim_4group_expression(
 \item{mean_method}{Method for extracting mean parameters.}
 
 \item{disp_method}{Method for extracting dispersions.}
+
+\item{plot}{Logical, default `TRUE`. If `TRUE`, print QC plots.}
 
 \item{seed}{Optional integer seed for reproducibility.}
 

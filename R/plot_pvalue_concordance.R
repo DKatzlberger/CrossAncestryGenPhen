@@ -143,9 +143,7 @@ plot_pvalue_concordance <- function(
     x = ifelse(is.null(x_label), x_var, x_label),
     y = ifelse(is.null(y_label), y_var , y_label)
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend() 
+  theme_CrossAncestryGenPhen()
 
 
   return(p)

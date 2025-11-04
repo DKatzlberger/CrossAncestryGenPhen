@@ -96,9 +96,7 @@ plot_tsne_cluster <- function(
       color = color_var,
       shape = shape_var
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend()
+    theme_CrossAncestryGenPhen()
 
   return(p)
 }

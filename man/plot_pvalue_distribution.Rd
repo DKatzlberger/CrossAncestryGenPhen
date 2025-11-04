@@ -15,7 +15,8 @@ plot_pvalue_distribution(
   y_label = NULL,
   fill_label = NULL,
   bins = 50,
-  fill_bins = 9
+  fill_bins = 9,
+  fill_limits = NULL
 )
 }
 \arguments{
@@ -25,39 +26,28 @@ plot_pvalue_distribution(
 
 \item{fill_var}{String. Name of the column used for fill coloring (e.g., "T_obs").}
 
-\item{facet_col}{Optional. String. Name of a column to use for faceting the plot (e.g., "feature", "cluster"). If NULL, no faceting is applied.}
+\item{facet_col}{Optional. String. Name of a column to use for faceting the plot (e.g., "feature", "cluster").}
 
-\item{facet_levels}{Optional. A character vector of levels to include in faceting. If NULL and \code{facet_col} is provided, the first 9 unique values are used.}
+\item{facet_levels}{Optional. A character vector of levels to include in faceting.}
 
-\item{title}{Optional. Character string to set the plot title.}
+\item{title}{Optional Plot title.}
 
-\item{x_label}{Label for the x-axis. Defaults to the value of \code{x_var}.}
+\item{x_label}{Optional x-axis label.}
 
-\item{y_label}{Label for the y-axis. Defaults to \code{"Count"}.}
+\item{y_label}{Optional y-axis label.}
 
-\item{bins}{Integer. Number of bins to use for the x-axis histogram (default is 50).}
+\item{bins}{Number of bins for the x-axis histogram (default 50).}
 
-\item{fill_bins}{Integer. Number of bins to use for binning the fill variable (must be odd; default is 9). Bins are centered at 0 and symmetric. The outermost bins are labeled with \code{<=} and \code{>=}.}
+\item{fill_bins}{Number of bins for the fill variable (must be odd; default 9).}
+
+\item{fill_limits}{Optional numeric vector of length 2 giving the global limits for the fill variable.}
 }
 \value{
-A \code{ggplot2} object showing a histogram of \code{x_var}, with bars stacked and colored by binned values of \code{fill_var}. Faceting is applied if specified.
+A ggplot2 object.
 }
 \description{
 Visualizes the distribution of a variable (typically p-values) using a stacked histogram.
 Bars are colored based on binned values of a second variable (e.g., a test statistic), centered around zero.
 Out-of-range values are grouped into outermost bins labeled with `<=` and `>=`.
 The plot can be optionally faceted by a categorical column.
-}
-\examples{
-# Basic histogram
-plot_pvalue_distribution(data = agg_perm, x_var = "p_value", fill_var = "T_obs")
-
-# Faceted by cluster
-plot_pvalue_distribution(
-  data = agg_perm,
-  x_var = "p_value",
-  fill_var = "T_obs",
-  facet_col = "cluster"
-)
-
 }

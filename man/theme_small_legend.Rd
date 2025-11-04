@@ -4,7 +4,7 @@
 \alias{theme_small_legend}
 \title{Small Legend Theme (Internal)}
 \usage{
-theme_small_legend(base_size = 8, ...)
+theme_small_legend(base_size = 6, ...)
 }
 \arguments{
 \item{base_size}{Base text size to scale legend keys (default: 5).}

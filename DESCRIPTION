@@ -23,7 +23,8 @@ Imports:
     Rcpp,
     RcppArmadillo,
     fields,
-    data.table
+    data.table,
+    svglite
 LinkingTo: 
     Rcpp,
     RcppArmadillo

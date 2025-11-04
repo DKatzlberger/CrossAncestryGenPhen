@@ -72,9 +72,7 @@ plot_sensitivity_specificity <- function(
       y = ifelse(is.null(y_label), "Value", y_label),
       x = x_label
     ) +
-    theme_nature_fonts() +
-    theme_white_background(show_facets = FALSE) +
-    theme_small_legend()
+    theme_CrossAncestryGenPhen(show_facets = FALSE)
   
   return(p)
 }

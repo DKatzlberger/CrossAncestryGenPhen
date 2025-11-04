@@ -85,9 +85,7 @@ plot_estimated_dispersions <- function(
       y_label
     )
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
 
   return(p)
 }

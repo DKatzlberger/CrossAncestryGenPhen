@@ -59,9 +59,7 @@ plot_imbalanced_groups <- function(
     y = ifelse(is.null(y_label), "Count", y_label),
     fill = ifelse(is.null(fill_label), fill_var, fill_label),
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
 
   ## --- Return ----
   return(p)

@@ -6,25 +6,31 @@
 \usage{
 gdc_download_manifest(
   manifest_file,
-  toke_file = NULL,
-  out_dir = NULL,
+  metadata_file,
+  token_file = NULL,
+  download = TRUE,
+  file_dir = NULL,
   client_path,
   verbose = TRUE
 )
 }
 \arguments{
-\item{manifest_file}{Path to GDC manifest file}
+\item{manifest_file}{Path to GDC manifest txt file}
 
-\item{toke_file}{Optional path to token file}
+\item{metadata_file}{Path to GDC metadata json file}
 
-\item{out_dir}{Output dir, defaults to getwd()}
+\item{token_file}{Optional path to token file}
+
+\item{download}{Wether to download (default: True)}
+
+\item{file_dir}{Output dir, defaults to getwd()}
 
 \item{client_path}{Path to gdc-client binary}
 
 \item{verbose}{Print progress messages}
 }
 \value{
-Invisibly returns system status
+ID to file
 }
 \description{
 Reads a manifest file and downloads all files

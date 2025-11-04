@@ -81,9 +81,7 @@ plot_confusion_matrix <- function(
       caption = ifelse(is.null(caption), paste0("\n", target, ": Interaction, 0: No interaction"), caption),
       fill = NULL
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend() +
+    theme_CrossAncestryGenPhen()
     theme(
       panel.grid = element_blank()
     )

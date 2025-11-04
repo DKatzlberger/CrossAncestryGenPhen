@@ -14,7 +14,8 @@ plot_feature(
   features = NULL,
   title = NULL,
   x_label = NULL,
-  y_label = NULL
+  y_label = NULL,
+  fill_label = NULL
 )
 }
 \arguments{
@@ -26,8 +27,7 @@ plot_feature(
 
 \item{MY}{Metadata for Y, containing IDs and group information}
 
-\item{features}{Character vector of feature names to plot.
-Defaults to first 9 common features if NULL.}
+\item{features}{Character vector of feature names to plot. Defaults to first 9 common features if NULL.}
 
 \item{title}{Optional title for the plot}
 

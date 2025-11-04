@@ -81,9 +81,7 @@ plot_estimated_means <- function(
     x = ifelse(is.null(x_label), paste0(if (log) "Log2 " else "", toupper(method), " means (", ancestry_X, ")"), x_label),
     y = ifelse(is.null(y_label), paste0(if (log) "Log2 " else "", toupper(method), " means (", ancestry_Y, ")"), y_label)
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
-
+  theme_CrossAncestryGenPhen()
+  
   return(p)
 }

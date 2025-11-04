@@ -146,9 +146,7 @@ plot_BCV <- function(
       y = ifelse(is.null(y_label), default_y, y_label),
       color = NULL
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend()
+    theme_CrossAncestryGenPhen()
 
   return(p)
 }

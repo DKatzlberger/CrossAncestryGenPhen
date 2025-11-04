@@ -12,8 +12,8 @@ filter_by_expression(
   g_col,
   a_col,
   any_group = TRUE,
-  verbose = TRUE,
-  plot = TRUE
+  plot = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -31,9 +31,9 @@ filter_by_expression(
 
 \item{any_group}{Logical; if TRUE (default), filter by expression within groups. If FALSE, filter without grouping.}
 
-\item{verbose}{Print summary (default TRUE).}
-
 \item{plot}{Return mean–variance trend plot if available (default TRUE).}
+
+\item{verbose}{Print summary (default TRUE).}
 }
 \description{
 Combines two ancestry-specific matrices (`X`, `Y`) with their metadata (`MX`, `MY`),

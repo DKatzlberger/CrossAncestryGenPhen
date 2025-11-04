@@ -110,9 +110,7 @@ plot_qq_correlation <- function(
     x = ifelse(is.null(x_label), "Empirical quantiles", x_label),
     y = ifelse(is.null(y_label), "Theoretical quantiles", y_label)
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
 
   return(p)
 }

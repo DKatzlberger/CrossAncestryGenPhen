@@ -68,9 +68,7 @@ plot_stratified_sets <- function(
     y = ifelse(is.null(y_label), "Count", y_label),
     fill = fill_var
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
 
   return(p)
 }

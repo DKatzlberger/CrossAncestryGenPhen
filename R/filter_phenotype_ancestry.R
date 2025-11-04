@@ -11,21 +11,6 @@
 #' @param a_levels Character(2), ancestry levels to keep (`X`, `Y`).
 #' @param verbose Logical, print summary (default TRUE).
 #'
-#' @return List with elements `X` and `Y`, each a list of:
-#'   \itemize{
-#'     \item \code{meta}: filtered metadata
-#'     \item \code{counts}: filtered matrix
-#'   }
-#'
-#' @examples
-#' \dontrun{
-#' subset_phenotype_ancestry(
-#'   X = study$mrna, M = study$meta,
-#'   g_col = "subtype", a_col = "ancestry",
-#'   g_levels = c("Basal", "LumA"),
-#'   a_levels = c("EUR", "AFR")
-#' )
-#' }
 #' @export
 filter_phenotype_ancestry <- function(
   X,

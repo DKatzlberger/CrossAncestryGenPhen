@@ -87,9 +87,7 @@ plot_sample_density <- function(
       y = ifelse(is.null(y_label), "Density", y_label),
       color = "Sample"
     ) +
-    theme_nature_fonts() +
-    theme_white_background() +
-    theme_small_legend()
+    theme_CrossAncestryGenPhen()
 
   ## --- Return ---
   return(p)
