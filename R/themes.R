@@ -39,10 +39,10 @@ theme_CrossAncestryGenPhen <- function(
     strip.placement  = "inside",
 
     axis.line  = ggplot2::element_line(color = "black", linewidth = 0.5),
-    axis.ticks = ggplot2::element_line(color = "black", linewidth = 0.5),
+    axis.ticks = ggplot2::element_line(color = "black", linewidth = 0.3),
     axis.ticks.length = ggplot2::unit(1, "mm"),
-    panel.grid.major = if (show_grid) ggplot2::element_line(linewidth = 0.5, color = "grey80") else ggplot2::element_blank(),
     panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = if (show_grid) ggplot2::element_line(color = "grey80", linewidth = 0.3) else ggplot2::element_blank(),
 
     axis.text  = ggplot2::element_text(size = base_size, family = base_family),
     axis.title = ggplot2::element_text(size = base_size, family = base_family),

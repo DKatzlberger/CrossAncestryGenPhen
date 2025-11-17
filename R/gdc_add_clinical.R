@@ -61,7 +61,7 @@ gdc_add_clinical <- function(
     "ID", "SAMPLE_ID", "PATIENT_ID", 
     "VIAL", "PLATE", "SAMPLE_TYPE", 
     "CANCER_TYPE", "CANCER_TYPE_DETAILED",
-    "SEX", "AGE", "SUBTYPE"
+    "SEX", "AGE", "SUBTYPE", "GENETIC_ANCESTRY_LABEL"
   )
   ordered_cols <- ordered_cols[ordered_cols %in% names(merged)]
   remaining_cols <- setdiff(names(merged), ordered_cols)
@@ -69,8 +69,8 @@ gdc_add_clinical <- function(
 
 
   ## --- Validate merge ---
-  if (nrow(file_map) != nrow(merged)) message("[gdc_merge_clinical] Merging introduced new rows.")
-  if (anyDuplicated(merged$ID))       message("[gdc_merge_clinical] ID is not unique anymore.")
+  if (nrow(file_map) != nrow(merged)) message("[gdc_add_clinical] Merging introduced new rows.")
+  if (anyDuplicated(merged$ID))       message("[gdc_add_clinical] ID is not unique anymore.")
 
   ## --- N unique ---
   n_IDs         <- length(unique(merged$ID))
@@ -99,8 +99,6 @@ gdc_add_clinical <- function(
     }
   }
 
-  # N after filter
-  n_filtered <- nrow(merged)
 
   ## --- Check unique SAMPLE_ID ---
   dup_ids <- merged$SAMPLE_ID[duplicated(merged$SAMPLE_ID)]
@@ -117,9 +115,9 @@ gdc_add_clinical <- function(
     }
 
     message("\nGDC add clinical data summary:")
-    message(sprintf("Entries:  %-9s  %-9s  %-9s  ->  %-9s", paste("IDs:", n_IDs), paste("SAMPLE IDs:", n_SAMPLE_IDs), paste("PATIENT IDs:", n_PATIENT_IDs), paste("Final:", n_filtered, "(filtered)")))
-    message(sprintf("Vials: %-18s", fmt_counts(merged, "VIAL")))
-    message(sprintf("Types: %-18s", fmt_counts(merged, "SAMPLE_TYPE")))
+    message(sprintf("%-9s  %-9s  %-9s  ->  %-9s", paste("IDs:", n_IDs), paste("SAMPLE IDs:", n_SAMPLE_IDs), paste("PATIENT IDs:", n_PATIENT_IDs), paste("output:", nrow(merged))))
+    message(sprintf("Vials:   %-18s", fmt_counts(merged, "VIAL")))
+    message(sprintf("Types:   %-18s", fmt_counts(merged, "SAMPLE_TYPE")))
   }
 
   ## --- Print duplication warning ---

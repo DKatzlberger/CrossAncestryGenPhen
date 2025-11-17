@@ -7,8 +7,8 @@
 gdc_build_count_matrix(
   file_map,
   file_dir,
-  gene_id = "gene_name",
-  gene_value = "unstranded",
+  feature_id = "gene_name",
+  feature_value = "unstranded",
   verbose = TRUE
 )
 }
@@ -17,17 +17,16 @@ gdc_build_count_matrix(
 
 \item{file_dir}{Directory containing GDC subfolders.}
 
-\item{gene_id}{Column to use as gene identifier (default "gene_name").}
+\item{feature_id}{Column to use as gene identifier (default "gene_name").}
 
-\item{gene_value}{Column with expression values (default "unstranded").}
+\item{feature_value}{Column with expression values (default "unstranded").}
 
 \item{verbose}{Print progress messages.}
 }
 \value{
-Numeric matrix (samples × genes).
+Numeric matrix (samples × features).
 }
 \description{
 Reads GDC STAR gene-count files and builds a numeric matrix with
-samples as rows and genes as columns. Skips QC lines and extracts
-a specified expression column (e.g. "unstranded", "tpm_unstranded").
+samples as rows and features as columns.
 }

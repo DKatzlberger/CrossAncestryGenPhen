@@ -188,7 +188,7 @@ gdc_map_manifest <- function(
     }
 
 		message("\nGDC map summary:")
-    message(sprintf("Entries:  %-9s  %-9s  %-9s  ->  %-9s", paste("IDs:", n_IDs), paste("SAMPLE IDs:", n_SAMPLE_IDs), paste("PATIENT IDs:", n_PATIENT_IDs), paste("Final:", nrow(file_map), "(mapped)")))
+    message(sprintf("%-9s  %-9s  %-9s  ->  %-9s", paste("IDs:", n_IDs), paste("SAMPLE IDs:", n_SAMPLE_IDs), paste("PATIENT IDs:", n_PATIENT_IDs), paste("output:", nrow(file_map))))
     message(sprintf("Vials:   %-18s", fmt_counts(file_map, "VIAL")))
     message(sprintf("Types:   %-18s", fmt_counts(file_map, "SAMPLE_TYPE")))
   }
