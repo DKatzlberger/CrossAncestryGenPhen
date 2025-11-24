@@ -7,25 +7,27 @@
 plot_gdc_demographics(
   file_map,
   attributes,
-  facetting = "POOLED_GENETIC_ANCESTRY"
+  facetting = "POOLED_GENETIC_ANCESTRY",
+  facet_last = TRUE
 )
 }
 \arguments{
-\item{file_map}{A data frame containing the metadata or clinical information
-to be summarized.}
+\item{file_map}{A data frame containing the metadata or clinical information to be summarized.}
 
 \item{attributes}{Character vector of column names to plot (required).}
 
-\item{facetting}{Character string giving the name of the column used for
-facetting (defaults to \code{"POOLED_GENETIC_ANCESTRY"}).}
+\item{facetting}{Character string giving the name of the column used for facetting (defaults to \code{"POOLED_GENETIC_ANCESTRY"}).}
+
+\item{facet_last}{Logical; if \code{TRUE} (default), facet strips are only shown in the last plot.}
 }
 \value{
-A combined \pkg{patchwork} object containing one plot per attribute,
-  arranged side-by-side.
+A combined \pkg{patchwork} object containing one plot per attribute, arranged side-by-side.
 }
 \description{
 Generates demographic summary plots for selected attributes within a
 clinical or metadata data frame. Each attribute is visualized as either
 a histogram (for numeric variables) or a bar plot (for categorical variables),
 faceted by a grouping variable such as \code{POOLED_GENETIC_ANCESTRY}.
+Optionally, facet labels are only displayed on the last plot to create
+a more compact layout.
 }

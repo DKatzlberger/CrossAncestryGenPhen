@@ -15,7 +15,19 @@ gdc_map_metadata <- function(
 ){
   ## --- Input validation ---
   stopifnot(all(c("old_colname", "new_colname", "old_colvalue", "new_colvalue") %in% names(map)))
-  
+
+  ## --- Trim ALL whitespace in metadata BEFORE mapping ---
+  file_map <- as.data.frame(lapply(file_map, function(x) {
+    if (is.character(x)) trimws(x) else x
+  }), stringsAsFactors = FALSE)
+
+
+  ## --- Trim whitespace in the mapping table itself ---
+  map$old_colvalue <- trimws(map$old_colvalue)
+  map$new_colvalue <- trimws(map$new_colvalue)
+  map$old_colname  <- trimws(map$old_colname)
+  map$new_colname  <- trimws(map$new_colname)
+
   
   ## --- Apply mapping ---
   for (i in seq_len(nrow(map))) {
@@ -27,6 +39,11 @@ gdc_map_metadata <- function(
     if (!old_col %in% names(file_map)) {
       message(sprintf("Skipping: column '%s' not found in file_map", old_col))
       next
+    }
+
+    # Trim the active column BEFORE matching ---
+    if (is.character(file_map[[old_col]])) {
+      file_map[[old_col]] <- trimws(file_map[[old_col]])
     }
     
     # Create the new column if it doesn’t exist yet

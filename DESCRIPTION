@@ -15,25 +15,17 @@ Imports:
     DESeq2,
     compcodeR,
     ComplexHeatmap,
+    Rtsne,
+    tidymodels,
+    fields,
+    data.table,
+    svglite,
     ggplot2,
     ggrepel,
     patchwork,
-    Rtsne,
-    tidymodels,
-    Rcpp,
-    RcppArmadillo,
-    fields,
-    data.table,
-    svglite
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
+    future
 Suggests:
-    testthat (>= 3.0.0),
-    knitr,
-    rmarkdown,
     BiocManager,
-    doParallel
 URL: https://DKatzlberger.github.io/CrossAncestryGenPhen
 BugReports: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
 RoxygenNote: 7.3.3

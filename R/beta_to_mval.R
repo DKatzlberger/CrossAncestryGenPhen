@@ -20,6 +20,16 @@ beta_to_mval <- function(
     .fun = "beta_to_mval"
   )
 
+  # NA values present?
+  if (anyNA(X)) {
+    warning("[beta_to_mval] NA values detected. These will be preserved.")
+  }
+
+  # Negative values?
+  if (any(X < 0, na.rm = TRUE)) {
+    warning("[beta_to_mval] Negative beta-values detected. These are invalid and will be clipped to 'offset'.")
+  }
+
 
   ## --- Clip to avoid 0 or 1 ---
   X[X <= 0] <- offset

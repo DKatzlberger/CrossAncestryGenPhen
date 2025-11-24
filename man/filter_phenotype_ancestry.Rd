@@ -12,26 +12,38 @@ filter_phenotype_ancestry(
   g_levels,
   a_levels,
   covariates = NULL,
+  omit_na = FALSE,
+  auto_cast = FALSE,
   plot = TRUE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{X}{Matrix of features (rows = samples, cols = features).}
+\item{X}{A numeric matrix of features (rows = samples, columns = features).}
 
-\item{M}{Data frame of sample metadata (rownames = sample IDs).}
+\item{M}{A data frame containing sample metadata (must have rownames matching `rownames(X)`).}
 
-\item{g_col}{Column in `M` with phenotype labels.}
+\item{g_col}{A character string specifying the metadata column containing phenotype labels.}
 
-\item{a_col}{Column in `M` with ancestry labels.}
+\item{a_col}{A character string specifying the metadata column containing ancestry labels.}
 
-\item{g_levels}{Character(2), phenotype levels to keep (order sets factor).}
+\item{g_levels}{A character vector of length 2 giving the phenotype levels to retain (order determines reference vs. comparison).}
 
-\item{a_levels}{Character(2), ancestry levels to keep (`X`, `Y`).}
+\item{a_levels}{A character vector of length 2 giving the ancestry levels to retain (first becomes group X, second group Y).}
 
-\item{verbose}{Logical, print summary (default TRUE).}
+\item{covariates}{Optional character vector of additional metadata columns to include during NA checking (e.g., age).}
+
+\item{omit_na}{Logical; if `TRUE`, missing values in any of the required metadata columns (`g_col`, `a_col`, `covariates`) are removed.}
+
+\item{auto_cast}{Logical; if `TRUE`, covariates are automatically cast into classes.}
+
+\item{plot}{Logical; if `TRUE` (default), prints the imbalance plot showing phenotype frequencies across ancestry groups.}
+
+\item{verbose}{Logical; if `TRUE` (default), prints detailed progress and summary information.}
 }
 \description{
-Filters metadata (`M`) and matching matrix (`X`) to two given ancestry
-levels and two phenotype levels, then splits into X/Y groups.
+Filters metadata (`M`) and a matching feature matrix (`X`) to two selected
+ancestry levels and two phenotype levels, then splits the data into two
+groups (X/Y) based on ancestry. Optionally removes samples with missing
+values in required metadata columns.
 }

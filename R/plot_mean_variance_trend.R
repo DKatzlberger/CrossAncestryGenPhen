@@ -62,7 +62,7 @@ plot_mean_variance_trend <- function(
       x = ifelse(is.null(x_label), "Log2 CPM", x_label),
       y = ifelse(is.null(y_label), "sqrt(Standard deviation)", y_label)
     ) +
-    theme_CrossAncestryGenPhen()
+    theme_CrossAncestryGenPhen() +
     theme(legend.position = "none")
 
     return(p)

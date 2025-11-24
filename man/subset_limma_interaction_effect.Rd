@@ -14,7 +14,7 @@ subset_limma_interaction_effect(
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
-  agg_method = c("mean", "cct", "fisher", "bonferroni", "all"),
+  method = c("mean", "cct", "fisher", "bonferroni"),
   seed = NULL,
   verbose = TRUE
 )
@@ -38,19 +38,11 @@ subset_limma_interaction_effect(
 
 \item{n_iter}{Integer. Number of iterations to run. Default is 1000.}
 
-\item{agg_method}{Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni", "all".}
+\item{method}{Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni".}
 
 \item{seed}{Optional integer for random seed to ensure reproducibility.}
 
 \item{verbose}{Logical; whether to print progress messages.}
-}
-\value{
-A list with the following elements:
-\describe{
-  \item{summary_stats}{Data frame with aggregated summary statistics across iterations.}
-  \item{subsets_stats}{Data frame with iteration-level statistics.}
-  \item{samples_stats}{Data frame logging sample IDs used in each split.}
-}
 }
 \description{
 Runs stratified train/test splits with ancestry sets and estimates 

@@ -36,7 +36,7 @@ plot_tsne_cluster(
 
 \item{cpm}{Logical; if TRUE, apply log2 CPM transformation before t-SNE.}
 
-\item{mval}{Logical; if TRUE, apply m-value transformation before t-SNE.}
+\item{mval}{Logical; if TRUE, apply m-value transformation.}
 
 \item{perplexity}{t-SNE perplexity parameter.}
 

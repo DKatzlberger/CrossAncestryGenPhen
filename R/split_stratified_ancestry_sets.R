@@ -19,6 +19,7 @@
 #'   \item{Y}{Inference set: full Y, untouched}
 #'   \item{strata_info}{list with usable/missing/insufficient strata}
 #' }
+#' 
 #' @export
 split_stratified_ancestry_sets <- function(
   X, 
@@ -122,10 +123,10 @@ split_stratified_ancestry_sets <- function(
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
-    message("\nStratified split summary:")
-    message(sprintf("%s (Reference, R):    N: %-4d %s features: %-4d", a_1, nrow(R_matr), fmt_counts(rownames(R_matr), R_meta, g_col), ncol(R_matr)))
-    message(sprintf("%s (Subset,    X):    N: %-4d %s features: %-4d", a_1, nrow(X_matr), fmt_counts(rownames(X_matr), X_meta, g_col), ncol(X_matr)))
-    message(sprintf("%s (Inference, Y):    N: %-4d %s features: %-4d", a_2, nrow(Y_matr), fmt_counts(rownames(Y_matr), Y_meta, g_col), ncol(Y_matr)))
+    message("\nStratified split:")
+    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Reference R (", a_1, "):"), nrow(R_matr), fmt_counts(rownames(R_matr), R_meta, g_col), ncol(R_matr)))
+    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Subset    X (", a_1, "):"), nrow(X_matr), fmt_counts(rownames(X_matr), X_meta, g_col), ncol(X_matr)))
+    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Inference Y (", a_2, "):"), nrow(Y_matr), fmt_counts(rownames(Y_matr), Y_meta, g_col), ncol(Y_matr)))
   }
 
   ## --- Return ---

@@ -1,24 +1,24 @@
-#' Run repeated subset-based limma interaction effects
+#' Run repeated subset-based limma correlation effects
 #'
-#' @param X A data frame or matrix of features (genotypes or other predictors).
-#' @param Y A response vector or matrix.
-#' @param MX Additional metadata or covariates for `X`.
-#' @param MY Additional metadata or covariates for `Y`.
+#' @param X Expression matrix for ancestry X. Rows = samples, columns = genes.
+#' @param Y Expression matrix for ancestry Y. Rows = samples, columns = genes.
+#' @param MX Metadata for X. Must include group and ancestry columns.
+#' @param MY Metadata for Y. Must include group and ancestry columns.
 #' @param g_col Name of the genotype column in `X` used for interaction.
 #' @param a_col Name of the ancestry column used for stratified splitting.
 #' @param covariates Optional vector of covariate column names to adjust for.
 #' @param use_voom Logical; whether to use limma-voom (default: TRUE).
 #' @param n_iter Integer. Number of iterations to run. Default is 1000.
-#' @param method Method for aggregating p-values across iterations. Options: "mean", "cct", "fisher", "bonferroni".
+#' @param method Method for aggregating p-values across iterations. Options: "pearson", "spearman".
 #' @param seed Optional integer for random seed to ensure reproducibility.
 #' @param verbose Logical; whether to print progress messages.
-#' 
+#'
 #' @importFrom furrr future_pmap
 #' @importFrom future nbrOfWorkers
 #' @importFrom data.table as.data.table rbindlist
-#'
+#' 
 #' @export
-subset_limma_interaction_effect <- function(
+subset_limma_correlation_effect <- function(
   X,
   Y,
   MX,
@@ -28,10 +28,10 @@ subset_limma_interaction_effect <- function(
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
-  method = c("mean", "cct", "fisher", "bonferroni"),
+  method = c("pearson", "spearman"),
   seed = NULL,
   verbose = TRUE
-) {
+){
 
   ## --- Match the method ---
   method <- match.arg(method)
@@ -40,18 +40,18 @@ subset_limma_interaction_effect <- function(
   ## --- Input data structure check ---
   assert_input(
     X = X, 
-    Y = Y, 
+    Y = Y,
     MX = MX, 
-    MY = MY, 
+    MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "subset_limma_interaction_effect"
+    .fun = "subset_limma_correlation_effect"
   )
 
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_limma_interaction_effect] Workers available: %d", n_workers))
+  message(sprintf("\n[subset_limma_correlation_effect] Workers available: %d", n_workers))
 
 
   ## --- Seeds for reproducibility ---
@@ -63,7 +63,6 @@ subset_limma_interaction_effect <- function(
     i = seq_len(n_iter),
     seed_iter = seeds
   )
-
 
   ## --- Define the function for one iteration ---
   run_one <- function(
@@ -91,9 +90,11 @@ subset_limma_interaction_effect <- function(
     id <- track_sample_ids(split, i)
 
     # Run limma on subset
-    res <- limma_interaction_effect(
+    res <- limma_correlation_effect(
+      R = split$R$matr,
       X = split$X$matr,
       Y = split$Y$matr,
+      MR = split$R$meta,
       MX = split$X$meta,
       MY = split$Y$meta,
       g_col = g_col,
@@ -128,15 +129,14 @@ subset_limma_interaction_effect <- function(
 
 
   ## --- Aggregation of iterations ---
-  agg_log <- summarize_limma_interaction_effect_subsets(
+  agg_log <- summarize_limma_correlation_effect_subsets(
     stats  = res_log,
-    method = method,
-    by     = c("coef_id")
+    method = method
   )
 
   # Function should return both
-  sel_method = agg_log$sel_method
-  all_method = agg_log$all_method
+  sel_method = agg_log$sel_delta_res
+  all_method = agg_log$all_delta_res
 
 
   ## --- Return ---
@@ -149,4 +149,3 @@ subset_limma_interaction_effect <- function(
     )
   )
 }
-

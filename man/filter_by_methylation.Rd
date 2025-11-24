@@ -11,36 +11,39 @@ filter_by_methylation(
   MY,
   g_col,
   a_col,
-  mean_q = c(0.2, 0.9),
+  any_group = TRUE,
   var_q = 0.2,
   verbose = TRUE,
   plot = TRUE
 )
 }
 \arguments{
-\item{X}{Matrix of beta-values (rows = samples, cols = features) for ancestry X.}
+\item{X}{Matrix of beta-values (rows = samples, cols = CpGs) for ancestry X.}
 
 \item{Y}{Matrix of beta-values for ancestry Y.}
 
-\item{MX}{Metadata for X (data.frame, rownames = sample IDs).}
+\item{MX}{Metadata for X (data.frame; rownames must match rownames of X).}
 
-\item{MY}{Metadata for Y (data.frame, rownames = sample IDs).}
+\item{MY}{Metadata for Y (data.frame; rownames must match rownames of Y).}
 
 \item{g_col}{Name of phenotype column in metadata (factor with 2 levels).}
 
-\item{a_col}{Name of ancestry column in metadata (1 level per block).}
+\item{a_col}{Name of ancestry column in metadata (factor/character, 1 level per block).}
 
-\item{mean_q}{Quantile cutoffs for mean beta-values (default = c(0.2, 0.9)).}
+\item{any_group}{Logical; if TRUE, filter variance within ancestry×phenotype groups.
+If FALSE, treat all samples as one population (global variance filter).}
 
-\item{var_q}{Lower quantile cutoff for variance (default = 0.2).}
+\item{var_q}{Lower quantile cutoff for variance (default = 0.20).}
 
 \item{verbose}{Print summary (default TRUE).}
 
-\item{plot}{Return mean–variance scatter plot (default TRUE).}
+\item{plot}{Print variance plot (default TRUE).}
 }
 \description{
 Combines two ancestry-specific matrices (`X`, `Y`) with their metadata (`MX`, `MY`),
-filters genes/probes by mean beta-value and variance across samples,
-and re-splits the filtered data using `subset_phenotype_ancestry()`.
-Supports only 2×2 designs (two ancestry levels × two phenotype levels).
+filters CpGs **only by variance** across samples, optionally within
+ancestry × phenotype groups. Never uses mean beta-values for filtering.
+}
+\details{
+Supports only 2×2 designs (two levels in `g_col` × two levels in `a_col`).
 }

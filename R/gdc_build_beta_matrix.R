@@ -23,7 +23,7 @@ gdc_build_beta_matrix <- function(
 
   ## --- Initialize ---
   feature_info  <- NULL
-  matr       <- NULL
+  matr          <- NULL
 
   ## --- Loop over files ---
   for (i in seq_along(file_ids)) {
@@ -66,6 +66,32 @@ gdc_build_beta_matrix <- function(
 
   ## --- Check final matrix ---
   if (is.null(matr)) stop("No valid files read successfully.")
+
+
+  ## --- QC step ---
+  # ann450k <- minfi::getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19::IlluminaHumanMethylation450kanno.ilmn12.hg19)
+
+  # # Remove feature with any NA
+  # na_mask <- colSums(is.na(matr)) == 0
+  # matr    <- matr[, na_mask, drop = FALSE]
+
+  # # Remove probes that match chromosomes X and Y
+  # sex_mask <- !(colnames(matr) %in% ann450k$Name[ann450k$chr %in% c("chrX","chrY")])
+  # matr     <- matr[, sex_mask, drop = FALSE]
+  # rm(sex_mask); gc(verbose = FALSE)
+
+  # # Remove SNPs overlapped probe
+  # no_snp_probe <- ann450k$Name[is.na(ann450k$Probe_rs)]
+  # snp_probe    <- ann450k[!is.na(ann450k$Probe_rs), ]
+  # # Snps with maf <= 0.05
+  # snp5_probe   <- snp_probe$Name[snp_probe$Probe_maf <= 0.05]
+  # matr         <- matr[colnames(matr) %in% c(no_snp_probe, snp5_probe), ]
+  # rm(no_snp_probe, probe, probe_na, snp_probe, snp5_probe); gc(verbose = FALSE)
+
+  # # Removing probes that have been demonstrated to map to multiple places in the genome
+  # data("crossReactiveProbes", package = "IlluminaHumanMethylation450kanno.ilmn12.hg19", envir = environment())
+  # cr_mask <- colnames(matr) %in% crossReactiveProbes
+  # matr    <- matr[, !cr_mask, drop = FALSE]
 
 
   ## --- Verbose message ---

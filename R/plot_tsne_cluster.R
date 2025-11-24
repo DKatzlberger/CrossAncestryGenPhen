@@ -9,7 +9,7 @@
 #' @param color_var Name of the metadata variable for color (optional).
 #' @param shape_var Name of the metadata variable for shape (optional).
 #' @param cpm Logical; if TRUE, apply log2 CPM transformation before t-SNE.
-#' @param mval Logical; if TRUE, apply m-value transformation before t-SNE.
+#' @param mval Logical; if TRUE, apply m-value transformation.
 #' @param perplexity t-SNE perplexity parameter.
 #' @param title Plot title.
 #' @param x_label X-axis label.
@@ -64,9 +64,10 @@ plot_tsne_cluster <- function(
   }
 
   if (mval){
-    X_mval <- beta_to_mval(t(X_comb))
-    X_comb <- t(X_mval)
+    X_mval <- beta_to_mval(X_comb)
+    X_comb <- X_mval
   }
+
 
   # Run t-SNE
   tsne_results <- Rtsne::Rtsne(X_comb, dims = 2, perplexity = perplexity)

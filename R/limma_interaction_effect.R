@@ -106,14 +106,14 @@ limma_interaction_effect <- function(
   group_coefs <- gsub("groups", "", group_coefs)               
   colnames(design)[group_mask] <- group_coefs
 
-  if (!is.null(covariates)) {
-    for (cov in covariates) {
-      if (is.factor(meta[[cov]]) || is.character(meta[[cov]])) {
-        covar_coefs <- sub(paste0("^", cov), "", covar_coefs)
-      }
-    }
-    colnames(design)[!group_mask] <- covar_coefs
-  }
+  # if (!is.null(covariates)) {
+  #   for (cov in covariates) {
+  #     if (is.factor(meta[[cov]]) || is.character(meta[[cov]])) {
+  #       covar_coefs <- sub(paste0("^", cov), "", covar_coefs)
+  #     }
+  #   }
+  #   colnames(design)[!group_mask] <- covar_coefs
+  # }
 
 
   ## --- Define contrasts ---
@@ -136,16 +136,16 @@ limma_interaction_effect <- function(
 
   ## --- Verbose message ---
   if (verbose) {
-    message("\nLinear model summary (limma):")
-    message(sprintf("Formula:         %s", form_str))
-    message(sprintf("Groups:          %s", paste(group_coefs, collapse = "  ")))
-    message(sprintf("Baseline:        %s", paste(contrast_calculations[1:2], collapse = "  ")))
-    message(sprintf("Relationship:    %s", paste(contrast_calculations[3:4], collapse = "  ")))
-    message(sprintf("Interaction:     %s", paste(contrast_calculations[[5]], collapse = "  ")))
+    message("\nLinear model summary:")
+    message(sprintf("%-20s  %s", "Formula:", form_str))
+    message(sprintf("%-20s  %s", "Groups:", paste(group_coefs, collapse = "  ")))
+    message(sprintf("%-20s  %s", "Baseline:", paste(contrast_calculations[1:2], collapse = "  ")))
+    message(sprintf("%-20s  %s", "Relationship:", paste(contrast_calculations[3:4], collapse = "  ")))
+    message(sprintf("%-20s  %s", "Interaction:", paste(contrast_calculations[[5]], collapse = "  ")))
   }
 
 
-  # --- Model fit with/without voom ----
+  ## --- Model fit with/without voom ----
   if (use_voom) {
     dge <- edgeR::DGEList(counts = t(matr)) # samples x genes -> genes x samples
     dge <- edgeR::calcNormFactors(dge) 

@@ -2,18 +2,22 @@
 % Please edit documentation in R/gdc_gene_level_beta_matrix.R
 \name{gdc_gene_level_beta_matrix}
 \alias{gdc_gene_level_beta_matrix}
-\title{Collapse gene-level probes with mean and remove NAs from beta matrix}
+\title{Create GDC gene-level beta matrix}
 \usage{
-gdc_gene_level_beta_matrix(matr, verbose = TRUE)
+gdc_gene_level_beta_matrix(meth, probe2gene, verbose = TRUE)
 }
 \arguments{
-\item{matr}{Numeric matrix (samples × features).}
+\item{meth}{Input beta matrix (samples × probes)}
 
-\item{verbose}{Logical; show summary (default TRUE).}
+\item{probe2gene}{Probe-to-gene mapping table}
+
+\item{verbose}{Print progress messages}
 }
 \value{
-Matrix with NAs removed and duplicate genes summed.
+Filtered beta matrix
 }
 \description{
-Collapse gene-level probes with mean and remove NAs from beta matrix
+Filters a methylation matrix to probes present in a
+probe-to-gene mapping table and removes probes with
+any missing values. Returns a cleaned beta matrix.
 }

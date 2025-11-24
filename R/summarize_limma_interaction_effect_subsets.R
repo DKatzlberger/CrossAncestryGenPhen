@@ -9,11 +9,13 @@
 #' @importFrom stats p.adjust
 #'
 #' @export
-summarize_subsets <- function(
+summarize_limma_interaction_effect_subsets <- function(
   stats,
   method = c("mean", "cct", "fisher", "bonferroni"),
   by = NULL
 ) {
+
+  ## --- Match method ---
   method <- match.arg(method)
 
 
@@ -25,14 +27,13 @@ summarize_subsets <- function(
   
   missing  <- setdiff(required, colnames(stats))
   if (length(missing) > 0) {
-    stop("[summarize_subsets] Missing required column(s): ", paste(missing, collapse = " "))
+    stop("[summarize_limma_interaction_effect_subsets] Missing required column(s): ", paste(missing, collapse = " "))
   }
 
 
   ## --- Check grouping vars ---
   if (!is.null(by) && !all(by %in% colnames(stats))) {
-    stop("[summarize_subsets] Grouping column(s) not found: ",
-         paste(setdiff(by, colnames(stats)), collapse = " "))
+    stop("[summarize_limma_interaction_effect_subsets] Grouping column(s) not found: ", paste(setdiff(by, colnames(stats)), collapse = " "))
   }
   per_feature_grouping <- unique(c("feature", by))
 

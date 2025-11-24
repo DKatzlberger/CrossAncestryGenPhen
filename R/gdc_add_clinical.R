@@ -72,6 +72,7 @@ gdc_add_clinical <- function(
   if (nrow(file_map) != nrow(merged)) message("[gdc_add_clinical] Merging introduced new rows.")
   if (anyDuplicated(merged$ID))       message("[gdc_add_clinical] ID is not unique anymore.")
 
+
   ## --- N unique ---
   n_IDs         <- length(unique(merged$ID))
   n_SAMPLE_IDs  <- length(unique(merged$SAMPLE_ID))
@@ -119,6 +120,7 @@ gdc_add_clinical <- function(
     message(sprintf("Vials:   %-18s", fmt_counts(merged, "VIAL")))
     message(sprintf("Types:   %-18s", fmt_counts(merged, "SAMPLE_TYPE")))
   }
+
 
   ## --- Print duplication warning ---
   if (n_dup > 0) {

@@ -5,8 +5,8 @@
 #' @param X Numeric matrix or data frame for the first group (samples in rows, genes in columns).
 #' @param Y Numeric matrix or data frame for the second group (same orientation as X).
 #' @param samples Vector of sample indices or row names to plot. If NULL, the first 9 samples are used.
-#' @param cpm Logical; if TRUE, transform counts to log2 CPM before plotting.
-#' @param mval Logical; if TRUE, apply m-value transformation before t-SNE.
+#' @param cpm Logical; if TRUE, transform counts to log2 CPM.
+#' @param mval Logical; if TRUE, apply m-value transformation.
 #' @param title Plot title.
 #' @param x_label X-axis label.
 #' @param y_label Y-axis label.
@@ -46,8 +46,8 @@ plot_sample_density <- function(
   }
 
   if (mval){
-    X_mval <- beta_to_mval(t(X_comb))
-    X_comb <- t(X_mval)
+    X_mval <- beta_to_mval(X_comb)
+    X_comb <- X_mval
   }
 
 

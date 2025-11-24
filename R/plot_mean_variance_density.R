@@ -89,7 +89,7 @@ plot_mean_variance_density <- function(
       x = ifelse(is.null(x_label), "Log2 Mean expression", x_label),
       y = ifelse(is.null(y_label), " Log2 Variance", y_label)
     ) +
-    theme_CrossAncestryGenPhen()
+    theme_CrossAncestryGenPhen() +
     theme(legend.position = "none")
   
   return(p)

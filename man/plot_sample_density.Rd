@@ -22,9 +22,9 @@ plot_sample_density(
 
 \item{samples}{Vector of sample indices or row names to plot. If NULL, the first 9 samples are used.}
 
-\item{cpm}{Logical; if TRUE, transform counts to log2 CPM before plotting.}
+\item{cpm}{Logical; if TRUE, transform counts to log2 CPM.}
 
-\item{mval}{Logical; if TRUE, apply m-value transformation before t-SNE.}
+\item{mval}{Logical; if TRUE, apply m-value transformation.}
 
 \item{title}{Plot title.}
 

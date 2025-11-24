@@ -1,71 +1,48 @@
-#' Collapse gene-level probes with mean and remove NAs from beta matrix
+#' Create GDC gene-level beta matrix
 #'
-#' @param matr Numeric matrix (samples × features).
-#' @param verbose Logical; show summary (default TRUE).
+#' Filters a methylation matrix to probes present in a
+#' probe-to-gene mapping table and removes probes with
+#' any missing values. Returns a cleaned beta matrix.
 #'
-#' @return Matrix with NAs removed and duplicate genes summed.
-#' 
-#' @importFrom minfi getAnnotation
-#' @import IlluminaHumanMethylation450kanno.ilmn12.hg19
+#' @param meth Input beta matrix (samples × probes)
+#' @param probe2gene Probe-to-gene mapping table
+#' @param verbose Print progress messages
+#'
+#' @return Filtered beta matrix
+#'
+#' @importFrom stats na.omit
 #' @export
+#'
 gdc_gene_level_beta_matrix <- function(
-  matr,
-  verbose = TRUE
+  meth,
+  probe2gene,
+  verbose = TRUE       
 ){
 
-  ## --- Check for matrix ---
-  if (!is.matrix(matr)) stop("Input must be a matrix (samples × features).")
+  ## --- Extract probes ---
+  probes_meth <- colnames(meth)
+  probes_map  <- probe2gene$probe
 
 
-  ## --- Record start dimensions ---
-  n_start_samples  <- nrow(matr)
-  n_start_features <- ncol(matr)
+  ## --- Filter matrix ---
+  keep <- intersect(probes_meth, probes_map)
+  meth <- meth[, keep, drop = FALSE]
+  if (verbose) message("Data: ", length(probes_meth), " | Map: ", length(probes_map), " | Overlap: ", length(keep))
 
 
-  ## --- Remove feature with any NA ---
-  na_mask <- colSums(is.na(matr)) == 0
-  matr    <- matr[, na_mask, drop = FALSE]
-  n_removed_na <- ncol(matr)
-
-
-  ## --- Create probe2gene mapping ---
-  ann450k <- minfi::getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19::IlluminaHumanMethylation450kanno.ilmn12.hg19)
-  probe2gene <- data.frame(
-    probe_id = ann450k$Name,
-    gene_id  = ann450k$UCSC_RefGene_Name,
-    stringsAsFactors = FALSE
-  )
-
-  # Remove probes with no gene mapping
-  probe2gene <- probe2gene[probe2gene$gene_id != "", , drop = FALSE]
-  gene_split <- strsplit(probe2gene$gene_id, ";")
-
-  probe2gene <- data.frame(
-    probe_id = rep(probe2gene$probe_id, lengths(gene_split)),
-    gene_id  = unlist(gene_split),
-    stringsAsFactors = FALSE
-  )
-
-
-  ## --- Filter mapping to probes in matrix ---
-  common <- intersect(colnames(matr), probe2gene$probe_id)
-  matr <- matr[, common, drop = FALSE]
-  probe2gene <- probe2gene[match(common, probe2gene$probe_id), , drop = FALSE]
-
-
-  ## --- Aggregate by mean beta per gene ---
-  feature_names <- probe2gene$gene_id
-  agg_matr <- t(rowsum(t(matr), group = feature_names)) / as.numeric(table(feature_names))
+  ## --- Remove probes with ANY NA values ---
+  isNA <- colSums(is.na(meth)) != 0
+  meth <- meth[, !isNA, drop = FALSE]
+  if (verbose) if (verbose) message("Removed ", sum(isNA), " probes with NA values")
 
 
   ## --- Verbose message ---
   if (verbose){
-    message("\nGDC gene-level count matrix summary:")
-    message(sprintf("Features:   %d -> %d (no NAs) -> %d (mean)", n_start_features, n_removed_na, ncol(agg_matr)))
-    message(sprintf("Dimensions: %d (samples) x %d (features)", nrow(agg_matr), ncol(agg_matr)))
+    message("\nGDC gene-level beta matrix summary:")
+    message(sprintf("Dimensions: %d (samples) x %d (features)", nrow(meth), ncol(meth)))
   }
 
 
   ## --- Return ---
-  return(agg_matr)
+  return(meth)
 }
