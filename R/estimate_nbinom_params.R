@@ -142,15 +142,15 @@ estimate_nbinom_params <- function(
   p_means <- ggplot(data, aes(x = log2(means_mle + 1))) +
     geom_histogram(bins = bins, fill = "grey80", color = "black", linewidth = 0.1) +
     geom_vline(aes(xintercept = mean(log2(means_mle + 1))), color = "red", linewidth = 0.3) +
-    labs(x = "Log2 Expression", y = "Count")+ theme_nature_fonts() +
-    theme_small_legend() + theme_white_background()
+    labs(x = "Log2 Expression", y = "Count") + 
+    theme_CrossAncestryGenPhen()
 
   # Dispersion distribution (MLE)
   p_disps <- ggplot(data, aes(x = log2(disp_mle + 1))) +
     geom_histogram(bins = bins, fill = "grey80", color = "black", linewidth = 0.1) +
     geom_vline(aes(xintercept = mean(log2(disp_mle + 1))), color = "red", linewidth = 0.3) +
-    labs(x = "Log2 Dispersion", y = "Count") + theme_nature_fonts() +
-    theme_small_legend() + theme_white_background()
+    labs(x = "Log2 Dispersion", y = "Count") + 
+    theme_CrossAncestryGenPhen()
 
   # Patchwork
   p <- patchwork::wrap_plots(p_means, p_disps, qc_quantiles$plot, ncol = 3, nrow = 1)

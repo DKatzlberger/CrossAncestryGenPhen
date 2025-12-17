@@ -13,29 +13,29 @@ logistic_prediction_effect(
   MY,
   g_col,
   a_col,
-  n_folds = 5,
-  n_models = 10,
+  n_folds,
+  n_models,
   maxit = NULL,
   seed = NULL,
   verbose = TRUE
 )
 }
 \arguments{
-\item{R}{Input matrix (train)}
+\item{R}{Expression matrix for refeernce ancestry. Rows = samples, columns = genes.}
 
-\item{X}{Input matrix (subset)}
+\item{X}{Expression matrix for ancestry X. Rows = samples, columns = genes.}
 
-\item{Y}{Input matrix (infer)}
+\item{Y}{Expression matrix for ancestry Y. Rows = samples, columns = genes.}
 
-\item{MR}{Meta for R}
+\item{MR}{Metadata for R. Must include group and ancestry columns.}
 
-\item{MX}{Meta for X}
+\item{MX}{Metadata for X. Must include group and ancestry columns.}
 
-\item{MY}{Meta for Y}
+\item{MY}{Metadata for Y. Must include group and ancestry columns.}
 
-\item{g_col}{Group col name}
+\item{g_col}{Name of the column indicating group (factor 1).}
 
-\item{a_col}{Ancestry col name}
+\item{a_col}{Name of the column indicating ancestry (factor 2).}
 
 \item{n_folds}{CV folds}
 

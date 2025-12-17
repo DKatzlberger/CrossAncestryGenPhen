@@ -48,7 +48,8 @@ gdc_download_manifest <- function(
 
   ## --- Read manifest ---
   manifest_data <- read.delim(manifest_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
-  n_manifest    <- nrow(manifest_data)
+  manifest_ids <- manifest_data$id
+  n_manifest <- length(manifest_ids)
 
 
   ## --- Map manifest with meta ---
@@ -57,17 +58,25 @@ gdc_download_manifest <- function(
     metadata_file = metadata_file,
     verbose = TRUE
   )
-  n_file_map <- nrow(file_map)
+  metadata_ids <- file_map$FILE_ID
+  n_file_map <- length(metadata_ids)
+
+  ## --- Validate manifest vs metadata ---
+  if (!setequal(manifest_ids, metadata_ids)) {
+    stop("[gdc_download_manifest] Manifest and metadata FILE_IDs do NOT match.\n",
+         "Missing in metadata: ", paste(setdiff(manifest_ids, metadata_ids), collapse=", "), "\n",
+         "Missing in manifest: ", paste(setdiff(metadata_ids, manifest_ids), collapse=", "))
+  }
 
 
   ## --- Check existing folders ---
-  expected_folders <- unique(file_map$FILE_ID)
+  expected_folders <- manifest_ids
   existing_folders <- list.dirs(file_dir, full.names = FALSE, recursive = FALSE)
   existing_folders <- basename(existing_folders)
 
   exists_flag <- expected_folders %in% existing_folders
   n_expected  <- length(expected_folders)
-  n_existing  <- length(existing_folders)
+  n_existing  <- sum(exists_flag)
   n_correct   <- sum(exists_flag)
   n_missing   <- n_expected - n_correct
 

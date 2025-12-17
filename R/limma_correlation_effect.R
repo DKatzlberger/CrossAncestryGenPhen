@@ -31,17 +31,17 @@ limma_correlation_effect <- function(
 ){
 
   ## --- Input data structure check ---
-  # assert_input(
-  #   R = R,
-  #   X = X, 
-  #   Y = Y,
-  #   MR = MR,
-  #   MX = MX, 
-  #   MY = MY,
-  #   g_col = g_col, 
-  #   a_col = a_col,
-  #   .fun = "limma_correlation_effect"
-  # )
+  assert_input(
+    R = R,
+    X = X, 
+    Y = Y,
+    MR = MR,
+    MX = MX, 
+    MY = MY,
+    g_col = g_col, 
+    a_col = a_col,
+    .fun = "limma_correlation_effect"
+  )
 
 
   ## --- Check data leakage ---

@@ -10,7 +10,7 @@ theme_CrossAncestryGenPhen(
   show_axis = TRUE,
   show_facets = TRUE,
   show_grid = FALSE,
-  show_boarders = FALSE,
+  show_borders = FALSE,
   rotate = NULL,
   base_family = "Arial",
   ...
@@ -27,13 +27,13 @@ theme_CrossAncestryGenPhen(
 
 \item{show_grid}{Logical; whether to show major grid lines.}
 
-\item{show_boarders}{Logical; whether to show panel borders.}
-
 \item{rotate}{Numeric; angle (in degrees) to rotate x-axis labels (e.g. 45, 90).}
 
 \item{base_family}{Base font family (default: "Arial").}
 
 \item{...}{Additional theme parameters.}
+
+\item{show_boarders}{Logical; whether to show panel borders.}
 }
 \value{
 A ggplot2 theme object.

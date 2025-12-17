@@ -2,7 +2,7 @@
 % Please edit documentation in R/subset_limma_correlation_effect.R
 \name{subset_limma_correlation_effect}
 \alias{subset_limma_correlation_effect}
-\title{Subset Limma Correlation Effect with Stratified Cross-Validation}
+\title{Run repeated subset-based limma correlation effects}
 \usage{
 subset_limma_correlation_effect(
   X,
@@ -45,5 +45,5 @@ subset_limma_correlation_effect(
 \item{verbose}{Logical; whether to print progress messages.}
 }
 \description{
-Subset Limma Correlation Effect with Stratified Cross-Validation
+Run repeated subset-based limma correlation effects
 }

@@ -73,9 +73,7 @@ compute_qq_correlation <- function(
     x = ifelse(is.null(x_label), paste(paste0(toupper(substr(method, 1, 1)), substr(method, 2, nchar(method))), "correlation"), x_label),
     y = ifelse(is.null(y_label), "Count", y_label),
   ) +
-  theme_nature_fonts() +
-  theme_white_background() +
-  theme_small_legend()
+  theme_CrossAncestryGenPhen()
 
   ## --- Return ---
   return(

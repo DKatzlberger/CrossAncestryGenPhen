@@ -21,7 +21,7 @@ theme_CrossAncestryGenPhen <- function(
   show_axis = TRUE,
   show_facets = TRUE,
   show_grid = FALSE,
-  show_boarders = FALSE,
+  show_borders = FALSE,
   rotate = NULL,
   base_family = "Arial",
   ...
@@ -49,6 +49,7 @@ theme_CrossAncestryGenPhen <- function(
     plot.title = ggplot2::element_text(size = base_size, hjust = 0.5, family = base_family),
     plot.subtitle = ggplot2::element_text(size = base_size, hjust = 0.5, family = base_family),
     strip.text = ggplot2::element_text(size = base_size, family = base_family),
+    plot.caption = element_text(size = base_size, hjust = 0, family = base_family),
 
     legend.title = ggplot2::element_text(size = base_size, family = base_family, margin = ggplot2::margin(b = 2, unit = "mm")),
     legend.text = ggplot2::element_text(size = base_size, family = base_family),
@@ -71,7 +72,7 @@ theme_CrossAncestryGenPhen <- function(
   if (!show_facets) p <- p + ggplot2::theme(strip.text = ggplot2::element_blank())
 
   ## --- Adaptive boarders ---
-  if (show_boarders) { p <- p + ggplot2::theme(
+  if (show_borders) { p <- p + ggplot2::theme(
       panel.border = ggplot2::element_rect(color = "black", fill = NA, linewidth = 0.5),
       axis.line    = ggplot2::element_blank()
     )

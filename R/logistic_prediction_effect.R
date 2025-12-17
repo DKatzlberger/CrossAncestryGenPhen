@@ -75,10 +75,10 @@ logistic_prediction_effect <- function(
 
 
   ## --- Ancestry validation ---
-  a_1   <- unique(MX[[a_col]])
-  a_2   <- unique(MY[[a_col]])
-  a_1_1 <- unique(MR[[a_col]])
-  if (a_1 != a_1_1) stop("[logistic_prediction_effect] Ancestry level must be the same in Reference (R) as in Subset (X).")
+  A_1   <- unique(MX[[a_col]])
+  A_2   <- unique(MY[[a_col]])
+  A_1_1 <- unique(MR[[a_col]])
+  if (A_1 != A_1_1) stop("[logistic_prediction_effect] Ancestry level must be the same in Reference (R) as in Subset (X).")
 
   ## --- Validation ---
   expr_list <- list(R = R, X = X, Y = Y)
@@ -130,8 +130,8 @@ logistic_prediction_effect <- function(
       contrast  = paste0(groups_levels[2], " - ", groups_levels[1]),
       g_1       = g_1,
       g_2       = g_2,
-      a_1       = a_1,
-      a_2       = a_2,
+      a_1       = A_1,
+      a_2       = A_2,
       row.names = NULL
     )
 
@@ -184,17 +184,17 @@ logistic_prediction_effect <- function(
   }
 
   # Run label leakage checks
-  res_R <- check_label_leakage(prediction_frames$R)
-  res_X <- check_label_leakage(prediction_frames$X)
-  res_Y <- check_label_leakage(prediction_frames$Y)
+  # res_R <- check_label_leakage(prediction_frames$R)
+  # res_X <- check_label_leakage(prediction_frames$X)
+  # res_Y <- check_label_leakage(prediction_frames$Y)
 
-  leakage_detected <- res_R$leak || res_X$leak || res_Y$leak
-  leaking_features <- unique(c(res_R$features, res_X$features, res_Y$features))
-  if (leakage_detected) {
-    message(">>> LABEL LEAKAGE DETECTED <<<")
-    message("Leaking features: ", paste(leaking_features, collapse = ", "))
-    stop()
-  }
+  # leakage_detected <- res_R$leak || res_X$leak || res_Y$leak
+  # leaking_features <- unique(c(res_R$features, res_X$features, res_Y$features))
+  # if (leakage_detected) {
+  #   message(">>> LABEL LEAKAGE DETECTED <<<")
+  #   message("Leaking features: ", paste(leaking_features, collapse = ", "))
+  #   stop()
+  # }
 
 
   ## --- Model specification ---

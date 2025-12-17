@@ -2,7 +2,7 @@
 % Please edit documentation in R/subset_limma_interaction_effect.R
 \name{subset_limma_interaction_effect}
 \alias{subset_limma_interaction_effect}
-\title{Subset Limma Interaction Effect with Stratified Cross-Validation}
+\title{Run repeated subset-based limma interaction effects}
 \usage{
 subset_limma_interaction_effect(
   X,
@@ -45,7 +45,5 @@ subset_limma_interaction_effect(
 \item{verbose}{Logical; whether to print progress messages.}
 }
 \description{
-Runs stratified train/test splits with ancestry sets and estimates 
-interaction effects using limma in parallel across multiple iterations.
-Returns aggregated statistics, iteration-level stats, and sample logs.
+Run repeated subset-based limma interaction effects
 }

@@ -68,7 +68,7 @@ filter_phenotype_ancestry <- function(
 
 
   ## --- Helper: Covariate detection ---
-  cast_covariate_columns <- function(M, cols, continuous_threshold = 3) {
+  cast_covariate_columns <- function(M, cols, continuous_threshold = 2) {
 
     # regex for integer, decimal, or scientific notation
     continuous_regex <- "^\\s*[+-]?((\\d+\\.?\\d*)|(\\d*\\.\\d+))(e[+-]?\\d+)?\\s*$"
@@ -216,7 +216,7 @@ filter_phenotype_ancestry <- function(
   ## --- Covariates detected ---
   if (length(meta_cols) > 0) {
 
-    detect_covariate_info <- function(M, cols, continuous_threshold = 3) {
+    detect_covariate_info <- function(M, cols, continuous_threshold = 2) {
 
       continuous_regex <- "^\\s*[+-]?((\\d+\\.?\\d*)|(\\d*\\.\\d+))(e[+-]?\\d+)?\\s*$"
       out <- lapply(cols, function(cc) {

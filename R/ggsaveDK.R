@@ -40,7 +40,8 @@ ggsaveDK <- function(
   ## --- Helper: trim margins ---
   trimMargins <- function() {
     ggplot2::theme(
-      plot.margin = ggplot2::margin(0, 0, 0, 0)
+      plot.margin = ggplot2::margin(0, 0, 0, 0),
+      legend.margin = ggplot2::margin(0, 0, 0, 0),
     )
   }
 

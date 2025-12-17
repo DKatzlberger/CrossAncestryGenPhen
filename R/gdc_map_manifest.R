@@ -37,9 +37,23 @@ gdc_map_manifest <- function(
   metalist <- jsonlite::fromJSON(metadata_file, simplifyVector = FALSE)
 
 
+  ## --- Save extractors ---
+  release_extractor <- local({
+    
+    function(x) {
+      # if analysis$updated_datetime exists → extract YY-MM-DD
+      if (!is.null(x$analysis) && !is.null(x$analysis$updated_datetime)) {
+        return(substr(x$analysis$updated_datetime, 1, 10))
+      }
+      
+      return(NA_character_)
+    }
+  })
+
+
 	## --- Extract mapping ---
   file_map <- data.frame(
-    RELEASE   = sapply(metalist, function(x) {if (!is.null(substr(x$analysis$updated_datetime, 1, 10))) {substr(x$analysis$updated_datetime, 1, 10)} else {NA_character_}}),
+    RELEASE   = sapply(metalist, release_extractor, USE.NAMES = FALSE),
     FILE_ID   = sapply(metalist, function(x) {if (!is.null(x$file_id)) {x$file_id} else {NA_character_}}),
     FILE_NAME = sapply(metalist, function(x) {if (!is.null(x$file_name)) {x$file_name} else {NA_character_}}),
     ID        = sapply(metalist, function(x) {if (!is.null(x$associated_entities[[1]]$entity_submitter_id)) {x$associated_entities[[1]]$entity_submitter_id} else {NA_character_}}),
@@ -47,30 +61,98 @@ gdc_map_manifest <- function(
   )
 
   # Warning if different
-  if (any(is.na(file_map)) || any(file_map == "")) warning("[gdc_map_manifest] Not all TCGA-IDs could be extracted from json-file")
+  if (any(is.na(file_map$ID)) || any(file_map$ID == "")) {
+    warning("[gdc_map_manifest] Some 'ID' values could not be extracted from metadata (TCGA barcode missing).")
+  }
+
 
 
   ##  --- Parse TCGA barcode ---
-  pattern <- "^([A-Z0-9]+)-([A-Z0-9]{2})-([A-Z0-9]{4})-([0-9]{2})([A-Z]?)-([0-9]{2})([A-Z]?)-([A-Z0-9]{4})-([0-9]{2})$"
-  parts <- regmatches(file_map$ID, regexec(pattern, file_map$ID))
-  extract <- function(i) sapply(parts, function(x) if (length(x) >= i) x[i] else NA)
+  parse_tcga_barcode <- local({
 
-  id_components <- data.frame(
-    PROJECT_CODE     = extract(2),
-    TSS_CODE         = extract(3),
-    PARTICIPANT_CODE = extract(4),
-    SAMPLE_TYPE_CODE = extract(5),
-    VIAL_CODE        = extract(6),
-    PORTION_CODE     = extract(7),
-    ANALYTE_CODE     = extract(8),
-    PLATE_CODE       = extract(9),
-    CENTER_CODE      = extract(10),
-    stringsAsFactors = FALSE
-  )
+    shown <- list()   # keep track of message types already printed
+
+    function(barcode) {
+
+      parts <- strsplit(barcode, "-", fixed = TRUE)[[1]]
+      n <- length(parts)
+
+      out <- list(
+        PROJECT_CODE = NA_character_, 
+        TSS_CODE = NA_character_, 
+        PATIENT_CODE = NA_character_,
+        SAMPLE_TYPE_CODE = NA_character_, 
+        VIAL_CODE = NA_character_, 
+        PORTION_CODE = NA_character_,
+        ANALYTE_CODE = NA_character_, 
+        PLATE_CODE = NA_character_, 
+        CENTER_CODE = NA_character_
+      )
+
+      if (n >= 1) out$PROJECT_CODE <- parts[1]
+      if (n >= 2) out$TSS_CODE     <- parts[2]
+      if (n >= 3) out$PATIENT_CODE <- parts[3]
+
+      type <- NULL
+
+      # ---- Detect barcode type ----
+      if (n == 3) {
+        type <- "patient"
+      } else if (n == 4) {
+        type <- "sample"
+      } else if (n == 5) {
+        type <- "portion"
+      } else if (n == 6) {
+        type <- "portion+analyte"
+      } else if (n == 7) {
+        type <- "full aliquot"
+      } else {
+        type <- "unrecognized"
+      }
+
+      # Print message ONCE per type
+      if (!type %in% shown) {
+        message("[gdc_map_manifest] Detected ", type, " barcode format: ", barcode)
+        shown <<- c(shown, type)
+      }
+
+      # ---- Parse sample type + vial ----
+      if (n >= 4) {
+        samp <- parts[4]
+        if (grepl("^[0-9]{2}[A-Z]?$", samp)) {
+          out$SAMPLE_TYPE_CODE <- substr(samp, 1, 2)
+          out$VIAL_CODE <- ifelse(nchar(samp) == 3, substr(samp, 3, 3), NA)
+        }
+      }
+
+      # ---- Portion + analyte ----
+      if (n >= 5) {
+        p <- parts[5]
+        if (grepl("^[0-9]{2}[A-Z]?$", p)) {
+          out$PORTION_CODE <- substr(p, 1, 2)
+          out$ANALYTE_CODE <- ifelse(nchar(p) == 3, substr(p, 3, 3), NA)
+        }
+      }
+
+      # ---- Plate + center ----
+      if (n >= 6) out$PLATE_CODE  <- parts[6]
+      if (n >= 7) out$CENTER_CODE <- parts[7]
+
+      return(out)
+    }
+  })
+
+
+  ## --- Parse TCGA barcodes with robust parser ---
+  parsed <- lapply(file_map$ID, parse_tcga_barcode)
+
+  id_components <- do.call(rbind, lapply(parsed, as.data.frame))
+  rownames(id_components) <- NULL
+
 
   # Derived IDs
-  id_components$PATIENT_ID <- with(id_components, paste(PROJECT_CODE, TSS_CODE, PARTICIPANT_CODE, sep = "-"))
-  id_components$SAMPLE_ID  <- with(id_components, paste(PROJECT_CODE, TSS_CODE, PARTICIPANT_CODE, SAMPLE_TYPE_CODE, sep = "-"))
+  id_components$PATIENT_ID <- with(id_components, paste(PROJECT_CODE, TSS_CODE, PATIENT_CODE, sep = "-"))
+  id_components$SAMPLE_ID  <- with(id_components, paste(PROJECT_CODE, TSS_CODE, PATIENT_CODE, SAMPLE_TYPE_CODE, sep = "-"))
 
 
   ## --- Map the TCGA barcode ---
@@ -168,8 +250,13 @@ gdc_map_manifest <- function(
   file_map <- file_map[, c("RELEASE", "FILE_ID", "FILE_NAME", "ID", "SAMPLE_ID", "PATIENT_ID", "VIAL", "PLATE", "SAMPLE_TYPE")]
 
 
-  ## --- Check if no NA values ---
-  if (any(is.na(file_map)) || any(file_map == "")) warning("[gdc_map_manifest] file_map contains NA or empty ('') values!")
+  ## --- Check NA values in critical cols ---
+  critical_cols <- c("FILE_ID", "FILE_NAME", "ID", "SAMPLE_ID", "PATIENT_ID")
+  missing_mask <- sapply(file_map[critical_cols], function(col) any(is.na(col) | col == ""))
+
+  if (any(missing_mask)) {
+    warning("[gdc_map_manifest] Missing values detected in critical metadata fields: ", paste(names(which(missing_mask)), collapse = ", "))
+  }
 
 
   ## --- N unique ---

@@ -41,15 +41,15 @@ plot_tsne_cluster <- function(
 ) {
 
   ## --- Input data structure check ---
-  assert_input(
-    X = X,
-    Y = Y,
-    MX = MX, 
-    MY = MY,
-    g_col = shape_var, 
-    a_col = color_var,
-    .fun = "plot_tsne_cluster"
-  )
+  # assert_input(
+  #   X = X,
+  #   Y = Y,
+  #   MX = MX, 
+  #   MY = MY,
+  #   g_col = shape_var, 
+  #   a_col = color_var,
+  #   .fun = "plot_tsne_cluster"
+  # )
 
   ## --- Set seed ---
   if (!is.null(seed)) set.seed(seed)

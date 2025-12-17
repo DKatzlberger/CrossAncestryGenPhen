@@ -85,8 +85,8 @@ plot_pvalue_distribution <- function(
     bin_width <- diff(bin_centers)[1]
     bin_breaks <- c(-Inf, head(bin_centers, -1) + bin_width / 2, Inf)
     bin_labels <- format(round(bin_centers, 1), nsmall = 1)
-    bin_labels[1] <- paste0("<= ", round(neg_limit, 1))
-    bin_labels[length(bin_labels)] <- paste0(">= ", round(pos_limit, 1))
+    bin_labels[1] <- paste0("< ", round(neg_limit, 1))
+    bin_labels[length(bin_labels)] <- paste0("> ", round(pos_limit, 1))
 
     df$fill_bin <- cut(
       t_vals,
