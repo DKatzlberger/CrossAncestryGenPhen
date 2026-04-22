@@ -51,8 +51,9 @@ subset_limma_interaction_effect <- function(
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_limma_interaction_effect] Workers available: %d", n_workers))
-
+  if (verbose){
+    message(sprintf("\n[subset_limma_interaction_effect] Workers available: %d", n_workers))
+  }
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
