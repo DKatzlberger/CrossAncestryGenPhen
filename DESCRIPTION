@@ -4,7 +4,7 @@ Version: 0.1.0
 Authors@R: 
     person("Daniel", "Katzlberger", email = "daniel_katzlberger@gmx.at", role = c("aut", "cre"))
 Maintainer: Daniel Katzlberger <daniel_katzlberger@gmx.at>
-Description: Permutation-based methods for testing cross-ancestry interactions in gene expression data.
+Description: Subsetting approach to assess genotype-phenotype relationships across ancestries.
 License: MIT
 Encoding: UTF-8
 LazyData: true
