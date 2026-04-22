@@ -41,7 +41,7 @@ plot_sample_density <- function(
 
   ## --- CPM transform if requested ---
   if (cpm) {
-    X_cpm <- edgeR::cpm(t(X_comb), log = TRUE)
+    X_cpm  <- edgeR::cpm(t(X_comb), log = TRUE)
     X_comb <- t(X_cpm)  
   }
 

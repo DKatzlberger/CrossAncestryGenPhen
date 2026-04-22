@@ -1,4 +1,4 @@
-#' Estimate RNA-seq parameters with edgeR
+#' Estimate RNA-seq parameters with edgeR algorithms
 #'
 #' Fits an intercept-only negative binomial GLM to RNA-seq count data using
 #' \pkg{edgeR}. Returns mean expression, dispersion estimates, library sizes,
