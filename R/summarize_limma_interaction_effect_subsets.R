@@ -37,6 +37,9 @@ summarize_limma_interaction_effect_subsets <- function(
   }
   per_feature_grouping <- unique(c("feature", by))
 
+  # Silence data.table progress
+  old <- options(datatable.showProgress = FALSE)
+  on.exit(options(old), add = TRUE)
 
   ## --- Helper functions ---
   mean_pval <- function(pvec) {
