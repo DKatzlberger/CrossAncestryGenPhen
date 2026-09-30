@@ -135,15 +135,15 @@ split_stratified_ancestry_sets <- function(
     message("\nStratified split:")
     if (match) {
       message("Enforcing 'a_col x g_col' balance.")
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX (%-6s):", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RY (%-6s):", paste0("(", a_2, ")")), nrow(RY_matr), fmt_counts(RY_meta, g_col), ncol(RY_matr)))
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    X  (%-6s):", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    Y  (%-6s):", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX %-7s:", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RY %-7s:", paste0("(", a_2, ")")), nrow(RY_matr), fmt_counts(RY_meta, g_col), ncol(RY_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    X  %-7s:", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    Y  %-7s:", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
     } else(
       message("Enforcing 'a_col' balance.")
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX (%-6s):", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    X  (%-6s):", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
-      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Inference Y  (%-6s):", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX %-7s:", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    X  %-7s:", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Inference Y  %-7s:", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
 
     )
   }
