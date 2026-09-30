@@ -9,6 +9,7 @@
 #' @param MY Data.frame with metadata for Y.
 #' @param g_col Name of the metadata column holding the stratification label.
 #' @param a_col Name of the metadata column holding the ancestry label.
+#' @param match_mutual Logical, whether to subset both X and Y to have 'a x g' balance.
 #' @param seed Optional numeric seed for reproducibility of sampling.
 #' @param verbose Logical, whether to print messages.
 #'
@@ -28,9 +29,11 @@ split_stratified_ancestry_sets <- function(
   MY,
   g_col, 
   a_col,
+  match_mutual = FALSE,
   seed = NULL,
   verbose = TRUE
 ) {
+    
   ## --- Seed ---
   if (!is.null(seed)) set.seed(seed)
 
@@ -44,98 +47,111 @@ split_stratified_ancestry_sets <- function(
     a_col = a_col
   )
 
-
   ## --- Factor setup ---
   a_1 <- unique(MX[[a_col]])
   a_2 <- unique(MY[[a_col]])
 
   g_levels <- levels(MX[[g_col]])
-  a_levels <- c(a_1, a_2)
-
-  if (length(g_levels) != 2 || length(a_levels) != 2) {
+  if (length(g_levels) != 2 || length(unique(c(a_1, a_2))) != 2) {
     stop("[split_stratified_ancestry_sets] Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
   }
 
-  ## --- Define strata (grouping) ---
-  get_strata <- function(M, stratify_col) {
-    interaction(M[[stratify_col]], drop = TRUE)
+  # Vektoren direkt aus den Dataframes extrahieren (vermeidet wiederholten Spaltenzugriff)
+  vec_g_X <- MX[[g_col]]
+  vec_g_Y <- MY[[g_col]]
+
+  ## --- Target Count Calculation ---
+  count_X <- table(vec_g_X)
+  count_Y <- table(vec_g_Y)
+
+  if (match_mutual) {
+    min_overall   <- min(c(count_X, count_Y))
+    target_counts <- setNames(rep(min_overall, length(count_Y)), names(count_Y))
+    message("Enforcing 'a_col x g_col' balance.")
+
+  } else {
+    target_counts <- count_Y
+    message("Enforcing 'a_col' balance.")
   }
-  strata_X <- get_strata(MX, g_col)
-  strata_Y <- get_strata(MY, g_col)
 
   ## --- Feasibility check ---
-  count_X <- table(strata_X)
-  count_Y <- table(strata_Y)
+  strata_names <- names(target_counts)
+  insufficient <- strata_names[target_counts[strata_names] > count_X[strata_names]]
+  missing      <- setdiff(strata_names, names(count_X))
 
-  matched      <- intersect(names(count_X), names(count_Y))
-  missing      <- setdiff(names(count_Y), names(count_X))
-  insufficient <- matched[count_Y[matched] > count_X[matched]]
-  usable       <- setdiff(matched, insufficient)
-
-  # Error if Y has strata that cannot be matched
   if (length(missing) > 0 || length(insufficient) > 0) {
-    stop("[split_stratified_ancestry_sets] Y contains strata that X cannot match.\n",
+    stop("[split_stratified_ancestry_sets] X cannot fulfill the requested distribution layout.\n",
          "Missing strata: ", paste(missing, collapse = ", "), "\n",
-         "Insufficient strata: ", paste(names(insufficient), collapse = ", "))
+         "Insufficient strata: ", paste(insufficient, collapse = ", "))
   }
 
-  strata_info <- list(
-    usable = usable,
-    missing = missing,
-    insufficient = insufficient
-  )
+  ## --- Process Y (Inference & Remaining RY) ---
+  ids_Y <- rownames(Y)
+  
+  if (match_mutual) {
+    sampled_ids_Y <- vector("list", length(strata_names))
+    for (i in seq_along(strata_names)) {
+      stratum <- strata_names[i]
+      idx <- which(vec_g_Y == stratum)
+      sampled_ids_Y[[i]] <- ids_Y[sample(idx, size = target_counts[stratum], replace = FALSE)]
+    }
+    sampled_ids_Y <- unlist(sampled_ids_Y, use.names = FALSE)
+    
+    mask_Y_subset <- ids_Y %in% sampled_ids_Y
+    
+    Y_matr  <- Y[mask_Y_subset, , drop = FALSE]
+    Y_meta  <- MY[mask_Y_subset, , drop = FALSE]
+    RY_matr <- Y[!mask_Y_subset, , drop = FALSE]
+    RY_meta <- MY[!mask_Y_subset, , drop = FALSE]
+  } else {
+    Y_matr  <- Y
+    Y_meta  <- MY
+    RY_matr <- NULL
+    RY_meta <- NULL
+  }
 
-  ## --- Subset usable X ---
-  mask_X <- strata_X %in% usable
-  X_sub  <- as.matrix(X[mask_X, , drop = FALSE])
-  MX_sub <- as.data.frame(MX[mask_X, , drop = FALSE])
+  ## --- Process X (Subset X & Remaining RX) ---
+  ids_X <- rownames(X)
+  sampled_ids_X <- vector("list", length(strata_names))
+  for (i in seq_along(strata_names)) {
+    stratum <- strata_names[i]
+    idx <- which(vec_g_X == stratum)
+    sampled_ids_X[[i]] <- ids_X[sample(idx, size = target_counts[stratum], replace = FALSE)]
+  }
+  sampled_ids_X <- unlist(sampled_ids_X, use.names = FALSE)
 
-  ids_X_sub <- rownames(X_sub)
-  strata_X_sub <- strata_X[mask_X]
+  mask_X_subset <- ids_X %in% sampled_ids_X
 
-  ## --- Stratified sampling of X to match Y ---
-  sampled_ids <- unlist(lapply(names(count_Y), function(stratum) {
-    stratum_ids <- ids_X_sub[strata_X_sub == stratum]
-    n <- count_Y[stratum]
-    sample(stratum_ids, size = n, replace = FALSE)
-  }), use.names = FALSE)
-
-  mask_subset <- ids_X_sub %in% sampled_ids
-  mask_ref    <- !mask_subset
-
-  ## --- Reference set (R = remaining X) ---
-  R_matr <- X_sub[mask_ref, , drop = FALSE]
-  R_meta   <- MX_sub[mask_ref, , drop = FALSE]
-
-  ## --- Subset set (X = sampled X) ---
-  X_matr <- X_sub[mask_subset, , drop = FALSE]
-  X_meta   <- MX_sub[mask_subset, , drop = FALSE]
-
-  ## --- Inference set (Y = full Y) ---
-  Y_matr <- Y
-  Y_meta   <- MY
+  X_matr  <- X[mask_X_subset, , drop = FALSE]
+  X_meta  <- MX[mask_X_subset, , drop = FALSE]
+  RX_matr <- X[!mask_X_subset, , drop = FALSE]
+  RX_meta <- MX[!mask_X_subset, , drop = FALSE]
 
   ## --- Verbose summary ---
   if (verbose) {
-    fmt_counts <- function(ids, M, g_col) {
-      if (length(ids) == 0) return("")
-      tab <- table(M[ids, g_col, drop = TRUE])
+    fmt_counts <- function(M_sub, g_col) {
+      if (is.null(M_sub) || nrow(M_sub) == 0) return("N/A")
+      tab <- table(M_sub[[g_col]])
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
     message("\nStratified split:")
-    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Reference R (", a_1, "):"), nrow(R_matr), fmt_counts(rownames(R_matr), R_meta, g_col), ncol(R_matr)))
-    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Subset    X (", a_1, "):"), nrow(X_matr), fmt_counts(rownames(X_matr), X_meta, g_col), ncol(X_matr)))
-    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Inference Y (", a_2, "):"), nrow(Y_matr), fmt_counts(rownames(Y_matr), Y_meta, g_col), ncol(Y_matr)))
+    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Remaining RX (", a_1, "):"), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
+    if (match_mutual) {message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Remaining RY (", a_2, "):"), nrow(RY_matr), fmt_counts(RY_meta, g_col), ncol(RY_matr)))}
+    message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Subset    X  (", a_1, "):"), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
+    if (match_mutual) {message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Subset    Y  (", a_2, "):"), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))} else {
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", paste0("Inference Y  (", a_2, "):"), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
+    }
   }
 
   ## --- Return ---
   return(
     list(
-      R = list(matr = R_matr, meta = R_meta, ids = rownames(R_matr)),
-      X = list(matr = X_matr, meta = X_meta, ids = rownames(X_matr)),
-      Y = list(matr = Y_matr, meta = Y_meta, ids = rownames(Y_matr)),
-      strata_info = strata_info
+      RX = list(matr = RX_matr, meta = RX_meta, ids = rownames(RX_matr)),
+      RY = list(matr = RY_matr, meta = RY_meta, ids = if(!is.null(RY_matr)) rownames(RY_matr) else NULL),
+      X  = list(matr = X_matr,  meta = X_meta,  ids = rownames(X_matr)),
+      Y  = list(matr = Y_matr,  meta = Y_meta,  ids = rownames(Y_matr)),
+      strata_info = list(usable = strata_names, missing = missing, insufficient = insufficient)
     )
   )
 }
