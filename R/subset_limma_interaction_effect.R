@@ -26,7 +26,7 @@ subset_limma_interaction_effect <- function(
   MY,
   g_col,
   a_col,
-  match_mutual = FALSE,
+  match = FALSE,
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
@@ -81,7 +81,7 @@ subset_limma_interaction_effect <- function(
       MY = MY,
       g_col = g_col,
       a_col = a_col,
-      match_mutual = match_mutual,
+      match = match,
       seed = seed_iter,
       verbose = verbose
     )
