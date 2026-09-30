@@ -6,6 +6,7 @@
 #' @param MY Metadata for Y. Must include group and ancestry columns.
 #' @param g_col Name of the genotype column in `X` used for interaction.
 #' @param a_col Name of the ancestry column used for stratified splitting.
+#' @param match Logical, whether to subset both X and Y to have 'a x g' balance.
 #' @param covariates Optional vector of covariate column names to adjust for.
 #' @param use_voom Logical; whether to use limma-voom (default: TRUE).
 #' @param n_iter Integer. Number of iterations to run. Default is 1000.
@@ -25,6 +26,7 @@ subset_limma_correlation_effect <- function(
   MY,
   g_col,
   a_col,
+  match = FALSE,
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
@@ -35,7 +37,6 @@ subset_limma_correlation_effect <- function(
 
   ## --- Match the method ---
   method <- match.arg(method)
-
 
   ## --- Input data structure check ---
   assert_input(
@@ -48,15 +49,12 @@ subset_limma_correlation_effect <- function(
     .fun = "subset_limma_correlation_effect"
   )
 
-
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
   message(sprintf("\n[subset_limma_correlation_effect] Workers available: %d", n_workers))
 
-
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
-
 
   ## --- Prepare arguments for parallel execution ---
   args <- data.frame(
@@ -82,6 +80,7 @@ subset_limma_correlation_effect <- function(
       MY = MY,
       g_col = g_col,
       a_col = a_col,
+      match = match,
       seed = seed_iter,
       verbose = verbose
     )
@@ -113,7 +112,6 @@ subset_limma_correlation_effect <- function(
     )
   }
 
-
   ## --- Run in parallel ---
   parallel_res <- furrr::future_pmap(
     args,
@@ -122,11 +120,9 @@ subset_limma_correlation_effect <- function(
     .progress = FALSE
   )
 
-
   ## --- Extract and combine ---
   res_log <- do.call(rbind, lapply(parallel_res, `[[`, "res"))
   ids_log <- do.call(rbind, lapply(parallel_res, `[[`, "ids"))
-
 
   ## --- Aggregation of iterations ---
   agg_log <- summarize_limma_correlation_effect_subsets(
@@ -137,7 +133,6 @@ subset_limma_correlation_effect <- function(
   # Function should return both
   sel_method = agg_log$sel_delta_res
   all_method = agg_log$all_delta_res
-
 
   ## --- Return ---
   return(

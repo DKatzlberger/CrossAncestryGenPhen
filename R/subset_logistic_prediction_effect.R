@@ -6,6 +6,7 @@
 #' @param MY Metadata for Y (must include grouping columns).
 #' @param g_col Name of the ancestry/group variable in metadata.
 #' @param a_col Name of the label/outcome variable.
+#' @param match Logical, whether to subset both X and Y to have 'a x g' balance.
 #' @param n_folds Number of folds for logistic model cross-validation.
 #' @param n_models Number of logistic models to average per fold.
 #' @param maxit Maximum iterations for logistic regression (optional).
@@ -26,6 +27,7 @@ subset_logistic_prediction_effect <- function(
   MY,
   g_col,
   a_col,
+  match = FALSE,
   n_folds,
   n_models,
   maxit = NULL,
@@ -38,7 +40,6 @@ subset_logistic_prediction_effect <- function(
   ## --- Match the method ---
   method <- match.arg(method)
 
-
   ## --- Input data structure check ---
   assert_input(
     X = X, 
@@ -50,15 +51,12 @@ subset_logistic_prediction_effect <- function(
     .fun = "subset_logistic_prediction_effect"
   )
 
-
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
   message(sprintf("\n[subset_logistic_prediction_effect] Workers available: %d", n_workers))
 
-
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
-
 
   ## --- Prepare arguments for parallel execution ---
   args <- data.frame(
@@ -75,7 +73,6 @@ subset_logistic_prediction_effect <- function(
     # Seed 
     if (!is.null(seed_iter)) set.seed(seed_iter)
 
-
     # Stratified splits
     split <- split_stratified_ancestry_sets(
       X = X,
@@ -84,6 +81,7 @@ subset_logistic_prediction_effect <- function(
       MY = MY,
       g_col = g_col,
       a_col = a_col,
+      match = match,
       seed = seed_iter,
       verbose = verbose
     )
@@ -131,9 +129,8 @@ subset_logistic_prediction_effect <- function(
     .progress = FALSE
   )
 
-
   ## --- Extract and combine ---
-  summary_stats_log <- do.call(rbind, lapply(parallel_res, `[[`, "summary_stats"))
+  summary_stats_log  <- do.call(rbind, lapply(parallel_res, `[[`, "summary_stats"))
   features_stats_log <- do.call(rbind, lapply(parallel_res, `[[`, "feature_stats"))
   ids_log <- do.call(rbind, lapply(parallel_res, `[[`, "ids"))
 
@@ -147,7 +144,6 @@ subset_logistic_prediction_effect <- function(
   # Function should return both
   sel_method = agg_log$sel_delta_res
   all_method = agg_log$all_delta_res
-
 
   ## --- Return ---
   return(

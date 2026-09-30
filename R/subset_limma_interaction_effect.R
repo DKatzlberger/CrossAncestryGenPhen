@@ -6,7 +6,7 @@
 #' @param MY Additional metadata or covariates for `Y`.
 #' @param g_col Name of the genotype column in `X` used for interaction.
 #' @param a_col Name of the ancestry column used for stratified splitting.
-#' @param match_mutual Logical, whether to subset both X and Y to have 'a x g' balance.
+#' @param match Logical, whether to subset both X and Y to have 'a x g' balance.
 #' @param covariates Optional vector of covariate column names to adjust for.
 #' @param use_voom Logical; whether to use limma-voom (default: TRUE).
 #' @param n_iter Integer. Number of iterations to run. Default is 1000.
