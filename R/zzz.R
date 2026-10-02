@@ -1,5 +1,5 @@
 .onLoad <- function(libname, pkgname) {
-  bioc_pkgs <- c("limma", "ComplexHeatmap", "edgeR")
+  bioc_pkgs <- c("limma", "ComplexHeatmap", "edgeR", "DESeq2")
   
   missing_pkgs <- bioc_pkgs[!vapply(bioc_pkgs, requireNamespace, FUN.VALUE = logical(1), quietly = TRUE)]
   
