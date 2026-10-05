@@ -1,4 +1,4 @@
-#' Run repeated subset-based logistic regression prediction effects
+#' Run repeated subset-based random forest prediction effects
 #'
 #' @param X Matrix or data frame of features for subset X.
 #' @param Y Matrix or data frame of features for subset Y.
@@ -9,7 +9,6 @@
 #' @param match Logical, whether to subset both X and Y to have 'a x g' balance.
 #' @param n_folds Number of folds for logistic model cross-validation.
 #' @param n_models Number of logistic models to average per fold.
-#' @param maxit Maximum iterations for logistic regression (optional).
 #' @param n_iter Number of repeated stratified resampling iterations.
 #' @param method Performance metric to compute ("auc", "logloss").
 #' @param seed Optional integer seed for reproducibility.
@@ -20,7 +19,7 @@
 #' @importFrom data.table as.data.table rbindlist
 #'
 #' @export
-subset_logistic_prediction_effect <- function(
+subset_forest_prediction_effect <- function(
   X,
   Y,
   MX,
@@ -30,7 +29,6 @@ subset_logistic_prediction_effect <- function(
   match = FALSE,
   n_folds,
   n_models,
-  maxit = NULL,
   n_iter = 1000,
   method = c("auc", "logloss"),
   seed = NULL,
@@ -89,8 +87,8 @@ subset_logistic_prediction_effect <- function(
     # Store sample ids
     id <- track_sample_ids(split, i)
 
-    # Run logistic regression on subset
-    res <- logistic_prediction_effect(
+    # Run random forest on subset
+    res <- forest_prediction_effect(
       R = split$R$matr,
       X = split$X$matr,
       Y = split$Y$matr,
@@ -101,7 +99,6 @@ subset_logistic_prediction_effect <- function(
       a_col = a_col,
       n_folds = n_folds,
       n_models = n_models,
-      maxit = maxit,
       seed = seed_iter,
       verbose = verbose
     )

@@ -1,7 +1,7 @@
 #' Logistic prediction with glmnet
 #'
 #' Fits elastic-net logistic models on R, tests on X and Y,
-#' checks leakage, tunes hyperparameters, and returns
+#' tunes hyperparameters, and returns
 #' predictions and model coefficients.
 #'
 #' @param R Expression matrix for refeernce ancestry. Rows = samples, columns = genes.
@@ -50,7 +50,7 @@ logistic_prediction_effect <- function(
   seed = NULL,
   verbose = TRUE
 ){
-  
+
   ## --- Seed ---
   if(!is.null(seed)) set.seed(seed)
 
@@ -150,54 +150,6 @@ logistic_prediction_effect <- function(
   names(prediction_frames) <- names(expr_list)
   names(summary_frames)    <- names(expr_list)
 
-
-  ## --- Label leakage ---
-  check_label_leakage <- function(df, label_col = "groups") {
-
-    y <- df[[label_col]]
-    feature_names <- setdiff(colnames(df), label_col)
-
-    ## Exact duplicate columns
-    exact_dupes <- feature_names[sapply(feature_names, function(f)
-      identical(df[[f]], y)
-    )]
-
-    ## Perfect correlation (for numeric features)
-    perfect_corr <- c()
-    if (is.factor(y) && length(levels(y)) == 2) {
-      y_num <- as.numeric(y) - 1
-      perfect_corr <- feature_names[sapply(feature_names, function(f) {
-        x <- df[[f]]
-        if (is.numeric(x)) {
-          val <- suppressWarnings(cor(x, y_num))
-          !is.na(val) && abs(val) == 1
-        } else FALSE
-      })]
-    }
-
-    leaks <- unique(c(exact_dupes, perfect_corr))
-
-    ## Return 
-    list(
-      leak = length(leaks) > 0,
-      features = leaks
-    )
-  }
-
-  # Run label leakage checks
-  # res_R <- check_label_leakage(prediction_frames$R)
-  # res_X <- check_label_leakage(prediction_frames$X)
-  # res_Y <- check_label_leakage(prediction_frames$Y)
-
-  # leakage_detected <- res_R$leak || res_X$leak || res_Y$leak
-  # leaking_features <- unique(c(res_R$features, res_X$features, res_Y$features))
-  # if (leakage_detected) {
-  #   message(">>> LABEL LEAKAGE DETECTED <<<")
-  #   message("Leaking features: ", paste(leaking_features, collapse = ", "))
-  #   stop()
-  # }
-
-
   ## --- Model specification ---
   features <- colnames(prediction_frames$R)[-1]
   form_str <- paste("groups ~ .")
@@ -216,39 +168,35 @@ logistic_prediction_effect <- function(
     model_spec <- model_spec %>% set_engine("glmnet")
   }
 
-
   ## --- Workflow ---
-  workflow <- workflow() %>%
+  workflow <- workflows::workflow() %>%
     add_recipe(recipe) %>%
     add_model(model_spec)
 
-
   ## --- Cross-validation ---
-  folds <- vfold_cv(
+  folds <- rsample::vfold_cv(
     prediction_frames$R, 
     v = n_folds, 
     strata = groups
   )
 
-  # Grid 
-  grid <- grid_space_filling(
-    extract_parameter_set_dials(model_spec),
+  ## --- Hyperparameter grid --- 
+  grid <- dials::grid_space_filling(
+    dials::extract_parameter_set_dials(model_spec),
     size = n_models
   )
 
-
   ## --- Hyperparameter tuning (penalty + mixture) ---
   tune_result <- workflow %>% 
-    tune_grid(
+    tune::tune_grid(
       resamples = folds,
       grid      = grid,
-      metrics   = metric_set(roc_auc),
-      control   = control_grid(verbose = FALSE)
+      metrics   = yardstick::metric_set(roc_auc),
+      control   = tune::control_grid(verbose = FALSE)
     )
   
   # Extract best parameters
-  best <- select_best(tune_result, metric = "roc_auc")
-
+  best <- tune::select_best(tune_result, metric = "roc_auc")
 
   ## --- Verbose message ---
   if (verbose) {
@@ -258,11 +206,9 @@ logistic_prediction_effect <- function(
     message(sprintf("%-20s  %s", "Parameters:", paste("Lambda:", signif(best$penalty, 4), " Alpha:", signif(best$mixture, 4))))
   }
 
-
   ## --- Training step ---
-  final_wf  <- finalize_workflow(workflow, best)
+  final_wf  <- tune::finalize_workflow(workflow, best)
   final_fit <- final_wf %>% fit(data = prediction_frames$R)
-
 
   ## --- Predcition: subset X, inference Y ---
   pos_class <- levels(prediction_frames$R$groups)[2]

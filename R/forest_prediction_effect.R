@@ -1,3 +1,36 @@
+#' Random forest prediction
+#'
+#' Fits random-forest classification models on R, tests on X and Y,
+#' tunes hyperparameters, and returns
+#' predictions and variable importance.
+#'
+#' @param R Expression matrix for reference ancestry. Rows = samples, columns = genes.
+#' @param X Expression matrix for ancestry X. Rows = samples, columns = genes.
+#' @param Y Expression matrix for ancestry Y. Rows = samples, columns = genes.
+#' @param MR Metadata for R. Must include group and ancestry columns.
+#' @param MX Metadata for X. Must include group and ancestry columns.
+#' @param MY Metadata for Y. Must include group and ancestry columns.
+#' @param g_col Name of the column indicating group (factor 1).
+#' @param a_col Name of the column indicating ancestry (factor 2).
+#' @param n_folds CV folds
+#' @param n_models Grid size
+#' @param seed RNG seed
+#' @param verbose Print messages
+#'
+#' @return A list with:
+#'   \item{summary_stats}{Predictions + labels}
+#'   \item{feature_stats}{Random forest variable importance}
+#'
+#' @import recipes
+#' @import parsnip
+#' @import workflows
+#' @import tune
+#' @import rsample
+#' @import dials
+#' @import yardstick
+#' @importFrom stats cor
+#'
+#' @export
 forest_prediction_effect <- function(
   R,
   X,
@@ -9,7 +42,6 @@ forest_prediction_effect <- function(
   a_col,
   n_folds,
   n_models,
-  maxit = NULL,
   seed = NULL,
   verbose = TRUE
 ){
@@ -85,7 +117,6 @@ forest_prediction_effect <- function(
     ## --- Frames with label ---
     prediction_frame <- cbind(meta[ , "groups", drop = FALSE], matr)
 
-
     ## --- Summary header ---
     groups_levels <- levels(meta$groups)
     summary_frame <- data.frame(
@@ -113,38 +144,141 @@ forest_prediction_effect <- function(
   names(prediction_frames) <- names(expr_list)
   names(summary_frames)    <- names(expr_list)
 
+  ## --- Model specification ---
+  features <- colnames(prediction_frames$R)[-1]
+  form_str <- paste("groups ~ .")
+  recipe   <- recipes::recipe(groups ~ ., data = prediction_frames$R)
 
-  ## --- Label leakage ---
-  check_label_leakage <- function(df, label_col = "groups") {
+  # Random forest
+  model_spec <- rand_forest(
+    mtry  = tune(),
+    min_n = tune(),
+    trees = tune()
+  ) %>%
+  set_mode("classification") %>% 
+  set_engine("ranger", importance = "impurity")
 
-    y <- df[[label_col]]
-    feature_names <- setdiff(colnames(df), label_col)
+  ## --- Workflow ---
+  workflow <- workflows::workflow() %>%
+    add_recipe(recipe) %>%
+    add_model(model_spec)
 
-    ## Exact duplicate columns
-    exact_dupes <- feature_names[sapply(feature_names, function(f)
-      identical(df[[f]], y)
-    )]
+  ## --- Cross-validation ---
+  folds <- rsample::vfold_cv(
+    prediction_frames$R,
+    v = n_folds,
+    strata = groups
+  )
 
-    ## Perfect correlation (for numeric features)
-    perfect_corr <- c()
-    if (is.factor(y) && length(levels(y)) == 2) {
-      y_num <- as.numeric(y) - 1
-      perfect_corr <- feature_names[sapply(feature_names, function(f) {
-        x <- df[[f]]
-        if (is.numeric(x)) {
-          val <- suppressWarnings(cor(x, y_num))
-          !is.na(val) && abs(val) == 1
-        } else FALSE
-      })]
-    }
+  ## --- Hyperparameter grid ---
+  grid <- dials::grid_space_filling(
+    dials::extract_parameter_set_dials(model_spec),
+    size = n_models
+  )
 
-    leaks <- unique(c(exact_dupes, perfect_corr))
+  ## --- Hyperparameter tuning ---
+  tune_result <- workflow %>%
+    tune::tune_grid(
+      resamples = folds,
+      grid      = grid,
+      metrics   = yardstick::metric_set(roc_auc),
+      control   = tune::control_grid(verbose = FALSE)
+    )
 
-    ## Return 
-    list(
-      leak = length(leaks) > 0,
-      features = leaks
+  # Extract best parameters
+  best <- tune::select_best(tune_result, metric = "roc_auc")
+
+  ## --- Verbose message ---
+  if (verbose) {
+    message("\nHyperparameter optimization:")
+    message(sprintf("%-20s  %s %d features", "Formula:", form_str, length(features)))
+    message(sprintf("%-20s  %s", "Groups:", paste(levels(prediction_frames$R$groups), collapse = "  ")))
+    message(sprintf("%-20s  %s", "Parameters:", paste("mtry:", best$mtry, "min_n:", best$min_n, "trees:", best$trees)))
+  }
+
+  ## --- Training step ---
+  final_wf  <- tune::finalize_workflow(workflow, best)
+  final_fit <- final_wf %>% fit(data = prediction_frames$R)
+
+  ## --- Predcition: subset X, inference Y ---
+  pos_class <- levels(prediction_frames$R$groups)[2]
+  pred_col  <- paste0(".pred_", pos_class)
+
+  pred_R <- predict(final_fit, prediction_frames$R, type = "prob")
+  pred_X <- predict(final_fit, prediction_frames$X, type = "prob")
+  pred_Y <- predict(final_fit, prediction_frames$Y, type = "prob")
+
+  # Attach predictions and sample ids
+  pred_R$group <- prediction_frames$R$groups
+  pred_X$group <- prediction_frames$X$groups
+  pred_Y$group <- prediction_frames$Y$groups
+
+  pred_R$sample_id <- rownames(R)
+  pred_X$sample_id <- rownames(X)
+  pred_Y$sample_id <- rownames(Y)
+
+  logloss_R <- mn_log_loss_vec(truth = prediction_frames$R$groups, estimate = pred_R[[pred_col]], event_level = "second")
+  logloss_X <- mn_log_loss_vec(truth = prediction_frames$X$groups, estimate = pred_X[[pred_col]], event_level = "second")
+  logloss_Y <- mn_log_loss_vec(truth = prediction_frames$Y$groups, estimate = pred_Y[[pred_col]], event_level = "second")
+
+  auc_R <- roc_auc_vec(truth = prediction_frames$R$groups, estimate = pred_R[[pred_col]], event_level = "second")
+  auc_X <- roc_auc_vec(truth = prediction_frames$X$groups, estimate = pred_X[[pred_col]], event_level = "second")
+  auc_Y <- roc_auc_vec(truth = prediction_frames$Y$groups, estimate = pred_Y[[pred_col]], event_level = "second")
+
+
+  ## --- Verbose message ---
+  if (verbose) {
+    message("\nPrediction performance:")
+    message(sprintf("%-20s  logLoss %.4f   AUC %.4f ", paste0("Reference R (", unique(summary_frames$R$a_1), "):"), logloss_R, auc_R))
+    message(sprintf("%-20s  logLoss %.4f   AUC %.4f ", paste0("Subset    X (", unique(summary_frames$R$a_1), "):"), logloss_X, auc_X))
+    message(sprintf("%-20s  logLoss %.4f   AUC %.4f ", paste0("Inference Y (", unique(summary_frames$R$a_2), "):"), logloss_Y, auc_Y))
+  }
+
+  ## --- Variable importance ---
+  rf_fit <- extract_fit_engine(final_fit)
+
+  importance <- ranger::importance(rf_fit)
+
+  feature_stats <- data.frame(
+    coef_id     = summary_frames$R$coef_id,
+    coef_type   = summary_frames$R$coef_type,
+    contrast    = summary_frames$R$contrast,
+    g_1         = summary_frames$R$g_1,
+    g_2         = summary_frames$R$g_2,
+    a_1         = summary_frames$R$a_1,
+    a_2         = summary_frames$R$a_2,
+    feature     = names(importance),
+    estimate    = as.numeric(importance),
+    row.names   = NULL
+  )
+
+  ## --- Summary stats ---
+  make_summary <- function(header, pred_df, pred_col) {
+    data.frame(
+      coef_id    = header$coef_id,
+      coef_type  = header$coef_type,
+      contrast   = header$contrast,
+      g_1        = header$g_1,
+      g_2        = header$g_2,
+      a_1        = header$a_1,
+      a_2        = header$a_2,
+      sample_id  = pred_df$sample_id,
+      true       = pred_df$group,
+      prob       = pred_df[[pred_col]],
+      row.names  = NULL
     )
   }
 
+  summary_X <- make_summary(summary_frames$X, pred_X, pred_col)
+  summary_Y <- make_summary(summary_frames$Y, pred_Y, pred_col)
+  summary_stats <- rbind(summary_X, summary_Y)
+
+
+  ## --- Return ---
+  return(
+    list(
+      summary_stats = summary_stats,
+      feature_stats = feature_stats
+    )
+  )
 }
