@@ -90,7 +90,7 @@ subset_logistic_regression_prediction <- function(
     id <- track_sample_ids(split, i)
 
     # Run logistic regression on subset
-    res <- logistic_prediction_effect(
+    res <- logistic_regression_prediction(
       R = split$R$matr,
       X = split$X$matr,
       Y = split$Y$matr,
