@@ -92,7 +92,7 @@ subset_random_forest_prediction <- function(
       R = split$RX$matr,
       X = split$X$matr,
       Y = split$Y$matr,
-      MR = split$R$meta,
+      MR = split$RX$meta,
       MX = split$X$meta,
       MY = split$Y$meta,
       g_col = g_col,
