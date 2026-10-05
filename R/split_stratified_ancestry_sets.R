@@ -65,7 +65,7 @@ split_stratified_ancestry_sets <- function(
   count_Y <- table(vec_g_Y)
 
   if (match) {
-    min_overall   <- pmin(count_X, count_Y)
+    target_counts <- pmin(count_X, count_Y)
   } else {
     target_counts <- count_Y
   }
