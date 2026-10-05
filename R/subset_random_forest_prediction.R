@@ -19,7 +19,7 @@
 #' @importFrom data.table as.data.table rbindlist
 #'
 #' @export
-subset_forest_prediction_effect <- function(
+subset_random_forest_prediction <- function(
   X,
   Y,
   MX,
@@ -46,12 +46,12 @@ subset_forest_prediction_effect <- function(
     MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "subset_forest_prediction_effect"
+    .fun = "subset_random_forest_prediction"
   )
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_forest_prediction_effect] Workers available: %d", n_workers))
+  message(sprintf("\n[subset_random_forest_prediction] Workers available: %d", n_workers))
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)

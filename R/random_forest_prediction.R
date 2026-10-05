@@ -31,7 +31,7 @@
 #' @importFrom stats cor
 #'
 #' @export
-forest_prediction_effect <- function(
+random_forest_prediction <- function(
   R,
   X,
   Y,
@@ -60,7 +60,7 @@ forest_prediction_effect <- function(
     MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "forest_prediction_effect"
+    .fun = "random_forest_prediction"
   )
 
 
@@ -74,7 +74,7 @@ forest_prediction_effect <- function(
   A_1   <- unique(MX[[a_col]])
   A_2   <- unique(MY[[a_col]])
   A_1_1 <- unique(MR[[a_col]])
-  if (A_1 != A_1_1) stop("[forest_prediction_effect] Ancestry level must be the same in Reference (R) as in Subset (X).")
+  if (A_1 != A_1_1) stop("[random_forest_prediction] Ancestry level must be the same in Reference (R) as in Subset (X).")
 
   ## --- Validation ---
   expr_list <- list(R = R, X = X, Y = Y)
@@ -86,16 +86,16 @@ forest_prediction_effect <- function(
     meta <- meta_list[[a_name]]
 
     if (!identical(rownames(matr), rownames(meta))) {
-      stop(sprintf("[forest_prediction_effect] Matrix and meta rownames must match exactly."))
+      stop(sprintf("[random_forest_prediction] Matrix and meta rownames must match exactly."))
     }
 
     ## --- Ensure 2-level group ----
-    if (!is.factor(meta[[g_col]])) stop("[forest_prediction_effect] g_col is not a factor.")
+    if (!is.factor(meta[[g_col]])) stop("[random_forest_prediction] g_col is not a factor.")
     g_levels <- levels(meta[[g_col]])
     a_levels <- unique(meta[[a_col]])
 
-    if (length(g_levels) != 2) stop(sprintf("[forest_prediction_effect] Function currently supports only 2 groups (two levels in g_col)."))
-    if (length(a_levels) != 1) stop(sprintf("[forest_prediction_effect] Function currently supports only 1 ancestry (one level in a_col)."))
+    if (length(g_levels) != 2) stop(sprintf("[random_forest_prediction] Function currently supports only 2 groups (two levels in g_col)."))
+    if (length(a_levels) != 1) stop(sprintf("[random_forest_prediction] Function currently supports only 1 ancestry (one level in a_col)."))
 
     g_1 <- g_levels[1]
     g_2 <- g_levels[2]
