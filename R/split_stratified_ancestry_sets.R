@@ -96,6 +96,7 @@ split_stratified_ancestry_sets <- function(
     
     mask_Y_subset <- ids_Y %in% sampled_ids_Y
     
+    
     Y_matr  <- Y[mask_Y_subset, , drop = FALSE]
     Y_meta  <- MY[mask_Y_subset, , drop = FALSE]
 
