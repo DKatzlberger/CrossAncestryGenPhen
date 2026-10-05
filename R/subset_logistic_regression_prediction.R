@@ -1,4 +1,4 @@
-#' Run repeated subset-based logistic regression prediction effects
+#' Run repeated subset-based logistic regression prediction
 #'
 #' @param X Matrix or data frame of features for subset X.
 #' @param Y Matrix or data frame of features for subset Y.
@@ -20,7 +20,7 @@
 #' @importFrom data.table as.data.table rbindlist
 #'
 #' @export
-subset_logistic_prediction_effect <- function(
+subset_logistic_regression_prediction <- function(
   X,
   Y,
   MX,
@@ -48,12 +48,12 @@ subset_logistic_prediction_effect <- function(
     MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "subset_logistic_prediction_effect"
+    .fun = "subset_logistic_regression_prediction"
   )
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_logistic_prediction_effect] Workers available: %d", n_workers))
+  message(sprintf("\n[subset_logistic_regression_prediction] Workers available: %d", n_workers))
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
@@ -135,7 +135,7 @@ subset_logistic_prediction_effect <- function(
   ids_log <- do.call(rbind, lapply(parallel_res, `[[`, "ids"))
 
   ## --- Aggregation of iterations ---
-  agg_log <- summarize_logistic_prediction_effect_subsets(
+  agg_log <- summarize_prediction_subsets(
     stats  = summary_stats_log,
     method = method,
     by = NULL

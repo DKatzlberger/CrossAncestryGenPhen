@@ -1,4 +1,4 @@
-#' Summarize logistic prediction effect subsets
+#' Summarize logistic prediction subsets
 #'
 #' Computes per-iteration prediction performance (AUC or log-loss) for two
 #' coefficient-defined subsets (`X` and `Y`) and summarizes their differences.
@@ -15,7 +15,7 @@
 #' @importFrom stats quantile
 #'
 #' @export
-summarize_logistic_prediction_effect_subsets <- function(
+summarize_prediction_subsets <- function(
   stats,
   method = c("auc", "logloss"),
   by = NULL
@@ -28,13 +28,13 @@ summarize_logistic_prediction_effect_subsets <- function(
   required <- c("coef_id", "coef_type", "contrast", "g_1", "g_2", "a_1", "a_2", "true", "prob", "iteration")
   missing  <- setdiff(required, colnames(stats))
   if (length(missing) > 0) {
-    stop("[summarize_logistic_prediction_effect_subsets] Missing required column(s): ", paste(missing, collapse = " "))
+    stop("[summarize_prediction_subsets] Missing required column(s): ", paste(missing, collapse = " "))
   }
 
 
   ## --- Check grouping vars ---
   if (!is.null(by) && !all(by %in% colnames(stats))) {
-    stop("[summarize_logistic_prediction_effect_subsets] Grouping column(s) not found: ", paste(setdiff(by, colnames(stats)), collapse = " "))
+    stop("[summarize_prediction_subsets] Grouping column(s) not found: ", paste(setdiff(by, colnames(stats)), collapse = " "))
   }
 
   # Group by iteration + user-defined grouping

@@ -1,4 +1,4 @@
-#' Logistic prediction with glmnet
+#' Logistic regression prediction
 #'
 #' Fits elastic-net logistic models on R, tests on X and Y,
 #' tunes hyperparameters, and returns
@@ -35,7 +35,7 @@
 #' @importFrom stats cor
 #'
 #' @export
-logistic_prediction_effect <- function(
+logistic_regression_prediction <- function(
   R,
   X,
   Y,
@@ -65,7 +65,7 @@ logistic_prediction_effect <- function(
     MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "logistic_prediction_effect"
+    .fun = "logistic_regression_prediction"
   )
 
 
@@ -79,7 +79,7 @@ logistic_prediction_effect <- function(
   A_1   <- unique(MX[[a_col]])
   A_2   <- unique(MY[[a_col]])
   A_1_1 <- unique(MR[[a_col]])
-  if (A_1 != A_1_1) stop("[logistic_prediction_effect] Ancestry level must be the same in Reference (R) as in Subset (X).")
+  if (A_1 != A_1_1) stop("[logistic_regression_prediction] Ancestry level must be the same in Reference (R) as in Subset (X).")
 
   ## --- Validation ---
   expr_list <- list(R = R, X = X, Y = Y)
@@ -91,16 +91,16 @@ logistic_prediction_effect <- function(
     meta <- meta_list[[a_name]]
 
     if (!identical(rownames(matr), rownames(meta))) {
-      stop(sprintf("[logistic_prediction_effect] Matrix and meta rownames must match exactly."))
+      stop(sprintf("[logistic_regression_prediction] Matrix and meta rownames must match exactly."))
     }
 
     ## --- Ensure 2-level group ----
-    if (!is.factor(meta[[g_col]])) stop("[logistic_prediction_effect] g_col is not a factor.")
+    if (!is.factor(meta[[g_col]])) stop("[logistic_regression_prediction] g_col is not a factor.")
     g_levels <- levels(meta[[g_col]])
     a_levels <- unique(meta[[a_col]])
 
-    if (length(g_levels) != 2) stop(sprintf("[logistic_prediction_effect] Function currently supports only 2 groups (two levels in g_col)."))
-    if (length(a_levels) != 1) stop(sprintf("[logistic_prediction_effect] Function currently supports only 1 ancestry (one level in a_col)."))
+    if (length(g_levels) != 2) stop(sprintf("[logistic_regression_prediction] Function currently supports only 2 groups (two levels in g_col)."))
+    if (length(a_levels) != 1) stop(sprintf("[logistic_regression_prediction] Function currently supports only 1 ancestry (one level in a_col)."))
 
     g_1 <- g_levels[1]
     g_2 <- g_levels[2]

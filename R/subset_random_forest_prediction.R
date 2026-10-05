@@ -1,4 +1,4 @@
-#' Run repeated subset-based random forest prediction effects
+#' Run repeated subset-based random forest prediction
 #'
 #' @param X Matrix or data frame of features for subset X.
 #' @param Y Matrix or data frame of features for subset Y.
@@ -132,7 +132,7 @@ subset_random_forest_prediction <- function(
   ids_log <- do.call(rbind, lapply(parallel_res, `[[`, "ids"))
 
   ## --- Aggregation of iterations ---
-  agg_log <- summarize_logistic_prediction_effect_subsets(
+  agg_log <- summarize_prediction_subsets(
     stats  = summary_stats_log,
     method = method,
     by = NULL
