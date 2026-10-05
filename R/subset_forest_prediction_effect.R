@@ -46,12 +46,12 @@ subset_forest_prediction_effect <- function(
     MY = MY,
     g_col = g_col, 
     a_col = a_col,
-    .fun = "subset_logistic_prediction_effect"
+    .fun = "subset_forest_prediction_effect"
   )
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_logistic_prediction_effect] Workers available: %d", n_workers))
+  message(sprintf("\n[subset_forest_prediction_effect] Workers available: %d", n_workers))
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
