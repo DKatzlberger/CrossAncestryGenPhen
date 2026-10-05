@@ -89,7 +89,7 @@ subset_random_forest_prediction <- function(
 
     # Run random forest on subset
     res <- forest_prediction_effect(
-      R = split$R$matr,
+      R = split$RX$matr,
       X = split$X$matr,
       Y = split$Y$matr,
       MR = split$R$meta,

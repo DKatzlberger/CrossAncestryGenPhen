@@ -68,12 +68,10 @@ logistic_regression_prediction <- function(
     .fun = "logistic_regression_prediction"
   )
 
-
   ## --- Check data leakage ---
   if (length(intersect(rownames(R), rownames(X))) > 0) stop("Data leakage: R and X share rownames.")
   if (length(intersect(rownames(R), rownames(Y))) > 0) stop("Data leakage: R and Y share rownames.")
   if (length(intersect(rownames(X), rownames(Y))) > 0) stop("Data leakage: X and Y share rownames.")
-
 
   ## --- Ancestry validation ---
   A_1   <- unique(MX[[a_col]])
@@ -121,7 +119,6 @@ logistic_regression_prediction <- function(
 
     ## --- Frames with label ---
     prediction_frame <- cbind(meta[ , "groups", drop = FALSE], matr)
-
 
     ## --- Summary header ---
     groups_levels <- levels(meta$groups)

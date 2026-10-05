@@ -91,7 +91,7 @@ subset_logistic_regression_prediction <- function(
 
     # Run logistic regression on subset
     res <- logistic_regression_prediction(
-      R = split$R$matr,
+      R = split$RX$matr,
       X = split$X$matr,
       Y = split$Y$matr,
       MR = split$R$meta,
