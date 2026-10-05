@@ -66,7 +66,6 @@ split_stratified_ancestry_sets <- function(
 
   if (match) {
     min_overall   <- pmin(count_X, count_Y)
-    target_counts <- setNames(rep(min_overall, length(count_Y)), names(count_Y))
   } else {
     target_counts <- count_Y
   }
