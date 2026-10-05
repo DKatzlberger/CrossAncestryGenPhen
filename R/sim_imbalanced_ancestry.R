@@ -86,12 +86,10 @@ sim_imbalanced_ancestry <- function(
     ## strict check if replace = FALSE
     if (!replace) {
       if (length(i1_all) < n1_target) {
-        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d",
-                    levs[1], n1_target, length(i1_all)))
+        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d", levs[1], n1_target, length(i1_all)))
       }
       if (length(i2_all) < n2_target) {
-        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d",
-                    levs[2], n2_target, length(i2_all)))
+        stop(sprintf("[sim_imbalance_ancestry] Not enough samples in group %s: requested %d, available %d", levs[2], n2_target, length(i2_all)))
       }
     }
 
