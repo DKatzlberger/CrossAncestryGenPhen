@@ -32,7 +32,16 @@ split_stratified_ancestry_sets <- function(
   seed = NULL,
   verbose = TRUE
 ) {
-    
+
+  ## --- Helper ----
+  .safe_sample <- function(x, size, ...) {
+    if (length(x) <= 1) {
+      if (size > length(x)) stop("[.safe_sample] Size exceeds vector length.")
+      return(x[seq_len(size)])
+    }
+    sample(x, size, ...)
+  }
+
   ## --- Seed ---
   if (!is.null(seed)) set.seed(seed)
 
@@ -91,8 +100,7 @@ split_stratified_ancestry_sets <- function(
     for (i in seq_along(strata_names)) {
       stratum <- strata_names[i]
       idx <- which(vec_g_Y == stratum)
-      # target_counts[stratum] zieht jetzt garantiert die exakt korrekte Anzahl für diesen Namen
-      sampled_ids_Y[[i]] <- ids_Y[sample(idx, size = target_counts[stratum], replace = FALSE)]
+      sampled_ids_Y[[i]] <- ids_Y[.safe_sample(idx, size = target_counts[stratum], replace = FALSE)]
     }
     sampled_ids_Y <- unlist(sampled_ids_Y, use.names = FALSE)
     
@@ -100,11 +108,14 @@ split_stratified_ancestry_sets <- function(
     
     Y_matr  <- Y[mask_Y_subset, , drop = FALSE]
     Y_meta  <- MY[mask_Y_subset, , drop = FALSE]
+
     RY_matr <- Y[!mask_Y_subset, , drop = FALSE]
     RY_meta <- MY[!mask_Y_subset, , drop = FALSE]
+
   } else {
     Y_matr  <- Y
     Y_meta  <- MY
+
     RY_matr <- NULL
     RY_meta <- NULL
   }
@@ -115,7 +126,7 @@ split_stratified_ancestry_sets <- function(
   for (i in seq_along(strata_names)) {
     stratum <- strata_names[i]
     idx <- which(vec_g_X == stratum)
-    sampled_ids_X[[i]] <- ids_X[sample(idx, size = target_counts[stratum], replace = FALSE)]
+    sampled_ids_X[[i]] <- ids_X[.safe_sample(idx, size = target_counts[stratum], replace = FALSE)]
   }
   sampled_ids_X <- unlist(sampled_ids_X, use.names = FALSE)
 
