@@ -179,7 +179,7 @@ logistic_regression_prediction <- function(
 
   ## --- Hyperparameter grid --- 
   grid <- dials::grid_space_filling(
-    dials::extract_parameter_set_dials(model_spec),
+    tune::extract_parameter_set_dials(model_spec),
     size = n_models
   )
 
