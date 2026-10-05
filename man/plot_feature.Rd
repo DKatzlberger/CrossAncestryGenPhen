@@ -11,6 +11,7 @@ plot_feature(
   MY,
   x_var,
   fill_var,
+  show_outliers = TRUE,
   features = NULL,
   title = NULL,
   x_label = NULL,

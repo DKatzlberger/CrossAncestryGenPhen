@@ -25,7 +25,7 @@ Imports:
     patchwork,
     future
 Suggests:
-    BiocManager,
+    BiocManager
 URL: https://DKatzlberger.github.io/CrossAncestryGenPhen
 BugReports: https://github.com/DKatzlberger/CrossAncestryGenPhen/issues
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.1.0

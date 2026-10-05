@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimate_nbinom_params.R
 \name{estimate_nbinom_params}
 \alias{estimate_nbinom_params}
-\title{Estimate RNA-seq parameters with edgeR}
+\title{Estimate RNA-seq parameters with edgeR algorithms}
 \usage{
 estimate_nbinom_params(X, plot = TRUE, seed = NULL, verbose = TRUE)
 }

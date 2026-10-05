@@ -11,6 +11,7 @@ subset_limma_interaction_effect(
   MY,
   g_col,
   a_col,
+  match = FALSE,
   covariates = NULL,
   use_voom = TRUE,
   n_iter = 1000,
@@ -31,6 +32,8 @@ subset_limma_interaction_effect(
 \item{g_col}{Name of the genotype column in `X` used for interaction.}
 
 \item{a_col}{Name of the ancestry column used for stratified splitting.}
+
+\item{match}{Logical, whether to subset both X and Y to have 'a x g' balance.}
 
 \item{covariates}{Optional vector of covariate column names to adjust for.}
 

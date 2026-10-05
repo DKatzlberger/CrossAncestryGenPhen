@@ -11,6 +11,7 @@ split_stratified_ancestry_sets(
   MY,
   g_col,
   a_col,
+  match = FALSE,
   seed = NULL,
   verbose = TRUE
 )
@@ -28,18 +29,19 @@ split_stratified_ancestry_sets(
 
 \item{a_col}{Name of the metadata column holding the ancestry label.}
 
+\item{match}{Logical, whether to subset both X and Y to have 'a x g' balance.}
+
 \item{seed}{Optional numeric seed for reproducibility of sampling.}
 
 \item{verbose}{Logical, whether to print messages.}
 }
 \value{
 A list with the following elements (all matrices with rownames):
-\describe{
-  \item{R}{Reference set: remaining X after subsampling}
+  \item{RX}{Reference set: remaining X after subsampling}
+  \item{RY}{Reference set: remaining Y after subsampling (if match = TRUE)}
   \item{X}{Subset set: subsampled X matching Y}
-  \item{Y}{Inference set: full Y, untouched}
+  \item{Y}{Inference set: subsampled Y (if match = TRUE) or full Y}
   \item{strata_info}{list with usable/missing/insufficient strata}
-}
 }
 \description{
 Performs stratified sampling of an overrepresented group (X, e.g. EUR) to match the distribution of 

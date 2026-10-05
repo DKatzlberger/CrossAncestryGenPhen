@@ -11,6 +11,7 @@ subset_logistic_prediction_effect(
   MY,
   g_col,
   a_col,
+  match = FALSE,
   n_folds,
   n_models,
   maxit = NULL,
@@ -32,6 +33,8 @@ subset_logistic_prediction_effect(
 \item{g_col}{Name of the ancestry/group variable in metadata.}
 
 \item{a_col}{Name of the label/outcome variable.}
+
+\item{match}{Logical, whether to subset both X and Y to have 'a x g' balance.}
 
 \item{n_folds}{Number of folds for logistic model cross-validation.}
 

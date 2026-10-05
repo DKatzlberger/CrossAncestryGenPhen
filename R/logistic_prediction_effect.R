@@ -50,6 +50,7 @@ logistic_prediction_effect <- function(
   seed = NULL,
   verbose = TRUE
 ){
+  
   ## --- Seed ---
   if(!is.null(seed)) set.seed(seed)
 

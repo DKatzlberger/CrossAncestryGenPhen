@@ -52,7 +52,7 @@ reference:
      - sim_4group_expression
      - sim_imbalanced_ancestry
 
-  - title: "Visualization Functions"
+  - title: "Visualization functions"
     contents:
       - plot_BCV
       - plot_confusion_matrix
@@ -79,7 +79,7 @@ reference:
       - plot_tsne_cluster
       - plot_volcano
 
-  - title: "Utility Functions"
+  - title: "Utility functions"
     contents:
       - split_stratified_ancestry_sets
       - track_sample_ids
