@@ -14,12 +14,11 @@
 #' @param verbose Logical, whether to print messages.
 #'
 #' @return A list with the following elements (all matrices with rownames):
-#' \describe{
-#'   \item{R}{Reference set: remaining X after subsampling}
+#'   \item{RX}{Reference set: remaining X after subsampling}
+#'   \item{RY}{Reference set: remaining Y after subsampling (if match = TRUE)}
 #'   \item{X}{Subset set: subsampled X matching Y}
-#'   \item{Y}{Inference set: full Y, untouched}
+#'   \item{Y}{Inference set: subsampled Y (if match = TRUE) or full Y}
 #'   \item{strata_info}{list with usable/missing/insufficient strata}
-#' }
 #' 
 #' @export
 split_stratified_ancestry_sets <- function(
@@ -53,26 +52,28 @@ split_stratified_ancestry_sets <- function(
 
   g_levels <- levels(MX[[g_col]])
   if (length(g_levels) != 2 || length(unique(c(a_1, a_2))) != 2) {
-    stop("[split_stratified_ancestry_sets] Function supports only 2x2 designs (two levels in g_col × two levels a_col).")
+    stop("[split_stratified_ancestry_sets] Function supports only 2x2 designs (two levels in g_col x two levels a_col).")
   }
 
-  # Vektoren direkt aus den Dataframes extrahieren (vermeidet wiederholten Spaltenzugriff)
-  vec_g_X <- MX[[g_col]]
-  vec_g_Y <- MY[[g_col]]
+  # KORREKTUR: Erzwinge exakt dieselben Faktorstufen für beide Kohorten
+  vec_g_X <- factor(MX[[g_col]], levels = g_levels)
+  vec_g_Y <- factor(MY[[g_col]], levels = g_levels)
 
   ## --- Target Count Calculation ---
   count_X <- table(vec_g_X)
   count_Y <- table(vec_g_Y)
 
   if (match) {
+    # Berechne das absolute Minimum über alle Gruppen hinweg
     min_overall   <- min(c(count_X, count_Y))
-    target_counts <- setNames(rep(min_overall, length(count_Y)), names(count_Y))
+    target_counts <- setNames(rep(min_overall, length(g_levels)), g_levels)
   } else {
     target_counts <- count_Y
   }
 
-  ## --- Feasibility check ---
   strata_names <- names(target_counts)
+
+  ## --- Feasibility check ---
   insufficient <- strata_names[target_counts[strata_names] > count_X[strata_names]]
   missing      <- setdiff(strata_names, names(count_X))
 
@@ -90,6 +91,7 @@ split_stratified_ancestry_sets <- function(
     for (i in seq_along(strata_names)) {
       stratum <- strata_names[i]
       idx <- which(vec_g_Y == stratum)
+      # target_counts[stratum] zieht jetzt garantiert die exakt korrekte Anzahl für diesen Namen
       sampled_ids_Y[[i]] <- ids_Y[sample(idx, size = target_counts[stratum], replace = FALSE)]
     }
     sampled_ids_Y <- unlist(sampled_ids_Y, use.names = FALSE)
@@ -128,23 +130,23 @@ split_stratified_ancestry_sets <- function(
   if (verbose) {
     fmt_counts <- function(M_sub, g_col) {
       if (is.null(M_sub) || nrow(M_sub) == 0) return("N/A")
-      tab <- table(M_sub[[g_col]])
+      # Gewährleistet konsistente Level-Reihenfolge in der Konsolen-Ausgabe
+      tab <- table(factor(M_sub[[g_col]], levels = g_levels))
       paste(sprintf("%s: %-4d", names(tab), as.integer(tab)), collapse = " ")
     }
 
     message("\nStratified split:")
     if (match) {
       message("Enforcing 'a_col x g_col' balance.")
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Remaining RX %-8s", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Remaining RY %-8s", paste0("(", a_2, ")")), nrow(RY_matr), fmt_counts(RY_meta, g_col), ncol(RY_matr)))
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Subset    SX %-8s", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Subset    SY %-8s", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX %-8s", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RY %-8s", paste0("(", a_2, ")")), nrow(RY_matr), fmt_counts(RY_meta, g_col), ncol(RY_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    SX %-8s", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    SY %-8s", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
     } else {
       message("Enforcing 'a_col' balance.")
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Remaining RX %-8s", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Subset    SX %-8s", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
-      message(sprintf("%-20s  N %-4d %s features: %-4d", sprintf("Original  Y  %-8s", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
-
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Remaining RX %-8s", paste0("(", a_1, ")")), nrow(RX_matr), fmt_counts(RX_meta, g_col), ncol(RX_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Subset    SX %-8s", paste0("(", a_1, ")")), nrow(X_matr), fmt_counts(X_meta, g_col), ncol(X_matr)))
+      message(sprintf("%-20s  N: %-4d %s features: %-4d", sprintf("Original  Y  %-8s", paste0("(", a_2, ")")), nrow(Y_matr), fmt_counts(Y_meta, g_col), ncol(Y_matr)))
     }
   }
 
