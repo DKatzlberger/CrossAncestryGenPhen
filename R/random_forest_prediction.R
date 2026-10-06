@@ -153,7 +153,7 @@ random_forest_prediction <- function(
   model_spec <- rand_forest(
     mtry  = tune(),
     min_n = tune(),
-    trees = tune()
+    trees = 500  
   ) %>%
   set_mode("classification") %>% 
   set_engine("ranger", importance = "impurity")
