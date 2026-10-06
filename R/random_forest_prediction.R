@@ -171,8 +171,15 @@ random_forest_prediction <- function(
   )
 
   ## --- Hyperparameter grid ---
+  parameters <- tune::extract_parameter_set_dials(model_spec)
+
+  parameters <- dials::finalize(
+    parameters,
+    prediction_frames$R
+  )
+
   grid <- dials::grid_space_filling(
-    tune::extract_parameter_set_dials(model_spec),
+    parameters,
     size = n_models
   )
 
