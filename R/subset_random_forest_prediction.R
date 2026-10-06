@@ -88,7 +88,7 @@ subset_random_forest_prediction <- function(
     id <- track_sample_ids(split, i)
 
     # Run random forest on subset
-    res <- forest_prediction_effect(
+    res <- random_forest_prediction(
       R = split$RX$matr,
       X = split$X$matr,
       Y = split$Y$matr,
