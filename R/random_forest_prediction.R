@@ -151,9 +151,9 @@ random_forest_prediction <- function(
 
   # Random forest
   model_spec <- rand_forest(
-    mtry  = tune(),
+    mtry  = length(features),
     min_n = tune(),
-    trees = 100  
+    trees = 500  
   ) %>%
   set_mode("classification") %>% 
   set_engine("ranger", importance = "impurity")
@@ -171,15 +171,8 @@ random_forest_prediction <- function(
   )
 
   ## --- Hyperparameter grid ---
-  parameters <- tune::extract_parameter_set_dials(model_spec)
-
-  parameters <- dials::finalize(
-    parameters,
-    prediction_frames$R
-  )
-
   grid <- dials::grid_space_filling(
-    parameters,
+    tune::extract_parameter_set_dials(model_spec),
     size = n_models
   )
 
