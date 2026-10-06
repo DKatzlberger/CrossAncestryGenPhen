@@ -172,7 +172,7 @@ limma_interaction_effect <- function(
       data.frame(
         coef_id   = names(contrast_calculations)[i],
         coef_type = sub("_[0-9]+$", "", names(contrast_calculations)[i]),
-        contrast  = cn,
+        contrast  = contrast_calculations[[i]],
         g_1       = g_1,
         g_2       = g_2,
         a_1       = a_1,
