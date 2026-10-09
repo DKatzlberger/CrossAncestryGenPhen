@@ -4,6 +4,7 @@
 .vscode/
 
 # R settings
+.Renviron
 .Rprofile
 
 # Lib. managers
