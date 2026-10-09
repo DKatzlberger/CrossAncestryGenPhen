@@ -51,10 +51,13 @@ subset_limma_interaction_effect <- function(
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message("")
-  message(sprintf("[subset_limma_interaction_effect] Running n subsets: %s", n_iter))
-  message(sprintf("[subset_limma_interaction_effect] Stratification to: %s", match))
-  message(sprintf("[subset_limma_interaction_effect] Workers available: %s", n_workers))
+
+  if (verbose) {
+    message("")
+    message(sprintf("[subset_limma_interaction_effect] Running n subsets: %s", n_iter))
+    message(sprintf("[subset_limma_interaction_effect] Stratification to: %s", match))
+    message(sprintf("[subset_limma_interaction_effect] Workers available: %s", n_workers))
+  }
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
