@@ -49,7 +49,6 @@ random_forest_prediction <- function(
   ## --- Seed ---
   if(!is.null(seed)) set.seed(seed)
 
-
   ## --- Input data structure check ---
   assert_input(
     R = R,
@@ -63,12 +62,10 @@ random_forest_prediction <- function(
     .fun = "random_forest_prediction"
   )
 
-
   ## --- Check data leakage ---
   if (length(intersect(rownames(R), rownames(X))) > 0) stop("Data leakage: R and X share rownames.")
   if (length(intersect(rownames(R), rownames(Y))) > 0) stop("Data leakage: R and Y share rownames.")
   if (length(intersect(rownames(X), rownames(Y))) > 0) stop("Data leakage: X and Y share rownames.")
-
 
   ## --- Ancestry validation ---
   A_1   <- unique(MX[[a_col]])
@@ -153,7 +150,7 @@ random_forest_prediction <- function(
   model_spec <- rand_forest(
     mtry  = length(features),
     min_n = tune(),
-    trees = 50  
+    trees = tune()  
   ) %>%
   set_mode("classification") %>% 
   set_engine("ranger", importance = "impurity")
@@ -193,7 +190,7 @@ random_forest_prediction <- function(
     message("\nHyperparameter optimization:")
     message(sprintf("%-20s  %s %d features", "Formula:", form_str, length(features)))
     message(sprintf("%-20s  %s", "Groups:", paste(levels(prediction_frames$R$groups), collapse = "  ")))
-    message(sprintf("%-20s  %s", "Parameters:", paste("mtry:", best$mtry, "min_n:", best$min_n, "trees:", best$trees)))
+    message(sprintf("%-20s  %s", "Parameters:", paste("min_n:", best$min_n, "trees:", best$trees)))
   }
 
   ## --- Training step ---

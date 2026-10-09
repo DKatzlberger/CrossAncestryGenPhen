@@ -53,7 +53,11 @@ subset_logistic_regression_prediction <- function(
 
   ## --- Parallelization setup ---
   n_workers  <- future::nbrOfWorkers()
-  message(sprintf("\n[subset_logistic_regression_prediction] Workers available: %d", n_workers))
+  message("")
+  message(sprintf("[subset_logistic_regression_prediction] Running n subsets: %s", n_iter))
+  message(sprintf("[subset_logistic_regression_prediction] Stratification to: %s", match))
+  message(sprintf("[subset_logistic_regression_prediction] Workers available: %s", n_workers))
+
 
   ## --- Seeds for reproducibility ---
   seeds <- if (!is.null(seed)) seed + seq_len(n_iter) else rep(list(NULL), n_iter)
