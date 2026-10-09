@@ -98,20 +98,9 @@ edgeR_interaction_effect <- function(
   group_coefs <- all_coefs[group_mask]
   covar_coefs <- all_coefs[!group_mask]
 
-
   ## --- Clean coef names ---
   group_coefs <- gsub("groups", "", group_coefs)               
   colnames(design)[group_mask] <- group_coefs
-
-  if (!is.null(covariates)) {
-    for (cov in covariates) {
-      if (is.factor(meta[[cov]]) || is.character(meta[[cov]])) {
-        covar_coefs <- sub(paste0("^", cov), "", covar_coefs)
-      }
-    }
-    colnames(design)[!group_mask] <- covar_coefs
-  }
-
 
   ## --- Define contrasts ---
   cols <- colnames(design)[group_mask]
